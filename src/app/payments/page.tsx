@@ -1,0 +1,235 @@
+'use client';
+
+import { useState, useEffect, useMemo } from 'react';
+import { usePayments } from '@/hooks/usePayments';
+import { useExpenses, addExpense } from '@/hooks/useExpenses';
+import { useCurrency } from '@/hooks/useSettings';
+import { db, type Customer, type Order } from '@/lib/db';
+import { formatCurrency, isThisMonth } from '@/lib/utils';
+import PaymentCard from '@/components/PaymentCard';
+import Modal from '@/components/Modal';
+import EmptyState from '@/components/EmptyState';
+
+export default function PaymentsPage() {
+  const payments = usePayments();
+  const expenses = useExpenses();
+  const currency = useCurrency();
+  const [customers, setCustomers] = useState<Record<string, Customer>>({});
+  const [orders, setOrders] = useState<Record<string, Order>>({});
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const [expenseForm, setExpenseForm] = useState({
+    description: '',
+    amount: '',
+    category: '',
+    date: new Date().toISOString().split('T')[0],
+  });
+
+  useEffect(() => {
+    db.customers.toArray().then((custs) => {
+      const map: Record<string, Customer> = {};
+      custs.forEach((c) => { map[c.id] = c; });
+      setCustomers(map);
+    });
+    db.orders.toArray().then((ords) => {
+      const map: Record<string, Order> = {};
+      ords.forEach((o) => { map[o.id] = o; });
+      setOrders(map);
+    });
+  }, [payments]);
+
+  const monthlyReceived = useMemo(() => {
+    if (!payments) return 0;
+    return payments
+      .filter((p) => isThisMonth(p.createdAt) && p.type !== 'refund')
+      .reduce((sum, p) => sum + p.amount, 0);
+  }, [payments]);
+
+  const monthlyRefunds = useMemo(() => {
+    if (!payments) return 0;
+    return payments
+      .filter((p) => isThisMonth(p.createdAt) && p.type === 'refund')
+      .reduce((sum, p) => sum + p.amount, 0);
+  }, [payments]);
+
+  const outstandingTotal = useMemo(() => {
+    if (!payments) return 0;
+    const allOrders = Object.values(orders);
+    let total = 0;
+    allOrders.forEach((order) => {
+      if (order.status === 'cancelled') return;
+      const orderPayments = payments.filter((p) => p.orderId === order.id);
+      const paid = orderPayments.reduce((s, p) => (p.type === 'refund' ? s - p.amount : s + p.amount), 0);
+      const balance = order.totalAmount - paid;
+      if (balance > 0) total += balance;
+    });
+    return total;
+  }, [payments, orders]);
+
+  const monthlyExpenses = useMemo(() => {
+    if (!expenses) return 0;
+    return expenses
+      .filter((e) => isThisMonth(e.createdAt))
+      .reduce((sum, e) => sum + e.amount, 0);
+  }, [expenses]);
+
+  async function handleAddExpense() {
+    if (!expenseForm.description.trim() || !expenseForm.amount) {
+      alert('Please fill in description and amount');
+      return;
+    }
+    setSaving(true);
+    try {
+      await addExpense({
+        description: expenseForm.description,
+        amount: parseFloat(expenseForm.amount),
+        category: expenseForm.category,
+        date: expenseForm.date,
+      });
+      setShowExpenseModal(false);
+      setExpenseForm({ description: '', amount: '', category: '', date: new Date().toISOString().split('T')[0] });
+    } catch (err) {
+      console.error('Failed to add expense:', err);
+      alert('Failed to add expense');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="px-4 pt-4">
+      <h1 className="text-2xl font-bold text-gray-900 mb-3">Payments</h1>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="bg-white rounded-xl shadow-sm p-3">
+          <p className="text-xs text-gray-400 mb-1">Received This Month</p>
+          <p className="text-lg font-bold text-green-600">{formatCurrency(monthlyReceived - monthlyRefunds, currency)}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-3">
+          <p className="text-xs text-gray-400 mb-1">Outstanding</p>
+          <p className="text-lg font-bold text-red-600">{formatCurrency(outstandingTotal, currency)}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-3">
+          <p className="text-xs text-gray-400 mb-1">Expenses This Month</p>
+          <p className="text-lg font-bold text-gray-900">{formatCurrency(monthlyExpenses, currency)}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-3">
+          <p className="text-xs text-gray-400 mb-1">Net This Month</p>
+          <p className={`text-lg font-bold ${(monthlyReceived - monthlyRefunds - monthlyExpenses) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {formatCurrency(monthlyReceived - monthlyRefunds - monthlyExpenses, currency)}
+          </p>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setShowExpenseModal(true)}
+          className="flex-1 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+        >
+          + Add Expense
+        </button>
+      </div>
+
+      {/* Recent Payments */}
+      <h2 className="text-sm font-semibold text-gray-900 mb-2">Recent Payments</h2>
+      {payments === undefined ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : payments.length === 0 ? (
+        <EmptyState
+          title="No payments yet"
+          description="Payments will appear here when you receive them"
+        />
+      ) : (
+        <div className="space-y-2 mb-4">
+          {payments.slice(0, 20).map((p) => (
+            <PaymentCard
+              key={p.id}
+              payment={p}
+              customerName={customers[p.customerId]?.name}
+              currency={currency}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Recent Expenses */}
+      {expenses && expenses.length > 0 && (
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-gray-900 mb-2">Recent Expenses</h2>
+          <div className="space-y-2">
+            {expenses.slice(0, 10).map((e) => (
+              <div key={e.id} className="bg-white rounded-xl shadow-sm p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{e.description}</p>
+                  <p className="text-xs text-gray-400">{e.category || 'General'}</p>
+                </div>
+                <span className="text-sm font-semibold text-red-600">-{formatCurrency(e.amount, currency)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Expense Modal */}
+      <Modal
+        isOpen={showExpenseModal}
+        onClose={() => setShowExpenseModal(false)}
+        title="Add Expense"
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+            <input
+              type="text"
+              value={expenseForm.description}
+              onChange={(e) => setExpenseForm((p) => ({ ...p, description: e.target.value }))}
+              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="What was the expense?"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+            <input
+              type="number"
+              value={expenseForm.amount}
+              onChange={(e) => setExpenseForm((p) => ({ ...p, amount: e.target.value }))}
+              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="0"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <input
+              type="text"
+              value={expenseForm.category}
+              onChange={(e) => setExpenseForm((p) => ({ ...p, category: e.target.value }))}
+              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="e.g., Materials, Transport, Rent..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <input
+              type="date"
+              value={expenseForm.date}
+              onChange={(e) => setExpenseForm((p) => ({ ...p, date: e.target.value }))}
+              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <button
+            onClick={handleAddExpense}
+            disabled={saving}
+            className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          >
+            {saving ? 'Saving...' : 'Save Expense'}
+          </button>
+        </div>
+      </Modal>
+    </div>
+  );
+}
