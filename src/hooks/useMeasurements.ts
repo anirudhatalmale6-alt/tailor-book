@@ -3,23 +3,53 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type MeasurementField, DEFAULT_MEASUREMENT_FIELDS } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
+import { useEffect, useState } from 'react';
 
-export function useMeasurementFields() {
-  const fields = useLiveQuery(async () => {
-    let result = await db.measurementFields.orderBy('sortOrder').toArray();
-    if (result.length === 0) {
-      const now = new Date().toISOString();
-      const defaults: MeasurementField[] = DEFAULT_MEASUREMENT_FIELDS.map((f) => ({
-        ...f,
-        id: uuidv4(),
-        createdAt: now,
-      }));
-      await db.measurementFields.bulkAdd(defaults);
-      result = defaults;
+let seedingDone = false;
+let seedingPromise: Promise<void> | null = null;
+
+async function ensureDefaults() {
+  if (seedingDone) return;
+  if (seedingPromise) return seedingPromise;
+  seedingPromise = (async () => {
+    try {
+      const count = await db.measurementFields.count();
+      if (count === 0) {
+        const now = new Date().toISOString();
+        const defaults: MeasurementField[] = DEFAULT_MEASUREMENT_FIELDS.map((f) => ({
+          ...f,
+          id: uuidv4(),
+          createdAt: now,
+        }));
+        await db.measurementFields.bulkAdd(defaults);
+      }
+      seedingDone = true;
+    } catch (err) {
+      console.error('Failed to seed default measurement fields:', err);
+      seedingDone = true;
     }
-    return result;
-  }, []);
-  return fields;
+  })();
+  return seedingPromise;
+}
+
+export function useMeasurementFields(): MeasurementField[] | undefined {
+  const [ready, setReady] = useState(seedingDone);
+
+  useEffect(() => {
+    if (!ready) {
+      ensureDefaults().then(() => setReady(true));
+    }
+  }, [ready]);
+
+  const fields = useLiveQuery(
+    async () => {
+      if (!ready) return undefined;
+      return db.measurementFields.orderBy('sortOrder').toArray();
+    },
+    [ready]
+  );
+
+  return fields ?? undefined;
 }
 
 export function useCustomerMeasurements(customerId: string) {
