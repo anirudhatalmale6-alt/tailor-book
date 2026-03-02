@@ -6,9 +6,10 @@ import { useOrders } from '@/hooks/useOrders';
 import { usePayments } from '@/hooks/usePayments';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useCurrency } from '@/hooks/useSettings';
-import { db, type Customer } from '@/lib/db';
-import { formatCurrency, isThisMonth, getStatusColor, getStatusLabel } from '@/lib/utils';
+import { db, type Customer, type Order } from '@/lib/db';
+import { formatCurrency, formatDate, isThisMonth, getStatusColor, getStatusLabel } from '@/lib/utils';
 import OrderCard from '@/components/OrderCard';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const orders = useOrders();
@@ -17,6 +18,7 @@ export default function DashboardPage() {
   const currency = useCurrency();
   const router = useRouter();
   const [customers, setCustomers] = useState<Record<string, Customer>>({});
+  const [dismissedReminders, setDismissedReminders] = useState(false);
 
   useEffect(() => {
     db.customers.toArray().then((custs) => {
@@ -24,6 +26,40 @@ export default function DashboardPage() {
       custs.forEach((c) => { map[c.id] = c; });
       setCustomers(map);
     });
+  }, [orders]);
+
+  // Delivery date reminders
+  const { dueToday, overdue, dueSoon } = useMemo(() => {
+    if (!orders) return { dueToday: [], overdue: [], dueSoon: [] };
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const threeDays = new Date(today);
+    threeDays.setDate(threeDays.getDate() + 3);
+
+    const activeOrders = orders.filter(
+      (o) => o.deliveryDate && o.status !== 'delivered' && o.status !== 'cancelled'
+    );
+
+    const dueTodayList: Order[] = [];
+    const overdueList: Order[] = [];
+    const dueSoonList: Order[] = [];
+
+    activeOrders.forEach((order) => {
+      const dd = new Date(order.deliveryDate);
+      const deliveryDay = new Date(dd.getFullYear(), dd.getMonth(), dd.getDate());
+
+      if (deliveryDay.getTime() === today.getTime()) {
+        dueTodayList.push(order);
+      } else if (deliveryDay < today) {
+        overdueList.push(order);
+      } else if (deliveryDay > today && deliveryDay <= threeDays) {
+        dueSoonList.push(order);
+      }
+    });
+
+    return { dueToday: dueTodayList, overdue: overdueList, dueSoon: dueSoonList };
   }, [orders]);
 
   const monthlyRevenue = useMemo(() => {
@@ -79,9 +115,120 @@ export default function DashboardPage() {
     return orders.slice(0, 5);
   }, [orders]);
 
+  const hasReminders = overdue.length > 0 || dueToday.length > 0 || dueSoon.length > 0;
+
   return (
     <div className="px-4 pt-4">
       <h1 className="text-2xl font-bold text-gray-900 mb-4">Dashboard</h1>
+
+      {/* Delivery Date Reminders */}
+      {hasReminders && !dismissedReminders && (
+        <div className="mb-4 space-y-2">
+          {/* Overdue Orders — Red Alert */}
+          {overdue.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+              <div className="flex items-start gap-2">
+                <div className="mt-0.5 flex-shrink-0">
+                  <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-red-800">
+                    {overdue.length} Overdue Order{overdue.length !== 1 ? 's' : ''}
+                  </p>
+                  <div className="mt-1 space-y-1">
+                    {overdue.map((order) => (
+                      <Link key={order.id} href={`/orders/${order.id}`} className="block">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-red-700 font-medium truncate">
+                            {customers[order.customerId]?.name || 'Customer'} — {order.fabricType || 'Order'}
+                          </span>
+                          <span className="text-red-500 flex-shrink-0 ml-2">
+                            Due {formatDate(order.deliveryDate)}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Due Today — Orange Alert */}
+          {dueToday.length > 0 && (
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-3">
+              <div className="flex items-start gap-2">
+                <div className="mt-0.5 flex-shrink-0">
+                  <svg className="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-orange-800">
+                    {dueToday.length} Order{dueToday.length !== 1 ? 's' : ''} Due Today
+                  </p>
+                  <div className="mt-1 space-y-1">
+                    {dueToday.map((order) => (
+                      <Link key={order.id} href={`/orders/${order.id}`} className="block">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-orange-700 font-medium truncate">
+                            {customers[order.customerId]?.name || 'Customer'} — {order.fabricType || 'Order'}
+                          </span>
+                          <span className="text-orange-500 flex-shrink-0 ml-2">
+                            {order.status === 'ready' ? 'Ready for pickup' : getStatusLabel(order.status)}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Due Soon (within 3 days) — Blue Info */}
+          {dueSoon.length > 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+              <div className="flex items-start gap-2">
+                <div className="mt-0.5 flex-shrink-0">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-blue-800">
+                    {dueSoon.length} Order{dueSoon.length !== 1 ? 's' : ''} Due Soon
+                  </p>
+                  <div className="mt-1 space-y-1">
+                    {dueSoon.map((order) => (
+                      <Link key={order.id} href={`/orders/${order.id}`} className="block">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-blue-700 font-medium truncate">
+                            {customers[order.customerId]?.name || 'Customer'} — {order.fabricType || 'Order'}
+                          </span>
+                          <span className="text-blue-500 flex-shrink-0 ml-2">
+                            Due {formatDate(order.deliveryDate)}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Dismiss button */}
+          <button
+            onClick={() => setDismissedReminders(true)}
+            className="w-full text-center text-xs text-gray-400 py-1"
+          >
+            Dismiss reminders
+          </button>
+        </div>
+      )}
 
       {/* Revenue Cards */}
       <div className="grid grid-cols-2 gap-2 mb-4">
