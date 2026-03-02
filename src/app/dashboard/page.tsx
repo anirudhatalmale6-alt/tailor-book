@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useOrders } from '@/hooks/useOrders';
 import { usePayments } from '@/hooks/usePayments';
 import { useExpenses } from '@/hooks/useExpenses';
+import { useProjects } from '@/hooks/useProjects';
 import { useCurrency } from '@/hooks/useSettings';
 import { db, type Customer, type Order } from '@/lib/db';
 import { formatCurrency, formatDate, isThisMonth, getStatusColor, getStatusLabel } from '@/lib/utils';
@@ -15,6 +16,7 @@ export default function DashboardPage() {
   const orders = useOrders();
   const payments = usePayments();
   const expenses = useExpenses();
+  const projects = useProjects();
   const currency = useCurrency();
   const router = useRouter();
   const [customers, setCustomers] = useState<Record<string, Customer>>({});
@@ -109,6 +111,11 @@ export default function DashboardPage() {
     });
     return counts;
   }, [orders]);
+
+  const activeProjectCount = useMemo(() => {
+    if (!projects) return 0;
+    return projects.filter((p) => p.status === 'active').length;
+  }, [projects]);
 
   const recentOrders = useMemo(() => {
     if (!orders) return [];
@@ -251,6 +258,25 @@ export default function DashboardPage() {
           <p className="text-xl font-bold text-orange-600">{formatCurrency(outstandingDebts, currency)}</p>
         </div>
       </div>
+
+      {/* Active Projects Card */}
+      <button
+        onClick={() => router.push('/projects')}
+        className="w-full bg-white rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between active:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-semibold text-gray-900">Active Projects</p>
+            <p className="text-xs text-gray-400">Tap to view all projects</p>
+          </div>
+        </div>
+        <p className="text-2xl font-bold text-indigo-600">{activeProjectCount}</p>
+      </button>
 
       {/* Active Orders by Status */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-4">

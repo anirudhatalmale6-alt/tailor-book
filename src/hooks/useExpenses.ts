@@ -20,6 +20,7 @@ export async function addExpense(
   const id = uuidv4();
   await db.expenses.add({
     ...data,
+    expenseType: data.expenseType || 'business',
     id,
     createdAt: new Date().toISOString(),
   });

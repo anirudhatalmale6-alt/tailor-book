@@ -28,6 +28,7 @@ export default function PaymentsPage() {
     amount: '',
     category: '',
     date: new Date().toISOString().split('T')[0],
+    expenseType: 'business' as 'business' | 'sewing',
   });
 
   useEffect(() => {
@@ -89,10 +90,17 @@ export default function PaymentsPage() {
         description: expenseForm.description,
         amount: parseFloat(expenseForm.amount),
         category: expenseForm.category,
+        expenseType: expenseForm.expenseType,
         date: expenseForm.date,
       });
       setShowExpenseModal(false);
-      setExpenseForm({ description: '', amount: '', category: '', date: new Date().toISOString().split('T')[0] });
+      setExpenseForm({
+        description: '',
+        amount: '',
+        category: '',
+        date: new Date().toISOString().split('T')[0],
+        expenseType: 'business',
+      });
     } catch (err) {
       console.error('Failed to add expense:', err);
       alert('Failed to add expense');
@@ -200,7 +208,16 @@ export default function PaymentsPage() {
             {expenses.slice(0, 10).map((e) => (
               <div key={e.id} className="bg-white rounded-xl shadow-sm p-3 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{e.description}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-medium text-gray-900">{e.description}</p>
+                    <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-medium ${
+                      (e.expenseType || 'business') === 'sewing'
+                        ? 'bg-purple-50 text-purple-600'
+                        : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {(e.expenseType || 'business') === 'sewing' ? 'Sewing' : 'Business'}
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-400">{e.category || 'General'}</p>
                 </div>
                 <span className="text-sm font-semibold text-red-600">-{formatCurrency(e.amount, currency)}</span>
@@ -217,6 +234,32 @@ export default function PaymentsPage() {
         title="Add Expense"
       >
         <div className="space-y-3">
+          {/* Expense Type Toggle */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Expense Type</label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setExpenseForm((p) => ({ ...p, expenseType: 'business' }))}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+                  expenseForm.expenseType === 'business'
+                    ? 'bg-gray-100 border-gray-400 text-gray-800'
+                    : 'bg-white border-gray-200 text-gray-500'
+                }`}
+              >
+                Business
+              </button>
+              <button
+                onClick={() => setExpenseForm((p) => ({ ...p, expenseType: 'sewing' }))}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+                  expenseForm.expenseType === 'sewing'
+                    ? 'bg-purple-50 border-purple-300 text-purple-700'
+                    : 'bg-white border-gray-200 text-gray-500'
+                }`}
+              >
+                Sewing
+              </button>
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
             <input

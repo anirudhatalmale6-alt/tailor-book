@@ -63,8 +63,37 @@ export interface Expense {
   description: string;
   amount: number;
   category: string;
+  expenseType: 'business' | 'sewing';
+  projectId?: string;
+  projectItemId?: string;
   date: string;
   createdAt: string;
+}
+
+export interface Project {
+  id: string;
+  customerId: string;
+  name: string;
+  notes: string;
+  status: 'active' | 'completed' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectItem {
+  id: string;
+  projectId: string;
+  name: string;
+  measurements: Record<string, string | number>;
+  fabricType: string;
+  styleDescription: string;
+  styleImages: string[];
+  price: number;
+  status: 'pending' | 'in_progress' | 'ready' | 'delivered';
+  deliveryDate: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface InvoiceItem {
@@ -104,6 +133,8 @@ class TailorDB extends Dexie {
   expenses!: Table<Expense>;
   settings!: Table<AppSettings>;
   invoices!: Table<Invoice>;
+  projects!: Table<Project>;
+  projectItems!: Table<ProjectItem>;
 
   constructor() {
     super('TailorBookDB');
@@ -125,6 +156,24 @@ class TailorDB extends Dexie {
       expenses: 'id, category, date, createdAt',
       settings: 'key',
       invoices: 'id, invoiceNumber, orderId, customerId, createdAt',
+    });
+    this.version(3).stores({
+      customers: 'id, name, phone, createdAt',
+      measurementFields: 'id, name, category, sortOrder',
+      measurements: 'id, customerId, createdAt',
+      orders: 'id, customerId, status, deliveryDate, createdAt',
+      payments: 'id, orderId, customerId, createdAt',
+      expenses: 'id, category, date, createdAt, expenseType, projectId',
+      settings: 'key',
+      invoices: 'id, invoiceNumber, orderId, customerId, createdAt',
+      projects: 'id, customerId, status, createdAt',
+      projectItems: 'id, projectId, status, createdAt',
+    }).upgrade(tx => {
+      return tx.table('expenses').toCollection().modify(expense => {
+        if (!expense.expenseType) {
+          expense.expenseType = 'business';
+        }
+      });
     });
   }
 }
