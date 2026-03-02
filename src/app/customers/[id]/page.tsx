@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useCustomer } from '@/hooks/useCustomers';
-import { useMeasurementFields, useCustomerMeasurements, addMeasurement } from '@/hooks/useMeasurements';
+import { useMeasurementFields, useCustomerMeasurements, addMeasurement, addMeasurementField } from '@/hooks/useMeasurements';
 import { useCustomerOrders } from '@/hooks/useOrders';
 import { useCustomerPayments } from '@/hooks/usePayments';
 import { useCurrency } from '@/hooks/useSettings';
@@ -32,6 +32,10 @@ export default function CustomerDetailPage() {
   const [measurementNotes, setMeasurementNotes] = useState('');
   const [showHistoryId, setShowHistoryId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showAddField, setShowAddField] = useState(false);
+  const [newFieldName, setNewFieldName] = useState('');
+  const [newFieldUnit, setNewFieldUnit] = useState<'inches' | 'cm'>('inches');
+  const [addingField, setAddingField] = useState(false);
 
   const latestMeasurement = measurements && measurements.length > 0 ? measurements[0] : null;
 
@@ -74,6 +78,27 @@ export default function CustomerDetailPage() {
       alert('Failed to save measurement');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleAddFieldInline() {
+    if (!newFieldName.trim()) return;
+    setAddingField(true);
+    try {
+      const maxSort = fields ? Math.max(0, ...fields.map((f) => f.sortOrder)) : 0;
+      await addMeasurementField({
+        name: newFieldName.trim(),
+        unit: newFieldUnit,
+        category: 'General',
+        sortOrder: maxSort + 1,
+      });
+      setNewFieldName('');
+      setShowAddField(false);
+    } catch (err) {
+      console.error('Failed to add field:', err);
+      alert('Failed to add measurement field');
+    } finally {
+      setAddingField(false);
     }
   }
 
@@ -391,6 +416,62 @@ export default function CustomerDetailPage() {
             </div>
           </div>
         ))}
+        {/* Add New Field Inline */}
+        <div className="mb-4">
+          {!showAddField ? (
+            <button
+              onClick={() => setShowAddField(true)}
+              className="w-full py-2.5 border-2 border-dashed border-indigo-300 text-indigo-600 rounded-xl text-sm font-medium hover:bg-indigo-50 transition-colors flex items-center justify-center gap-1"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Add New Measurement Field
+            </button>
+          ) : (
+            <div className="bg-indigo-50 rounded-xl p-3 space-y-2">
+              <input
+                type="text"
+                value={newFieldName}
+                onChange={(e) => setNewFieldName(e.target.value)}
+                className="w-full px-3 py-2 bg-white rounded-lg border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Field name (e.g., Thigh, Calf...)"
+                autoFocus
+              />
+              <div className="flex gap-2">
+                {(['inches', 'cm'] as const).map((u) => (
+                  <button
+                    key={u}
+                    onClick={() => setNewFieldUnit(u)}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      newFieldUnit === u
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-white text-gray-600 border border-gray-200'
+                    }`}
+                  >
+                    {u}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowAddField(false); setNewFieldName(''); }}
+                  className="flex-1 py-2 bg-white text-gray-600 rounded-lg text-sm font-medium border border-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddFieldInline}
+                  disabled={addingField || !newFieldName.trim()}
+                  className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {addingField ? 'Adding...' : 'Add Field'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="mb-4">
           <label className="block text-sm text-gray-600 mb-1">Notes</label>
           <textarea
