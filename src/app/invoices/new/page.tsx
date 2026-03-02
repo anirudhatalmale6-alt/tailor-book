@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { db, type Customer, type Order, type Payment, type InvoiceItem } from '@/lib/db';
+import { db, type Customer, type Order, type Payment, type InvoiceItem, type Project, type ProjectItem } from '@/lib/db';
 import { addInvoice, generateInvoiceNumber } from '@/hooks/useInvoices';
 import { useCurrency, useTaxRate } from '@/hooks/useSettings';
 import { formatCurrency } from '@/lib/utils';
@@ -25,11 +25,13 @@ function NewInvoiceForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
+  const projectId = searchParams.get('projectId');
   const currency = useCurrency();
   const defaultTaxRate = useTaxRate();
 
   const [saving, setSaving] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [taxRate, setTaxRate] = useState('0');
@@ -39,7 +41,7 @@ function NewInvoiceForm() {
   ]);
   const [amountPaid, setAmountPaid] = useState(0);
 
-  // Load order data and generate invoice number
+  // Generate invoice number
   useEffect(() => {
     generateInvoiceNumber().then(setInvoiceNumber);
   }, []);
@@ -48,6 +50,7 @@ function NewInvoiceForm() {
     setTaxRate(defaultTaxRate.toString());
   }, [defaultTaxRate]);
 
+  // Load ORDER-based invoice data
   useEffect(() => {
     if (!orderId) return;
     (async () => {
@@ -58,7 +61,6 @@ function NewInvoiceForm() {
       const cust = await db.customers.get(ord.customerId);
       if (cust) setCustomer(cust);
 
-      // Get payments for this order
       const payments = await db.payments
         .where('orderId')
         .equals(orderId)
@@ -69,7 +71,6 @@ function NewInvoiceForm() {
       );
       setAmountPaid(totalPaid);
 
-      // Pre-fill line items from order
       const orderItems: InvoiceItem[] = [];
       if (ord.fabricType || ord.styleDescription) {
         orderItems.push({
@@ -89,6 +90,58 @@ function NewInvoiceForm() {
       setItems(orderItems);
     })();
   }, [orderId]);
+
+  // Load PROJECT-based invoice data
+  useEffect(() => {
+    if (!projectId) return;
+    (async () => {
+      const proj = await db.projects.get(projectId);
+      if (!proj) return;
+      setProject(proj);
+
+      const cust = await db.customers.get(proj.customerId);
+      if (cust) setCustomer(cust);
+
+      // Get all sub-clients for this project
+      const projectItems = await db.projectItems
+        .where('projectId')
+        .equals(projectId)
+        .toArray();
+
+      // Get project expenses
+      const projectExpenses = await db.expenses
+        .where('projectId')
+        .equals(projectId)
+        .toArray();
+      const totalExpenses = projectExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+      // Create line items from sub-clients
+      const invoiceItems: InvoiceItem[] = projectItems.map((item: ProjectItem) => ({
+        description: [item.name, item.fabricType, item.styleDescription]
+          .filter(Boolean)
+          .join(' - ') || item.name,
+        quantity: 1,
+        unitPrice: item.price || 0,
+        total: item.price || 0,
+      }));
+
+      // Add expenses as a separate line if any
+      if (totalExpenses > 0) {
+        invoiceItems.push({
+          description: 'Materials & Sewing Expenses',
+          quantity: 1,
+          unitPrice: totalExpenses,
+          total: totalExpenses,
+        });
+      }
+
+      if (invoiceItems.length === 0) {
+        invoiceItems.push({ description: '', quantity: 1, unitPrice: 0, total: 0 });
+      }
+
+      setItems(invoiceItems);
+    })();
+  }, [projectId]);
 
   const subtotal = useMemo(() => {
     return items.reduce((sum, item) => sum + item.total, 0);
@@ -130,12 +183,18 @@ function NewInvoiceForm() {
   }
 
   async function handleSave() {
-    if (!orderId || !order) {
-      alert('No order linked to this invoice');
+    if (!orderId && !projectId) {
+      alert('No order or project linked to this invoice');
       return;
     }
     if (items.every((item) => !item.description.trim())) {
       alert('Please add at least one item with a description');
+      return;
+    }
+
+    const customerId = order?.customerId || project?.customerId || '';
+    if (!customerId) {
+      alert('No customer linked');
       return;
     }
 
@@ -144,8 +203,9 @@ function NewInvoiceForm() {
       const rate = parseFloat(taxRate) || 0;
       const invoiceId = await addInvoice({
         invoiceNumber,
-        orderId,
-        customerId: order.customerId,
+        orderId: orderId || '',
+        customerId,
+        projectId: projectId || undefined,
         items: items.filter((item) => item.description.trim()),
         subtotal,
         tax: taxAmount,
@@ -165,7 +225,7 @@ function NewInvoiceForm() {
   }
 
   return (
-    <div className="px-4 pt-4">
+    <div className="px-4 pt-4 pb-24">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <button onClick={() => router.back()} className="p-1 text-gray-600">
@@ -176,7 +236,7 @@ function NewInvoiceForm() {
         <h1 className="text-xl font-bold text-gray-900">Create Invoice</h1>
       </div>
 
-      {/* Invoice Number */}
+      {/* Invoice Number & Customer Info */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-3">
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-500">Invoice Number</span>
@@ -184,9 +244,17 @@ function NewInvoiceForm() {
         </div>
         {customer && (
           <div className="mt-2 pt-2 border-t border-gray-100">
-            <span className="text-xs text-gray-400">Customer</span>
+            <span className="text-xs text-gray-400">Bill To</span>
             <p className="text-sm font-medium text-gray-900">{customer.name}</p>
             {customer.phone && <p className="text-xs text-gray-500">{customer.phone}</p>}
+            {customer.email && <p className="text-xs text-gray-500">{customer.email}</p>}
+            {customer.address && <p className="text-xs text-gray-500 mt-0.5">{customer.address}</p>}
+          </div>
+        )}
+        {project && (
+          <div className="mt-2 pt-2 border-t border-gray-100">
+            <span className="text-xs text-gray-400">Project</span>
+            <p className="text-sm font-medium text-gray-900">{project.name}</p>
           </div>
         )}
       </div>
@@ -287,8 +355,18 @@ function NewInvoiceForm() {
             <span className="text-sm font-bold text-gray-900">{formatCurrency(total, currency)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-500">Amount Paid</span>
-            <span className="text-sm font-medium text-green-600">{formatCurrency(amountPaid, currency)}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Amount Paid</span>
+            </div>
+            <input
+              type="number"
+              value={amountPaid || ''}
+              onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
+              className="w-28 px-2 py-1 bg-gray-50 rounded border border-gray-200 text-gray-900 text-sm text-right focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              min="0"
+              step="0.01"
+              placeholder="0"
+            />
           </div>
           <div className="flex justify-between items-center pt-2 border-t border-gray-100">
             <span className="text-sm font-semibold text-gray-700">Balance Due</span>

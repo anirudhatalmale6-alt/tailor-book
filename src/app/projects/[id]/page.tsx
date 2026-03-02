@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useProject, useProjectItems, useProjectExpenses, deleteProject, deleteProjectItem } from '@/hooks/useProjects';
 import { addExpense } from '@/hooks/useExpenses';
+import { useProjectInvoice } from '@/hooks/useInvoices';
 import { useCustomer } from '@/hooks/useCustomers';
 import { useCurrency } from '@/hooks/useSettings';
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils';
@@ -20,6 +21,7 @@ export default function ProjectDetailPage() {
   const expenses = useProjectExpenses(projectId);
   const customer = useCustomer(project?.customerId || '');
   const currency = useCurrency();
+  const existingInvoice = useProjectInvoice(projectId);
 
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
@@ -140,7 +142,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-2">
         <button
           onClick={() => router.push(`/projects/new?edit=${project.id}`)}
           className="flex-1 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
@@ -153,6 +155,31 @@ export default function ProjectDetailPage() {
         >
           Delete
         </button>
+      </div>
+
+      {/* Invoice Button */}
+      <div className="mb-4">
+        {existingInvoice ? (
+          <button
+            onClick={() => router.push(`/invoices/${existingInvoice.id}`)}
+            className="w-full py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm font-medium hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            View Invoice ({existingInvoice.invoiceNumber})
+          </button>
+        ) : (
+          <button
+            onClick={() => router.push(`/invoices/new?projectId=${projectId}`)}
+            className="w-full py-2.5 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-sm font-medium hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Generate Invoice
+          </button>
+        )}
       </div>
 
       {/* Notes */}

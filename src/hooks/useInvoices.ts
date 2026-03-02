@@ -31,6 +31,20 @@ export function useOrderInvoice(orderId: string) {
   return invoice;
 }
 
+export function useProjectInvoice(projectId: string) {
+  const invoice = useLiveQuery(
+    () =>
+      projectId
+        ? db.invoices
+            .where('projectId')
+            .equals(projectId)
+            .first()
+        : undefined,
+    [projectId]
+  );
+  return invoice;
+}
+
 export async function generateInvoiceNumber(): Promise<string> {
   const allInvoices = await db.invoices.toArray();
   const maxNum = allInvoices.reduce((max, inv) => {

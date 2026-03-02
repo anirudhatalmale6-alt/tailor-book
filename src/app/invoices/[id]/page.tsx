@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useInvoice } from '@/hooks/useInvoices';
 import { useCurrency, useBusinessName } from '@/hooks/useSettings';
-import { db, type Customer, type Order } from '@/lib/db';
+import { db, type Customer, type Order, type Project } from '@/lib/db';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import EmptyState from '@/components/EmptyState';
 
@@ -18,6 +18,7 @@ export default function InvoiceViewPage() {
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [order, setOrder] = useState<Order | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
 
   useEffect(() => {
     if (invoice?.customerId) {
@@ -26,7 +27,10 @@ export default function InvoiceViewPage() {
     if (invoice?.orderId) {
       db.orders.get(invoice.orderId).then((o) => setOrder(o || null));
     }
-  }, [invoice?.customerId, invoice?.orderId]);
+    if (invoice?.projectId) {
+      db.projects.get(invoice.projectId).then((p) => setProject(p || null));
+    }
+  }, [invoice?.customerId, invoice?.orderId, invoice?.projectId]);
 
   function handlePrint() {
     window.print();
@@ -40,7 +44,17 @@ export default function InvoiceViewPage() {
       `From: ${businessName}`,
       `Date: ${formatDate(invoice.createdAt)}`,
       '',
-      `Customer: ${customer.name}`,
+      `*Bill To:* ${customer.name}`,
+    ];
+
+    if (customer.phone) lines.push(`Phone: ${customer.phone}`);
+    if (customer.address) lines.push(`Address: ${customer.address}`);
+
+    if (project) {
+      lines.push('', `*Project:* ${project.name}`);
+    }
+
+    lines.push(
       '',
       '*Items:*',
       ...invoice.items.map(
@@ -48,8 +62,8 @@ export default function InvoiceViewPage() {
           `- ${item.description} (x${item.quantity}) = ${formatCurrency(item.total, currency)}`
       ),
       '',
-      `Subtotal: ${formatCurrency(invoice.subtotal, currency)}`,
-    ];
+      `Subtotal: ${formatCurrency(invoice.subtotal, currency)}`
+    );
 
     if (invoice.tax > 0) {
       lines.push(`Tax (${invoice.taxRate}%): ${formatCurrency(invoice.tax, currency)}`);
@@ -119,7 +133,7 @@ export default function InvoiceViewPage() {
           </div>
         </div>
 
-        {/* Customer & Order Info */}
+        {/* Customer & Order/Project Info */}
         <div className="px-5 py-4 border-b border-gray-100">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -128,21 +142,30 @@ export default function InvoiceViewPage() {
                 <>
                   <p className="text-sm font-semibold text-gray-900">{customer.name}</p>
                   {customer.phone && <p className="text-xs text-gray-500">{customer.phone}</p>}
+                  {customer.email && <p className="text-xs text-gray-500">{customer.email}</p>}
                   {customer.address && <p className="text-xs text-gray-500 mt-0.5">{customer.address}</p>}
                 </>
               )}
             </div>
-            {order && (
-              <div className="text-right">
-                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Order Details</p>
-                {order.fabricType && (
-                  <p className="text-xs text-gray-600">Fabric: {order.fabricType}</p>
-                )}
-                {order.deliveryDate && (
-                  <p className="text-xs text-gray-600">Delivery: {formatDate(order.deliveryDate)}</p>
-                )}
-              </div>
-            )}
+            <div className="text-right">
+              {project && (
+                <>
+                  <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Project</p>
+                  <p className="text-xs font-medium text-gray-900">{project.name}</p>
+                </>
+              )}
+              {order && !project && (
+                <>
+                  <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Order Details</p>
+                  {order.fabricType && (
+                    <p className="text-xs text-gray-600">Fabric: {order.fabricType}</p>
+                  )}
+                  {order.deliveryDate && (
+                    <p className="text-xs text-gray-600">Delivery: {formatDate(order.deliveryDate)}</p>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -240,7 +263,15 @@ export default function InvoiceViewPage() {
             Print / PDF
           </button>
         </div>
-        {order && (
+        {project && (
+          <button
+            onClick={() => router.push(`/projects/${project.id}`)}
+            className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium text-sm hover:bg-gray-50 transition-colors"
+          >
+            View Project
+          </button>
+        )}
+        {order && !project && (
           <button
             onClick={() => router.push(`/orders/${order.id}`)}
             className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium text-sm hover:bg-gray-50 transition-colors"

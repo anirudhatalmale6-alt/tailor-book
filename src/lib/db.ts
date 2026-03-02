@@ -109,6 +109,7 @@ export interface Invoice {
   invoiceNumber: string;
   orderId: string;
   customerId: string;
+  projectId?: string;
   items: InvoiceItem[];
   subtotal: number;
   tax: number;
@@ -193,6 +194,18 @@ class TailorDB extends Dexie {
           customer.contactType = 'client';
         }
       });
+    });
+    this.version(5).stores({
+      customers: 'id, name, phone, contactType, createdAt',
+      measurementFields: 'id, name, category, sortOrder',
+      measurements: 'id, customerId, createdAt',
+      orders: 'id, customerId, status, deliveryDate, createdAt',
+      payments: 'id, orderId, customerId, createdAt',
+      expenses: 'id, category, date, createdAt, expenseType, projectId',
+      settings: 'key',
+      invoices: 'id, invoiceNumber, orderId, customerId, projectId, createdAt',
+      projects: 'id, customerId, status, createdAt',
+      projectItems: 'id, projectId, status, createdAt',
     });
   }
 }
