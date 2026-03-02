@@ -67,6 +67,29 @@ export interface Expense {
   createdAt: string;
 }
 
+export interface InvoiceItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  orderId: string;
+  customerId: string;
+  items: InvoiceItem[];
+  subtotal: number;
+  tax: number;
+  taxRate: number;
+  total: number;
+  amountPaid: number;
+  balanceDue: number;
+  notes: string;
+  createdAt: string;
+}
+
 export interface AppSettings {
   key: string;
   value: string;
@@ -80,6 +103,7 @@ class TailorDB extends Dexie {
   payments!: Table<Payment>;
   expenses!: Table<Expense>;
   settings!: Table<AppSettings>;
+  invoices!: Table<Invoice>;
 
   constructor() {
     super('TailorBookDB');
@@ -91,6 +115,16 @@ class TailorDB extends Dexie {
       payments: 'id, orderId, customerId, createdAt',
       expenses: 'id, category, date, createdAt',
       settings: 'key',
+    });
+    this.version(2).stores({
+      customers: 'id, name, phone, createdAt',
+      measurementFields: 'id, name, category, sortOrder',
+      measurements: 'id, customerId, createdAt',
+      orders: 'id, customerId, status, deliveryDate, createdAt',
+      payments: 'id, orderId, customerId, createdAt',
+      expenses: 'id, category, date, createdAt',
+      settings: 'key',
+      invoices: 'id, invoiceNumber, orderId, customerId, createdAt',
     });
   }
 }

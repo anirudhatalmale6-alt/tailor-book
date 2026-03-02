@@ -7,7 +7,7 @@ import {
   updateMeasurementField,
   deleteMeasurementField,
 } from '@/hooks/useMeasurements';
-import { useBusinessName, useCurrency, setSetting } from '@/hooks/useSettings';
+import { useBusinessName, useCurrency, useTaxRate, setSetting } from '@/hooks/useSettings';
 import { db, type MeasurementField } from '@/lib/db';
 import Modal from '@/components/Modal';
 
@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const fields = useMeasurementFields();
   const businessName = useBusinessName();
   const currency = useCurrency();
+  const taxRate = useTaxRate();
 
   const [showFieldModal, setShowFieldModal] = useState(false);
   const [editingField, setEditingField] = useState<MeasurementField | null>(null);
@@ -26,8 +27,10 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [bizName, setBizName] = useState('');
   const [curr, setCurr] = useState('');
+  const [tax, setTax] = useState('');
   const [bizNameInit, setBizNameInit] = useState(false);
   const [currInit, setCurrInit] = useState(false);
+  const [taxInit, setTaxInit] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (businessName && !bizNameInit) {
@@ -37,6 +40,10 @@ export default function SettingsPage() {
   if (currency && !currInit) {
     setCurr(currency);
     setCurrInit(true);
+  }
+  if (!taxInit && taxRate !== undefined) {
+    setTax(taxRate.toString());
+    setTaxInit(true);
   }
 
   function openAddField() {
@@ -108,6 +115,12 @@ export default function SettingsPage() {
     alert('Currency saved');
   }
 
+  async function handleSaveTaxRate() {
+    const rate = parseFloat(tax) || 0;
+    await setSetting('taxRate', rate.toString());
+    alert('Tax rate saved');
+  }
+
   async function handleExport() {
     try {
       const data = {
@@ -117,6 +130,7 @@ export default function SettingsPage() {
         orders: await db.orders.toArray(),
         payments: await db.payments.toArray(),
         expenses: await db.expenses.toArray(),
+        invoices: await db.invoices.toArray(),
         settings: await db.settings.toArray(),
         exportedAt: new Date().toISOString(),
         version: '1.0',
@@ -152,6 +166,7 @@ export default function SettingsPage() {
       await db.orders.clear();
       await db.payments.clear();
       await db.expenses.clear();
+      await db.invoices.clear();
       await db.settings.clear();
 
       if (data.customers?.length) await db.customers.bulkAdd(data.customers);
@@ -160,6 +175,7 @@ export default function SettingsPage() {
       if (data.orders?.length) await db.orders.bulkAdd(data.orders);
       if (data.payments?.length) await db.payments.bulkAdd(data.payments);
       if (data.expenses?.length) await db.expenses.bulkAdd(data.expenses);
+      if (data.invoices?.length) await db.invoices.bulkAdd(data.invoices);
       if (data.settings?.length) await db.settings.bulkAdd(data.settings);
 
       alert('Data imported successfully! The page will reload.');
@@ -226,6 +242,28 @@ export default function SettingsPage() {
                 Save
               </button>
             </div>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Tax Rate (%)</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={tax}
+                onChange={(e) => setTax(e.target.value)}
+                className="flex-1 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="0"
+                min="0"
+                max="100"
+                step="0.1"
+              />
+              <button
+                onClick={handleSaveTaxRate}
+                className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700"
+              >
+                Save
+              </button>
+            </div>
+            <p className="text-[10px] text-gray-400 mt-1">Applied to invoices. Set to 0 for no tax.</p>
           </div>
         </div>
       </div>

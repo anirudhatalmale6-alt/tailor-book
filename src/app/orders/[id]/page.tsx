@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useOrder, updateOrder } from '@/hooks/useOrders';
 import { useOrderPayments, addPayment } from '@/hooks/usePayments';
+import { useOrderInvoice } from '@/hooks/useInvoices';
 import { useCustomerMeasurements, useMeasurementFields } from '@/hooks/useMeasurements';
 import { useCurrency } from '@/hooks/useSettings';
 import { db, type Customer } from '@/lib/db';
@@ -31,6 +32,7 @@ export default function OrderDetailPage() {
   const id = params.id as string;
   const order = useOrder(id);
   const payments = useOrderPayments(id);
+  const existingInvoice = useOrderInvoice(id);
   const currency = useCurrency();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -251,6 +253,29 @@ export default function OrderDetailPage() {
       >
         Add Payment
       </button>
+
+      {/* Invoice Button */}
+      {existingInvoice ? (
+        <button
+          onClick={() => router.push(`/invoices/${existingInvoice.id}`)}
+          className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors text-sm mb-3 flex items-center justify-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          View Invoice ({existingInvoice.invoiceNumber})
+        </button>
+      ) : (
+        <button
+          onClick={() => router.push(`/invoices/new?orderId=${id}`)}
+          className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors text-sm mb-3 flex items-center justify-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Generate Invoice
+        </button>
+      )}
 
       {/* Payment History */}
       {payments && payments.length > 0 && (

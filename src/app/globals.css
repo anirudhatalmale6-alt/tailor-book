@@ -30,3 +30,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
+
+@media print {
+  nav, .no-print, button {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+  .print-only {
+    display: block !important;
+  }
+  main {
+    padding-bottom: 0 !important;
+  }
+}

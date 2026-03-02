@@ -22,3 +22,8 @@ export function useCurrency() {
 export function useBusinessName() {
   return useSetting('businessName', 'TailorBook');
 }
+
+export function useTaxRate() {
+  const val = useSetting('taxRate', '0');
+  return parseFloat(val) || 0;
+}

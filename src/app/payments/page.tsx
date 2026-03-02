@@ -1,18 +1,22 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePayments } from '@/hooks/usePayments';
 import { useExpenses, addExpense } from '@/hooks/useExpenses';
+import { useInvoices } from '@/hooks/useInvoices';
 import { useCurrency } from '@/hooks/useSettings';
 import { db, type Customer, type Order } from '@/lib/db';
-import { formatCurrency, isThisMonth } from '@/lib/utils';
+import { formatCurrency, formatDate, isThisMonth } from '@/lib/utils';
 import PaymentCard from '@/components/PaymentCard';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
 
 export default function PaymentsPage() {
+  const router = useRouter();
   const payments = usePayments();
   const expenses = useExpenses();
+  const invoices = useInvoices();
   const currency = useCurrency();
   const [customers, setCustomers] = useState<Record<string, Customer>>({});
   const [orders, setOrders] = useState<Record<string, Order>>({});
@@ -154,6 +158,37 @@ export default function PaymentsPage() {
               currency={currency}
             />
           ))}
+        </div>
+      )}
+
+      {/* Recent Invoices */}
+      {invoices && invoices.length > 0 && (
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-gray-900 mb-2">Recent Invoices</h2>
+          <div className="space-y-2">
+            {invoices.slice(0, 10).map((inv) => (
+              <button
+                key={inv.id}
+                onClick={() => router.push(`/invoices/${inv.id}`)}
+                className="w-full bg-white rounded-xl shadow-sm p-3 flex items-center justify-between active:bg-gray-50"
+              >
+                <div className="text-left">
+                  <p className="text-sm font-medium text-gray-900">{inv.invoiceNumber}</p>
+                  <p className="text-xs text-gray-400">
+                    {customers[inv.customerId]?.name || 'Customer'} &middot; {formatDate(inv.createdAt)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-gray-900">{formatCurrency(inv.total, currency)}</p>
+                  {inv.balanceDue > 0 ? (
+                    <p className="text-[10px] text-red-500">Due: {formatCurrency(inv.balanceDue, currency)}</p>
+                  ) : (
+                    <p className="text-[10px] text-green-500">Paid</p>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
