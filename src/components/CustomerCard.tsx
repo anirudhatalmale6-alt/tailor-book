@@ -28,7 +28,14 @@ export default function CustomerCard({ customer }: CustomerCardProps) {
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-gray-900 font-medium truncate">{customer.name}</h3>
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-gray-900 font-medium truncate">{customer.name}</h3>
+            {customer.contactType === 'colleague' && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 flex-shrink-0">
+                Colleague
+              </span>
+            )}
+          </div>
           {customer.phone && (
             <a
               href={getPhoneLink(customer.phone)}
