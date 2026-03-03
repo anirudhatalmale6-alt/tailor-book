@@ -16,11 +16,11 @@ export default function CustomersPage() {
   return (
     <div className="px-4 pt-4">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-white mb-3">Customers</h1>
+        <h1 className="text-2xl font-bold text-white mb-3">Contacts</h1>
         <SearchBar
           value={search}
           onChange={setSearch}
-          placeholder="Search customers..."
+          placeholder="Search contacts..."
         />
       </div>
 
@@ -35,8 +35,8 @@ export default function CustomersPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           }
-          title={search ? 'No customers found' : 'No customers yet'}
-          description={search ? 'Try a different search term' : 'Add your first customer to get started'}
+          title={search ? 'No contacts found' : 'No contacts yet'}
+          description={search ? 'Try a different search term' : 'Add your first contact to get started'}
         />
       ) : (
         <div className="space-y-2">
@@ -48,7 +48,7 @@ export default function CustomersPage() {
 
       <FloatingButton
         onClick={() => router.push('/customers/new')}
-        label="Add Customer"
+        label="Add Contact"
       />
     </div>
   );

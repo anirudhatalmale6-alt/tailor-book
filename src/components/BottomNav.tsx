@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 
 const tabs = [
   {
-    label: 'Customers',
+    label: 'Contacts',
     href: '/',
     icon: (active: boolean) => (
       <svg className={`w-6 h-6 ${active ? 'text-gold' : 'text-white/70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
