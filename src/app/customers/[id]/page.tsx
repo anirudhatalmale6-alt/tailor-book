@@ -560,7 +560,16 @@ export default function CustomerDetailPage() {
             ) : (
               <div className="bg-royal-bg rounded-xl p-4 text-center">
                 <p className="text-sm text-white mb-2">No colleagues added yet</p>
-                <p className="text-xs text-white/60">Add a contact as &quot;Colleague&quot; to send measurements to them</p>
+                <p className="text-xs text-white/60 mb-3">Add a contact as &quot;Colleague&quot; to send measurements to them</p>
+                <button
+                  onClick={() => {
+                    setShowSendToColleague(false);
+                    router.push('/customers/new?type=colleague');
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl text-sm font-medium"
+                >
+                  + Add Colleague
+                </button>
               </div>
             )}
           </div>

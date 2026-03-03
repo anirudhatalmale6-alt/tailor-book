@@ -18,6 +18,7 @@ function NewCustomerForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
+  const presetType = searchParams.get('type');
   const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
@@ -29,7 +30,7 @@ function NewCustomerForm() {
     photo: '',
     notes: '',
     stylePreferences: '',
-    contactType: 'client' as 'client' | 'colleague',
+    contactType: (presetType === 'colleague' ? 'colleague' : 'client') as 'client' | 'colleague',
   });
 
   useEffect(() => {
@@ -87,7 +88,7 @@ function NewCustomerForm() {
           </svg>
         </button>
         <h1 className="text-xl font-bold text-white">
-          {editId ? 'Edit Account' : 'New Account'}
+          {editId ? 'Edit Account' : presetType === 'colleague' ? 'Add Colleague' : 'New Account'}
         </h1>
       </div>
 
