@@ -3,8 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #1a1028;
+  --foreground: #f0e8ff;
+  --card: #2a1e3f;
+  --card-hover: #352650;
+  --gold: #e8c547;
+  --gold-dim: #d4a932;
+  --purple-light: #a088c4;
+  --purple-muted: #8b6fc0;
+  --purple-dark: #6b5790;
+  --border: rgba(232, 197, 71, 0.1);
+  --border-strong: rgba(232, 197, 71, 0.2);
+  --header-from: #2d1b4e;
+  --header-to: #4a2d7a;
 }
 
 * {
@@ -18,8 +29,26 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--purple-dark);
+  border-radius: 4px;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0.5;
+  filter: invert(1);
+}
+
+/* Dark theme form inputs */
+input, select, textarea {
+  color-scheme: dark;
 }
 
 @layer utilities {
@@ -37,6 +66,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
   body {
     background: white;
+    color: black;
   }
   .print-only {
     display: block !important;

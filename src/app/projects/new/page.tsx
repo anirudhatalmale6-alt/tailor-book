@@ -7,7 +7,7 @@ import { addProject, updateProject, useProject } from '@/hooks/useProjects';
 
 export default function NewProjectPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div></div>}>
       <NewProjectForm />
     </Suspense>
   );
@@ -108,12 +108,12 @@ function NewProjectForm() {
   return (
     <div className="px-4 pt-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.back()} className="p-1 text-gray-600">
+        <button onClick={() => router.back()} className="p-1 text-royal-light">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold text-gray-900">
+        <h1 className="text-xl font-bold text-white">
           {isEdit ? 'Edit Project' : 'New Project'}
         </h1>
       </div>
@@ -121,19 +121,19 @@ function NewProjectForm() {
       <div className="space-y-4">
         {/* Project Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Project Name *</label>
+          <label className="block text-sm font-medium text-gray-200 mb-1">Project Name *</label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-            className="w-full px-4 py-3 bg-white rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
             placeholder="e.g., Ade's Wedding Party"
           />
         </div>
 
         {/* Client Selector */}
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
+          <label className="block text-sm font-medium text-gray-200 mb-1">Client *</label>
           <input
             type="text"
             value={customerSearch}
@@ -145,13 +145,13 @@ function NewProjectForm() {
               }
             }}
             onFocus={() => setShowCustomerDropdown(true)}
-            className={`w-full px-4 py-3 bg-white rounded-xl border text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-              selectedCustomer ? 'border-green-300' : 'border-gray-200'
+            className={`w-full px-4 py-3 bg-royal-card rounded-xl border text-white focus:outline-none focus:ring-2 focus:ring-gold ${
+              selectedCustomer ? 'border-green-300' : 'border-royal-border'
             }`}
             placeholder="Search client..."
           />
           {showCustomerDropdown && !selectedCustomer && customerSearch && (
-            <div className="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
+            <div className="absolute z-10 w-full mt-1 bg-royal-card rounded-xl shadow-lg shadow-black/20 border border-royal-border max-h-48 overflow-y-auto">
               {filteredCustomers.length > 0 ? (
                 filteredCustomers.map((c) => (
                   <button
@@ -161,13 +161,13 @@ function NewProjectForm() {
                       setCustomerSearch(c.name);
                       setShowCustomerDropdown(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-900"
+                    className="w-full text-left px-4 py-2 hover:bg-royal-hover text-sm text-white"
                   >
                     {c.name} {c.phone ? `- ${c.phone}` : ''}
                   </button>
                 ))
               ) : (
-                <div className="px-4 py-2 text-sm text-gray-500">No clients found</div>
+                <div className="px-4 py-2 text-sm text-royal-light">No clients found</div>
               )}
             </div>
           )}
@@ -175,7 +175,7 @@ function NewProjectForm() {
 
         {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <label className="block text-sm font-medium text-gray-200 mb-1">Status</label>
           <div className="flex gap-2">
             {(['active', 'completed', 'cancelled'] as const).map((s) => (
               <button
@@ -184,11 +184,11 @@ function NewProjectForm() {
                 className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                   form.status === s
                     ? s === 'active'
-                      ? 'bg-blue-50 border-blue-300 text-blue-700'
+                      ? 'bg-blue-400/10 border-blue-300 text-blue-400'
                       : s === 'completed'
-                      ? 'bg-green-50 border-green-300 text-green-700'
-                      : 'bg-red-50 border-red-300 text-red-700'
-                    : 'bg-white border-gray-200 text-gray-500'
+                      ? 'bg-green-400/10 border-green-300 text-green-400'
+                      : 'bg-red-400/10 border-red-300 text-red-400'
+                    : 'bg-royal-card border-royal-border text-royal-light'
                 }`}
               >
                 {s === 'active' ? 'Active' : s === 'completed' ? 'Completed' : 'Cancelled'}
@@ -199,11 +199,11 @@ function NewProjectForm() {
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-gray-200 mb-1">Notes</label>
           <textarea
             value={form.notes}
             onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
-            className="w-full px-4 py-3 bg-white rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+            className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold resize-none"
             rows={3}
             placeholder="Any notes about this project..."
           />
@@ -212,7 +212,7 @@ function NewProjectForm() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 transition-colors"
+          className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold hover:bg-gold-dim active:bg-gold-dim disabled:opacity-50 transition-colors"
         >
           {saving ? 'Saving...' : isEdit ? 'Update Project' : 'Create Project'}
         </button>

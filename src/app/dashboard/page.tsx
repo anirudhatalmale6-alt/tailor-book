@@ -126,29 +126,29 @@ export default function DashboardPage() {
 
   return (
     <div className="px-4 pt-4">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-white mb-4">Dashboard</h1>
 
       {/* Delivery Date Reminders */}
       {hasReminders && !dismissedReminders && (
         <div className="mb-4 space-y-2">
           {/* Overdue Orders — Red Alert */}
           {overdue.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+            <div className="bg-red-400/10 border border-red-400/20 rounded-xl p-3">
               <div className="flex items-start gap-2">
                 <div className="mt-0.5 flex-shrink-0">
-                  <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-red-800">
+                  <p className="text-sm font-semibold text-red-400">
                     {overdue.length} Overdue Order{overdue.length !== 1 ? 's' : ''}
                   </p>
                   <div className="mt-1 space-y-1">
                     {overdue.map((order) => (
                       <Link key={order.id} href={`/orders/${order.id}`} className="block">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-red-700 font-medium truncate">
+                          <span className="text-red-400 font-medium truncate">
                             {customers[order.customerId]?.name || 'Customer'} — {order.fabricType || 'Order'}
                           </span>
                           <span className="text-red-500 flex-shrink-0 ml-2">
@@ -165,15 +165,15 @@ export default function DashboardPage() {
 
           {/* Due Today — Orange Alert */}
           {dueToday.length > 0 && (
-            <div className="bg-orange-50 border border-orange-200 rounded-xl p-3">
+            <div className="bg-orange-400/10 border border-orange-400/20 rounded-xl p-3">
               <div className="flex items-start gap-2">
                 <div className="mt-0.5 flex-shrink-0">
-                  <svg className="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-5 h-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-orange-800">
+                  <p className="text-sm font-semibold text-orange-400">
                     {dueToday.length} Order{dueToday.length !== 1 ? 's' : ''} Due Today
                   </p>
                   <div className="mt-1 space-y-1">
@@ -197,22 +197,22 @@ export default function DashboardPage() {
 
           {/* Due Soon (within 3 days) — Blue Info */}
           {dueSoon.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+            <div className="bg-blue-400/10 border border-blue-400/20 rounded-xl p-3">
               <div className="flex items-start gap-2">
                 <div className="mt-0.5 flex-shrink-0">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-blue-800">
+                  <p className="text-sm font-semibold text-blue-400">
                     {dueSoon.length} Order{dueSoon.length !== 1 ? 's' : ''} Due Soon
                   </p>
                   <div className="mt-1 space-y-1">
                     {dueSoon.map((order) => (
                       <Link key={order.id} href={`/orders/${order.id}`} className="block">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-blue-700 font-medium truncate">
+                          <span className="text-blue-400 font-medium truncate">
                             {customers[order.customerId]?.name || 'Customer'} — {order.fabricType || 'Order'}
                           </span>
                           <span className="text-blue-500 flex-shrink-0 ml-2">
@@ -230,7 +230,7 @@ export default function DashboardPage() {
           {/* Dismiss button */}
           <button
             onClick={() => setDismissedReminders(true)}
-            className="w-full text-center text-xs text-gray-400 py-1"
+            className="w-full text-center text-xs text-royal-muted py-1"
           >
             Dismiss reminders
           </button>
@@ -239,48 +239,48 @@ export default function DashboardPage() {
 
       {/* Revenue Cards */}
       <div className="grid grid-cols-2 gap-2 mb-4">
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <p className="text-xs text-gray-400 mb-1">Revenue This Month</p>
-          <p className="text-xl font-bold text-green-600">{formatCurrency(netRevenue, currency)}</p>
+        <div className="bg-royal-card rounded-xl shadow-none p-4">
+          <p className="text-xs text-royal-muted mb-1">Revenue This Month</p>
+          <p className="text-xl font-bold text-green-400">{formatCurrency(netRevenue, currency)}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <p className="text-xs text-gray-400 mb-1">Expenses This Month</p>
-          <p className="text-xl font-bold text-red-600">{formatCurrency(monthlyExpenses, currency)}</p>
+        <div className="bg-royal-card rounded-xl shadow-none p-4">
+          <p className="text-xs text-royal-muted mb-1">Expenses This Month</p>
+          <p className="text-xl font-bold text-red-400">{formatCurrency(monthlyExpenses, currency)}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <p className="text-xs text-gray-400 mb-1">Profit This Month</p>
-          <p className={`text-xl font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <div className="bg-royal-card rounded-xl shadow-none p-4">
+          <p className="text-xs text-royal-muted mb-1">Profit This Month</p>
+          <p className={`text-xl font-bold ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {formatCurrency(profit, currency)}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <p className="text-xs text-gray-400 mb-1">Outstanding Debts</p>
-          <p className="text-xl font-bold text-orange-600">{formatCurrency(outstandingDebts, currency)}</p>
+        <div className="bg-royal-card rounded-xl shadow-none p-4">
+          <p className="text-xs text-royal-muted mb-1">Outstanding Debts</p>
+          <p className="text-xl font-bold text-orange-400">{formatCurrency(outstandingDebts, currency)}</p>
         </div>
       </div>
 
       {/* Active Projects Card */}
       <button
         onClick={() => router.push('/projects')}
-        className="w-full bg-white rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between active:bg-gray-50 transition-colors"
+        className="w-full bg-royal-card rounded-xl shadow-none p-4 mb-4 flex items-center justify-between active:bg-royal-hover transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="w-10 h-10 bg-gold-bg rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
             </svg>
           </div>
           <div className="text-left">
-            <p className="text-sm font-semibold text-gray-900">Active Projects</p>
-            <p className="text-xs text-gray-400">Tap to view all projects</p>
+            <p className="text-sm font-semibold text-white">Active Projects</p>
+            <p className="text-xs text-royal-muted">Tap to view all projects</p>
           </div>
         </div>
-        <p className="text-2xl font-bold text-indigo-600">{activeProjectCount}</p>
+        <p className="text-2xl font-bold text-gold">{activeProjectCount}</p>
       </button>
 
       {/* Active Orders by Status */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">Active Orders</h2>
+      <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
+        <h2 className="text-sm font-semibold text-white mb-3">Active Orders</h2>
         <div className="grid grid-cols-4 gap-2">
           {(['pending', 'in_progress', 'ready', 'delivered'] as const).map((status) => {
             const colors = getStatusColor(status);
@@ -301,10 +301,10 @@ export default function DashboardPage() {
       {/* Recent Orders */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-gray-900">Recent Orders</h2>
+          <h2 className="text-sm font-semibold text-white">Recent Orders</h2>
           <button
             onClick={() => router.push('/orders')}
-            className="text-xs text-indigo-600 font-medium"
+            className="text-xs text-gold font-medium"
           >
             View All
           </button>
@@ -321,8 +321,8 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-            <p className="text-gray-500 text-sm">No orders yet</p>
+          <div className="bg-royal-card rounded-xl shadow-none p-6 text-center">
+            <p className="text-royal-light text-sm">No orders yet</p>
           </div>
         )}
       </div>

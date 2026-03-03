@@ -111,25 +111,25 @@ export default function PaymentsPage() {
 
   return (
     <div className="px-4 pt-4">
-      <h1 className="text-2xl font-bold text-gray-900 mb-3">Payments</h1>
+      <h1 className="text-2xl font-bold text-white mb-3">Payments</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-2 mb-4">
-        <div className="bg-white rounded-xl shadow-sm p-3">
-          <p className="text-xs text-gray-400 mb-1">Received This Month</p>
-          <p className="text-lg font-bold text-green-600">{formatCurrency(monthlyReceived - monthlyRefunds, currency)}</p>
+        <div className="bg-royal-card rounded-xl shadow-none p-3">
+          <p className="text-xs text-royal-muted mb-1">Received This Month</p>
+          <p className="text-lg font-bold text-green-400">{formatCurrency(monthlyReceived - monthlyRefunds, currency)}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-3">
-          <p className="text-xs text-gray-400 mb-1">Outstanding</p>
-          <p className="text-lg font-bold text-red-600">{formatCurrency(outstandingTotal, currency)}</p>
+        <div className="bg-royal-card rounded-xl shadow-none p-3">
+          <p className="text-xs text-royal-muted mb-1">Outstanding</p>
+          <p className="text-lg font-bold text-red-400">{formatCurrency(outstandingTotal, currency)}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-3">
-          <p className="text-xs text-gray-400 mb-1">Expenses This Month</p>
-          <p className="text-lg font-bold text-gray-900">{formatCurrency(monthlyExpenses, currency)}</p>
+        <div className="bg-royal-card rounded-xl shadow-none p-3">
+          <p className="text-xs text-royal-muted mb-1">Expenses This Month</p>
+          <p className="text-lg font-bold text-white">{formatCurrency(monthlyExpenses, currency)}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-3">
-          <p className="text-xs text-gray-400 mb-1">Net This Month</p>
-          <p className={`text-lg font-bold ${(monthlyReceived - monthlyRefunds - monthlyExpenses) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <div className="bg-royal-card rounded-xl shadow-none p-3">
+          <p className="text-xs text-royal-muted mb-1">Net This Month</p>
+          <p className={`text-lg font-bold ${(monthlyReceived - monthlyRefunds - monthlyExpenses) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {formatCurrency(monthlyReceived - monthlyRefunds - monthlyExpenses, currency)}
           </p>
         </div>
@@ -139,17 +139,17 @@ export default function PaymentsPage() {
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => setShowExpenseModal(true)}
-          className="flex-1 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+          className="flex-1 py-2.5 bg-royal-card border border-royal-border text-gray-200 rounded-xl text-sm font-medium hover:bg-royal-hover transition-colors"
         >
           + Add Expense
         </button>
       </div>
 
       {/* Recent Payments */}
-      <h2 className="text-sm font-semibold text-gray-900 mb-2">Recent Payments</h2>
+      <h2 className="text-sm font-semibold text-white mb-2">Recent Payments</h2>
       {payments === undefined ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
         </div>
       ) : payments.length === 0 ? (
         <EmptyState
@@ -172,22 +172,22 @@ export default function PaymentsPage() {
       {/* Recent Invoices */}
       {invoices && invoices.length > 0 && (
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-2">Recent Invoices</h2>
+          <h2 className="text-sm font-semibold text-white mb-2">Recent Invoices</h2>
           <div className="space-y-2">
             {invoices.slice(0, 10).map((inv) => (
               <button
                 key={inv.id}
                 onClick={() => router.push(`/invoices/${inv.id}`)}
-                className="w-full bg-white rounded-xl shadow-sm p-3 flex items-center justify-between active:bg-gray-50"
+                className="w-full bg-royal-card rounded-xl shadow-none p-3 flex items-center justify-between active:bg-royal-hover"
               >
                 <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">{inv.invoiceNumber}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-medium text-white">{inv.invoiceNumber}</p>
+                  <p className="text-xs text-royal-muted">
                     {customers[inv.customerId]?.name || 'Customer'} &middot; {formatDate(inv.createdAt)}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900">{formatCurrency(inv.total, currency)}</p>
+                  <p className="text-sm font-semibold text-white">{formatCurrency(inv.total, currency)}</p>
                   {inv.balanceDue > 0 ? (
                     <p className="text-[10px] text-red-500">Due: {formatCurrency(inv.balanceDue, currency)}</p>
                   ) : (
@@ -203,24 +203,24 @@ export default function PaymentsPage() {
       {/* Recent Expenses */}
       {expenses && expenses.length > 0 && (
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-2">Recent Expenses</h2>
+          <h2 className="text-sm font-semibold text-white mb-2">Recent Expenses</h2>
           <div className="space-y-2">
             {expenses.slice(0, 10).map((e) => (
-              <div key={e.id} className="bg-white rounded-xl shadow-sm p-3 flex items-center justify-between">
+              <div key={e.id} className="bg-royal-card rounded-xl shadow-none p-3 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-medium text-gray-900">{e.description}</p>
+                    <p className="text-sm font-medium text-white">{e.description}</p>
                     <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-medium ${
                       (e.expenseType || 'business') === 'sewing'
                         ? 'bg-purple-50 text-purple-600'
-                        : 'bg-gray-100 text-gray-500'
+                        : 'bg-royal-hover text-royal-light'
                     }`}>
                       {(e.expenseType || 'business') === 'sewing' ? 'Sewing' : 'Business'}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-400">{e.category || 'General'}</p>
+                  <p className="text-xs text-royal-muted">{e.category || 'General'}</p>
                 </div>
-                <span className="text-sm font-semibold text-red-600">-{formatCurrency(e.amount, currency)}</span>
+                <span className="text-sm font-semibold text-red-400">-{formatCurrency(e.amount, currency)}</span>
               </div>
             ))}
           </div>
@@ -236,14 +236,14 @@ export default function PaymentsPage() {
         <div className="space-y-3">
           {/* Expense Type Toggle */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Expense Type</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">Expense Type</label>
             <div className="flex gap-2">
               <button
                 onClick={() => setExpenseForm((p) => ({ ...p, expenseType: 'business' }))}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                   expenseForm.expenseType === 'business'
-                    ? 'bg-gray-100 border-gray-400 text-gray-800'
-                    : 'bg-white border-gray-200 text-gray-500'
+                    ? 'bg-royal-hover border-gray-400 text-white'
+                    : 'bg-royal-card border-royal-border text-royal-light'
                 }`}
               >
                 Business
@@ -253,7 +253,7 @@ export default function PaymentsPage() {
                 className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                   expenseForm.expenseType === 'sewing'
                     ? 'bg-purple-50 border-purple-300 text-purple-700'
-                    : 'bg-white border-gray-200 text-gray-500'
+                    : 'bg-royal-card border-royal-border text-royal-light'
                 }`}
               >
                 Sewing
@@ -261,48 +261,48 @@ export default function PaymentsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">Description *</label>
             <input
               type="text"
               value={expenseForm.description}
               onChange={(e) => setExpenseForm((p) => ({ ...p, description: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 bg-royal-bg rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
               placeholder="What was the expense?"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">Amount *</label>
             <input
               type="number"
               value={expenseForm.amount}
               onChange={(e) => setExpenseForm((p) => ({ ...p, amount: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 bg-royal-bg rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
               placeholder="0"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">Category</label>
             <input
               type="text"
               value={expenseForm.category}
               onChange={(e) => setExpenseForm((p) => ({ ...p, category: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 bg-royal-bg rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
               placeholder="e.g., Materials, Transport, Rent..."
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">Date</label>
             <input
               type="date"
               value={expenseForm.date}
               onChange={(e) => setExpenseForm((p) => ({ ...p, date: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 bg-royal-bg rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
             />
           </div>
           <button
             onClick={handleAddExpense}
             disabled={saving}
-            className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+            className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold hover:bg-gold-dim disabled:opacity-50 transition-colors"
           >
             {saving ? 'Saving...' : 'Save Expense'}
           </button>

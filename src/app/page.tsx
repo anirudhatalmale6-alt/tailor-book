@@ -16,7 +16,7 @@ export default function CustomersPage() {
   return (
     <div className="px-4 pt-4">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-3">Customers</h1>
+        <h1 className="text-2xl font-bold text-white mb-3">Customers</h1>
         <SearchBar
           value={search}
           onChange={setSearch}
@@ -26,7 +26,7 @@ export default function CustomersPage() {
 
       {customers === undefined ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
         </div>
       ) : customers.length === 0 ? (
         <EmptyState

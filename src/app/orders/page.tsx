@@ -34,7 +34,7 @@ export default function OrdersPage() {
 
   return (
     <div className="px-4 pt-4">
-      <h1 className="text-2xl font-bold text-gray-900 mb-3">Orders</h1>
+      <h1 className="text-2xl font-bold text-white mb-3">Orders</h1>
 
       {/* Status filter tabs */}
       <div className="flex gap-1 overflow-x-auto mb-4 pb-1 -mx-4 px-4">
@@ -44,8 +44,8 @@ export default function OrdersPage() {
             onClick={() => setStatusFilter(f.key)}
             className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               statusFilter === f.key
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white text-gray-600 border border-gray-200'
+                ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
+                : 'bg-royal-card text-royal-light border border-royal-border'
             }`}
           >
             {f.label}
@@ -55,7 +55,7 @@ export default function OrdersPage() {
 
       {orders === undefined ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
         </div>
       ) : orders.length === 0 ? (
         <EmptyState

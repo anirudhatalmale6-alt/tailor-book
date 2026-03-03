@@ -4,8 +4,8 @@
   "description": "Tailoring Business Management",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#4F46E5",
-  "theme_color": "#4F46E5",
+  "background_color": "#1a1028",
+  "theme_color": "#1a1028",
   "orientation": "portrait",
   "icons": [
     {

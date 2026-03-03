@@ -73,7 +73,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="px-4 pt-4">
-      <h1 className="text-2xl font-bold text-gray-900 mb-3">Projects</h1>
+      <h1 className="text-2xl font-bold text-white mb-3">Projects</h1>
 
       <div className="mb-4">
         <SearchBar
@@ -85,13 +85,13 @@ export default function ProjectsPage() {
 
       {projects === undefined ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
         </div>
       ) : grouped && (grouped.active.length > 0 || grouped.completed.length > 0 || grouped.cancelled.length > 0) ? (
         <div className="space-y-4 pb-24">
           {grouped.active.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <h2 className="text-sm font-semibold text-royal-light uppercase tracking-wide mb-2">
                 Active ({grouped.active.length})
               </h2>
               <div className="space-y-2">
@@ -102,12 +102,12 @@ export default function ProjectsPage() {
                     <button
                       key={project.id}
                       onClick={() => router.push(`/projects/${project.id}`)}
-                      className="w-full bg-white rounded-xl shadow-sm p-4 text-left active:bg-gray-50 transition-colors"
+                      className="w-full bg-royal-card rounded-xl shadow-none p-4 text-left active:bg-royal-hover transition-colors"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0 mr-2">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{project.name}</p>
-                          <p className="text-xs text-gray-500 truncate">
+                          <p className="text-sm font-semibold text-white truncate">{project.name}</p>
+                          <p className="text-xs text-royal-light truncate">
                             {customers[project.customerId]?.name || 'Unknown Client'}
                           </p>
                         </div>
@@ -116,9 +116,9 @@ export default function ProjectsPage() {
                           {getStatusLabel(project.status)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-gray-400">
+                      <div className="flex items-center justify-between text-xs text-royal-muted">
                         <span>{stats.count} item{stats.count !== 1 ? 's' : ''} &middot; {stats.completed} done</span>
-                        <span className="font-medium text-gray-900">{formatCurrency(stats.totalPrice, currency)}</span>
+                        <span className="font-medium text-white">{formatCurrency(stats.totalPrice, currency)}</span>
                       </div>
                     </button>
                   );
@@ -129,7 +129,7 @@ export default function ProjectsPage() {
 
           {grouped.completed.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <h2 className="text-sm font-semibold text-royal-light uppercase tracking-wide mb-2">
                 Completed ({grouped.completed.length})
               </h2>
               <div className="space-y-2">
@@ -140,12 +140,12 @@ export default function ProjectsPage() {
                     <button
                       key={project.id}
                       onClick={() => router.push(`/projects/${project.id}`)}
-                      className="w-full bg-white rounded-xl shadow-sm p-4 text-left active:bg-gray-50 transition-colors"
+                      className="w-full bg-royal-card rounded-xl shadow-none p-4 text-left active:bg-royal-hover transition-colors"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0 mr-2">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{project.name}</p>
-                          <p className="text-xs text-gray-500 truncate">
+                          <p className="text-sm font-semibold text-white truncate">{project.name}</p>
+                          <p className="text-xs text-royal-light truncate">
                             {customers[project.customerId]?.name || 'Unknown Client'}
                           </p>
                         </div>
@@ -154,9 +154,9 @@ export default function ProjectsPage() {
                           {getStatusLabel(project.status)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-gray-400">
+                      <div className="flex items-center justify-between text-xs text-royal-muted">
                         <span>{stats.count} item{stats.count !== 1 ? 's' : ''} &middot; {stats.completed} done</span>
-                        <span className="font-medium text-gray-900">{formatCurrency(stats.totalPrice, currency)}</span>
+                        <span className="font-medium text-white">{formatCurrency(stats.totalPrice, currency)}</span>
                       </div>
                     </button>
                   );
@@ -167,7 +167,7 @@ export default function ProjectsPage() {
 
           {grouped.cancelled.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <h2 className="text-sm font-semibold text-royal-light uppercase tracking-wide mb-2">
                 Cancelled ({grouped.cancelled.length})
               </h2>
               <div className="space-y-2">
@@ -178,12 +178,12 @@ export default function ProjectsPage() {
                     <button
                       key={project.id}
                       onClick={() => router.push(`/projects/${project.id}`)}
-                      className="w-full bg-white rounded-xl shadow-sm p-4 text-left active:bg-gray-50 transition-colors opacity-60"
+                      className="w-full bg-royal-card rounded-xl shadow-none p-4 text-left active:bg-royal-hover transition-colors opacity-60"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0 mr-2">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{project.name}</p>
-                          <p className="text-xs text-gray-500 truncate">
+                          <p className="text-sm font-semibold text-white truncate">{project.name}</p>
+                          <p className="text-xs text-royal-light truncate">
                             {customers[project.customerId]?.name || 'Unknown Client'}
                           </p>
                         </div>
@@ -192,9 +192,9 @@ export default function ProjectsPage() {
                           {getStatusLabel(project.status)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-gray-400">
+                      <div className="flex items-center justify-between text-xs text-royal-muted">
                         <span>{stats.count} item{stats.count !== 1 ? 's' : ''}</span>
-                        <span className="font-medium text-gray-900">{formatCurrency(stats.totalPrice, currency)}</span>
+                        <span className="font-medium text-white">{formatCurrency(stats.totalPrice, currency)}</span>
                       </div>
                     </button>
                   );
@@ -210,7 +210,7 @@ export default function ProjectsPage() {
           action={
             <button
               onClick={() => router.push('/projects/new')}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium"
+              className="px-4 py-2 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl text-sm font-medium"
             >
               Create First Project
             </button>

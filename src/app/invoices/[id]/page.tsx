@@ -92,7 +92,7 @@ export default function InvoiceViewPage() {
   if (invoice === undefined) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -109,18 +109,18 @@ export default function InvoiceViewPage() {
     <div className="px-4 pt-4">
       {/* Action Bar - hidden on print */}
       <div className="flex items-center gap-3 mb-4 no-print">
-        <button onClick={() => router.back()} className="p-1 text-gray-600">
+        <button onClick={() => router.back()} className="p-1 text-royal-light">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold text-gray-900 flex-1">Invoice</h1>
+        <h1 className="text-xl font-bold text-white flex-1">Invoice</h1>
       </div>
 
       {/* Invoice Document */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-3 print:shadow-none print:rounded-none">
+      <div className="bg-royal-card rounded-xl shadow-none overflow-hidden mb-3 print:shadow-none print:rounded-none">
         {/* Header */}
-        <div className="bg-indigo-600 px-5 py-4 text-white">
+        <div className="bg-gradient-to-r from-gold-dim to-gold px-5 py-4 text-white">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-lg font-bold">{businessName}</h2>
@@ -134,34 +134,34 @@ export default function InvoiceViewPage() {
         </div>
 
         {/* Customer & Order/Project Info */}
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-5 py-4 border-b border-royal-border">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Bill To</p>
+              <p className="text-[10px] font-medium text-royal-muted uppercase tracking-wider mb-1">Bill To</p>
               {customer && (
                 <>
-                  <p className="text-sm font-semibold text-gray-900">{customer.name}</p>
-                  {customer.phone && <p className="text-xs text-gray-500">{customer.phone}</p>}
-                  {customer.email && <p className="text-xs text-gray-500">{customer.email}</p>}
-                  {customer.address && <p className="text-xs text-gray-500 mt-0.5">{customer.address}</p>}
+                  <p className="text-sm font-semibold text-white">{customer.name}</p>
+                  {customer.phone && <p className="text-xs text-royal-light">{customer.phone}</p>}
+                  {customer.email && <p className="text-xs text-royal-light">{customer.email}</p>}
+                  {customer.address && <p className="text-xs text-royal-light mt-0.5">{customer.address}</p>}
                 </>
               )}
             </div>
             <div className="text-right">
               {project && (
                 <>
-                  <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Project</p>
-                  <p className="text-xs font-medium text-gray-900">{project.name}</p>
+                  <p className="text-[10px] font-medium text-royal-muted uppercase tracking-wider mb-1">Project</p>
+                  <p className="text-xs font-medium text-white">{project.name}</p>
                 </>
               )}
               {order && !project && (
                 <>
-                  <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Order Details</p>
+                  <p className="text-[10px] font-medium text-royal-muted uppercase tracking-wider mb-1">Order Details</p>
                   {order.fabricType && (
-                    <p className="text-xs text-gray-600">Fabric: {order.fabricType}</p>
+                    <p className="text-xs text-royal-light">Fabric: {order.fabricType}</p>
                   )}
                   {order.deliveryDate && (
-                    <p className="text-xs text-gray-600">Delivery: {formatDate(order.deliveryDate)}</p>
+                    <p className="text-xs text-royal-light">Delivery: {formatDate(order.deliveryDate)}</p>
                   )}
                 </>
               )}
@@ -173,20 +173,20 @@ export default function InvoiceViewPage() {
         <div className="px-5 py-4">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left text-[10px] font-medium text-gray-400 uppercase tracking-wider pb-2">Description</th>
-                <th className="text-center text-[10px] font-medium text-gray-400 uppercase tracking-wider pb-2 w-12">Qty</th>
-                <th className="text-right text-[10px] font-medium text-gray-400 uppercase tracking-wider pb-2 w-20">Price</th>
-                <th className="text-right text-[10px] font-medium text-gray-400 uppercase tracking-wider pb-2 w-24">Total</th>
+              <tr className="border-b border-royal-border">
+                <th className="text-left text-[10px] font-medium text-royal-muted uppercase tracking-wider pb-2">Description</th>
+                <th className="text-center text-[10px] font-medium text-royal-muted uppercase tracking-wider pb-2 w-12">Qty</th>
+                <th className="text-right text-[10px] font-medium text-royal-muted uppercase tracking-wider pb-2 w-20">Price</th>
+                <th className="text-right text-[10px] font-medium text-royal-muted uppercase tracking-wider pb-2 w-24">Total</th>
               </tr>
             </thead>
             <tbody>
               {invoice.items.map((item, idx) => (
                 <tr key={idx} className="border-b border-gray-50">
-                  <td className="py-2.5 text-sm text-gray-900">{item.description}</td>
-                  <td className="py-2.5 text-sm text-gray-600 text-center">{item.quantity}</td>
-                  <td className="py-2.5 text-sm text-gray-600 text-right">{formatCurrency(item.unitPrice, currency)}</td>
-                  <td className="py-2.5 text-sm font-medium text-gray-900 text-right">{formatCurrency(item.total, currency)}</td>
+                  <td className="py-2.5 text-sm text-white">{item.description}</td>
+                  <td className="py-2.5 text-sm text-royal-light text-center">{item.quantity}</td>
+                  <td className="py-2.5 text-sm text-royal-light text-right">{formatCurrency(item.unitPrice, currency)}</td>
+                  <td className="py-2.5 text-sm font-medium text-white text-right">{formatCurrency(item.total, currency)}</td>
                 </tr>
               ))}
             </tbody>
@@ -195,28 +195,28 @@ export default function InvoiceViewPage() {
 
         {/* Totals */}
         <div className="px-5 pb-4">
-          <div className="border-t border-gray-200 pt-3 space-y-1.5">
+          <div className="border-t border-royal-border pt-3 space-y-1.5">
             <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Subtotal</span>
-              <span className="text-sm text-gray-900">{formatCurrency(invoice.subtotal, currency)}</span>
+              <span className="text-sm text-royal-light">Subtotal</span>
+              <span className="text-sm text-white">{formatCurrency(invoice.subtotal, currency)}</span>
             </div>
             {invoice.tax > 0 && (
               <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Tax ({invoice.taxRate}%)</span>
-                <span className="text-sm text-gray-900">{formatCurrency(invoice.tax, currency)}</span>
+                <span className="text-sm text-royal-light">Tax ({invoice.taxRate}%)</span>
+                <span className="text-sm text-white">{formatCurrency(invoice.tax, currency)}</span>
               </div>
             )}
-            <div className="flex justify-between pt-1.5 border-t border-gray-100">
-              <span className="text-sm font-bold text-gray-900">Total</span>
-              <span className="text-sm font-bold text-gray-900">{formatCurrency(invoice.total, currency)}</span>
+            <div className="flex justify-between pt-1.5 border-t border-royal-border">
+              <span className="text-sm font-bold text-white">Total</span>
+              <span className="text-sm font-bold text-white">{formatCurrency(invoice.total, currency)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Amount Paid</span>
-              <span className="text-sm font-medium text-green-600">{formatCurrency(invoice.amountPaid, currency)}</span>
+              <span className="text-sm text-royal-light">Amount Paid</span>
+              <span className="text-sm font-medium text-green-400">{formatCurrency(invoice.amountPaid, currency)}</span>
             </div>
-            <div className="flex justify-between pt-1.5 border-t border-gray-200">
-              <span className="text-sm font-bold text-gray-900">Balance Due</span>
-              <span className={`text-base font-bold ${invoice.balanceDue > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <div className="flex justify-between pt-1.5 border-t border-royal-border">
+              <span className="text-sm font-bold text-white">Balance Due</span>
+              <span className={`text-base font-bold ${invoice.balanceDue > 0 ? 'text-red-400' : 'text-green-400'}`}>
                 {formatCurrency(invoice.balanceDue, currency)}
               </span>
             </div>
@@ -226,16 +226,16 @@ export default function InvoiceViewPage() {
         {/* Notes */}
         {invoice.notes && (
           <div className="px-5 pb-4">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1">Notes</p>
-              <p className="text-xs text-gray-600">{invoice.notes}</p>
+            <div className="bg-royal-bg rounded-lg p-3">
+              <p className="text-[10px] font-medium text-royal-muted uppercase tracking-wider mb-1">Notes</p>
+              <p className="text-xs text-royal-light">{invoice.notes}</p>
             </div>
           </div>
         )}
 
         {/* Footer */}
-        <div className="px-5 py-3 bg-gray-50 border-t border-gray-100">
-          <p className="text-[10px] text-gray-400 text-center">
+        <div className="px-5 py-3 bg-royal-bg border-t border-royal-border">
+          <p className="text-[10px] text-royal-muted text-center">
             Generated by {businessName} via TailorBook
           </p>
         </div>
@@ -255,7 +255,7 @@ export default function InvoiceViewPage() {
           </button>
           <button
             onClick={handlePrint}
-            className="py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 active:bg-indigo-800 transition-colors text-sm flex items-center justify-center gap-2"
+            className="py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold hover:bg-gold-dim active:bg-gold-dim transition-colors text-sm flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -266,7 +266,7 @@ export default function InvoiceViewPage() {
         {project && (
           <button
             onClick={() => router.push(`/projects/${project.id}`)}
-            className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium text-sm hover:bg-gray-50 transition-colors"
+            className="w-full py-3 bg-royal-card border border-royal-border text-gray-200 rounded-xl font-medium text-sm hover:bg-royal-hover transition-colors"
           >
             View Project
           </button>
@@ -274,7 +274,7 @@ export default function InvoiceViewPage() {
         {order && !project && (
           <button
             onClick={() => router.push(`/orders/${order.id}`)}
-            className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium text-sm hover:bg-gray-50 transition-colors"
+            className="w-full py-3 bg-royal-card border border-royal-border text-gray-200 rounded-xl font-medium text-sm hover:bg-royal-hover transition-colors"
           >
             View Order
           </button>

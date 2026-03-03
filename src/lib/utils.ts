@@ -37,17 +37,17 @@ export function getInitials(name: string): string {
 export function getStatusColor(status: string): { bg: string; text: string; dot: string } {
   switch (status) {
     case 'pending':
-      return { bg: 'bg-yellow-50', text: 'text-yellow-700', dot: 'bg-yellow-500' };
+      return { bg: 'bg-yellow-400/10', text: 'text-yellow-400', dot: 'bg-yellow-400' };
     case 'in_progress':
-      return { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' };
+      return { bg: 'bg-blue-400/10', text: 'text-blue-400', dot: 'bg-blue-400' };
     case 'ready':
-      return { bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500' };
+      return { bg: 'bg-green-400/10', text: 'text-green-400', dot: 'bg-green-400' };
     case 'delivered':
-      return { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' };
+      return { bg: 'bg-royal-hover', text: 'text-royal-light', dot: 'bg-gray-400' };
     case 'cancelled':
-      return { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500' };
+      return { bg: 'bg-red-400/10', text: 'text-red-400', dot: 'bg-red-400' };
     default:
-      return { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' };
+      return { bg: 'bg-royal-hover', text: 'text-royal-light', dot: 'bg-gray-400' };
   }
 }
 
