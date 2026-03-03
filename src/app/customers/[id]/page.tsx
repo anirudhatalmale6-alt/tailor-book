@@ -520,6 +520,39 @@ export default function CustomerDetailPage() {
                           Record Payment
                         </button>
                       )}
+                      {customer.whatsapp && (() => {
+                        const paymentLines = jobPayments.map((p) =>
+                          `  ${formatDate(p.createdAt)} - ${p.type === 'advance' ? 'Advance' : 'Balance'}: ${formatCurrency(p.amount, currency)} (${p.method === 'mobile_money' ? 'Mobile Money' : p.method.charAt(0).toUpperCase() + p.method.slice(1)})`
+                        ).join('\n');
+                        const statement = [
+                          `*JOB STATEMENT*`,
+                          ``,
+                          `*Colleague:* ${customer.name}`,
+                          `*Job:* ${job.description}`,
+                          `*Date Assigned:* ${formatDate(job.createdAt)}`,
+                          `*Status:* ${job.status === 'in_progress' ? 'In Progress' : job.status.charAt(0).toUpperCase() + job.status.slice(1)}`,
+                          ``,
+                          `*Agreed Amount:* ${formatCurrency(job.agreedAmount, currency)}`,
+                          ``,
+                          jobPayments.length > 0 ? `*Payments:*\n${paymentLines}` : `*Payments:* None yet`,
+                          ``,
+                          `*Total Paid:* ${formatCurrency(totalPaidForJob, currency)}`,
+                          `*Balance Due:* ${formatCurrency(balanceDue, currency)}`,
+                          ``,
+                          `_Generated on ${formatDate(new Date().toISOString())}_`,
+                        ].join('\n');
+                        const waLink = `https://wa.me/${customer.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(statement)}`;
+                        return (
+                          <a
+                            href={waLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 py-1.5 bg-green-400/10 text-green-400 rounded-lg text-xs font-medium text-center"
+                          >
+                            Share Statement
+                          </a>
+                        );
+                      })()}
                     </div>
                   </div>
                 );
