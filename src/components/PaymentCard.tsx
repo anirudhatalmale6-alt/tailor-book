@@ -30,7 +30,7 @@ export default function PaymentCard({ payment, customerName, currency = 'NGN' }:
           {customerName && (
             <h3 className="text-white font-medium truncate">{customerName}</h3>
           )}
-          <p className="text-sm text-royal-light">{methodLabels[payment.method] || payment.method}</p>
+          <p className="text-sm text-white">{methodLabels[payment.method] || payment.method}</p>
         </div>
         <div className="text-right">
           <span className={`font-semibold ${payment.type === 'refund' ? 'text-red-400' : 'text-green-400'}`}>
@@ -39,13 +39,13 @@ export default function PaymentCard({ payment, customerName, currency = 'NGN' }:
         </div>
       </div>
       <div className="flex items-center justify-between">
-        <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${typeColors[payment.type] || 'text-royal-light bg-royal-bg'}`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${typeColors[payment.type] || 'text-white bg-royal-bg'}`}>
           {payment.type}
         </span>
-        <span className="text-xs text-royal-muted">{formatDateTime(payment.createdAt)}</span>
+        <span className="text-xs text-white/60">{formatDateTime(payment.createdAt)}</span>
       </div>
       {payment.notes && (
-        <p className="text-xs text-royal-muted mt-1 truncate">{payment.notes}</p>
+        <p className="text-xs text-white/60 mt-1 truncate">{payment.notes}</p>
       )}
     </div>
   );

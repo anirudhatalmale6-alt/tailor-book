@@ -116,19 +116,19 @@ export default function PaymentsPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         <div className="bg-royal-card rounded-xl shadow-none p-3">
-          <p className="text-xs text-royal-muted mb-1">Received This Month</p>
+          <p className="text-xs text-white/60 mb-1">Received This Month</p>
           <p className="text-lg font-bold text-green-400">{formatCurrency(monthlyReceived - monthlyRefunds, currency)}</p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-3">
-          <p className="text-xs text-royal-muted mb-1">Outstanding</p>
+          <p className="text-xs text-white/60 mb-1">Outstanding</p>
           <p className="text-lg font-bold text-red-400">{formatCurrency(outstandingTotal, currency)}</p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-3">
-          <p className="text-xs text-royal-muted mb-1">Expenses This Month</p>
+          <p className="text-xs text-white/60 mb-1">Expenses This Month</p>
           <p className="text-lg font-bold text-white">{formatCurrency(monthlyExpenses, currency)}</p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-3">
-          <p className="text-xs text-royal-muted mb-1">Net This Month</p>
+          <p className="text-xs text-white/60 mb-1">Net This Month</p>
           <p className={`text-lg font-bold ${(monthlyReceived - monthlyRefunds - monthlyExpenses) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {formatCurrency(monthlyReceived - monthlyRefunds - monthlyExpenses, currency)}
           </p>
@@ -139,7 +139,7 @@ export default function PaymentsPage() {
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => setShowExpenseModal(true)}
-          className="flex-1 py-2.5 bg-royal-card border border-royal-border text-gray-200 rounded-xl text-sm font-medium hover:bg-royal-hover transition-colors"
+          className="flex-1 py-2.5 bg-royal-card border border-royal-border text-white rounded-xl text-sm font-medium hover:bg-royal-hover transition-colors"
         >
           + Add Expense
         </button>
@@ -182,7 +182,7 @@ export default function PaymentsPage() {
               >
                 <div className="text-left">
                   <p className="text-sm font-medium text-white">{inv.invoiceNumber}</p>
-                  <p className="text-xs text-royal-muted">
+                  <p className="text-xs text-white/60">
                     {customers[inv.customerId]?.name || 'Account'} &middot; {formatDate(inv.createdAt)}
                   </p>
                 </div>
@@ -213,12 +213,12 @@ export default function PaymentsPage() {
                     <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-medium ${
                       (e.expenseType || 'business') === 'sewing'
                         ? 'bg-purple-50 text-purple-600'
-                        : 'bg-royal-hover text-royal-light'
+                        : 'bg-royal-hover text-white'
                     }`}>
                       {(e.expenseType || 'business') === 'sewing' ? 'Sewing' : 'Business'}
                     </span>
                   </div>
-                  <p className="text-xs text-royal-muted">{e.category || 'General'}</p>
+                  <p className="text-xs text-white/60">{e.category || 'General'}</p>
                 </div>
                 <span className="text-sm font-semibold text-red-400">-{formatCurrency(e.amount, currency)}</span>
               </div>
@@ -236,14 +236,14 @@ export default function PaymentsPage() {
         <div className="space-y-3">
           {/* Expense Type Toggle */}
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Expense Type</label>
+            <label className="block text-sm font-medium text-white mb-1">Expense Type</label>
             <div className="flex gap-2">
               <button
                 onClick={() => setExpenseForm((p) => ({ ...p, expenseType: 'business' }))}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                   expenseForm.expenseType === 'business'
                     ? 'bg-royal-hover border-gray-400 text-white'
-                    : 'bg-royal-card border-royal-border text-royal-light'
+                    : 'bg-royal-card border-royal-border text-white'
                 }`}
               >
                 Business
@@ -253,7 +253,7 @@ export default function PaymentsPage() {
                 className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                   expenseForm.expenseType === 'sewing'
                     ? 'bg-purple-50 border-purple-300 text-purple-700'
-                    : 'bg-royal-card border-royal-border text-royal-light'
+                    : 'bg-royal-card border-royal-border text-white'
                 }`}
               >
                 Sewing
@@ -261,7 +261,7 @@ export default function PaymentsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Description *</label>
+            <label className="block text-sm font-medium text-white mb-1">Description *</label>
             <input
               type="text"
               value={expenseForm.description}
@@ -271,7 +271,7 @@ export default function PaymentsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Amount *</label>
+            <label className="block text-sm font-medium text-white mb-1">Amount *</label>
             <input
               type="number"
               value={expenseForm.amount}
@@ -281,7 +281,7 @@ export default function PaymentsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Category</label>
+            <label className="block text-sm font-medium text-white mb-1">Category</label>
             <input
               type="text"
               value={expenseForm.category}
@@ -291,7 +291,7 @@ export default function PaymentsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Date</label>
+            <label className="block text-sm font-medium text-white mb-1">Date</label>
             <input
               type="date"
               value={expenseForm.date}

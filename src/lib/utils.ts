@@ -43,11 +43,11 @@ export function getStatusColor(status: string): { bg: string; text: string; dot:
     case 'ready':
       return { bg: 'bg-green-400/10', text: 'text-green-400', dot: 'bg-green-400' };
     case 'delivered':
-      return { bg: 'bg-royal-hover', text: 'text-royal-light', dot: 'bg-gray-400' };
+      return { bg: 'bg-royal-hover', text: 'text-white', dot: 'bg-gray-400' };
     case 'cancelled':
       return { bg: 'bg-red-400/10', text: 'text-red-400', dot: 'bg-red-400' };
     default:
-      return { bg: 'bg-royal-hover', text: 'text-royal-light', dot: 'bg-gray-400' };
+      return { bg: 'bg-royal-hover', text: 'text-white', dot: 'bg-gray-400' };
   }
 }
 

@@ -109,7 +109,7 @@ export default function InvoiceViewPage() {
     <div className="px-4 pt-4">
       {/* Action Bar - hidden on print */}
       <div className="flex items-center gap-3 mb-4 no-print">
-        <button onClick={() => router.back()} className="p-1 text-royal-light">
+        <button onClick={() => router.back()} className="p-1 text-white">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -137,31 +137,31 @@ export default function InvoiceViewPage() {
         <div className="px-5 py-4 border-b border-royal-border">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-[10px] font-medium text-royal-muted uppercase tracking-wider mb-1">Bill To</p>
+              <p className="text-[10px] font-medium text-white/60 uppercase tracking-wider mb-1">Bill To</p>
               {customer && (
                 <>
                   <p className="text-sm font-semibold text-white">{customer.name}</p>
-                  {customer.phone && <p className="text-xs text-royal-light">{customer.phone}</p>}
-                  {customer.email && <p className="text-xs text-royal-light">{customer.email}</p>}
-                  {customer.address && <p className="text-xs text-royal-light mt-0.5">{customer.address}</p>}
+                  {customer.phone && <p className="text-xs text-white">{customer.phone}</p>}
+                  {customer.email && <p className="text-xs text-white">{customer.email}</p>}
+                  {customer.address && <p className="text-xs text-white mt-0.5">{customer.address}</p>}
                 </>
               )}
             </div>
             <div className="text-right">
               {project && (
                 <>
-                  <p className="text-[10px] font-medium text-royal-muted uppercase tracking-wider mb-1">Project</p>
+                  <p className="text-[10px] font-medium text-white/60 uppercase tracking-wider mb-1">Project</p>
                   <p className="text-xs font-medium text-white">{project.name}</p>
                 </>
               )}
               {order && !project && (
                 <>
-                  <p className="text-[10px] font-medium text-royal-muted uppercase tracking-wider mb-1">Order Details</p>
+                  <p className="text-[10px] font-medium text-white/60 uppercase tracking-wider mb-1">Order Details</p>
                   {order.fabricType && (
-                    <p className="text-xs text-royal-light">Fabric: {order.fabricType}</p>
+                    <p className="text-xs text-white">Fabric: {order.fabricType}</p>
                   )}
                   {order.deliveryDate && (
-                    <p className="text-xs text-royal-light">Delivery: {formatDate(order.deliveryDate)}</p>
+                    <p className="text-xs text-white">Delivery: {formatDate(order.deliveryDate)}</p>
                   )}
                 </>
               )}
@@ -174,18 +174,18 @@ export default function InvoiceViewPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-royal-border">
-                <th className="text-left text-[10px] font-medium text-royal-muted uppercase tracking-wider pb-2">Description</th>
-                <th className="text-center text-[10px] font-medium text-royal-muted uppercase tracking-wider pb-2 w-12">Qty</th>
-                <th className="text-right text-[10px] font-medium text-royal-muted uppercase tracking-wider pb-2 w-20">Price</th>
-                <th className="text-right text-[10px] font-medium text-royal-muted uppercase tracking-wider pb-2 w-24">Total</th>
+                <th className="text-left text-[10px] font-medium text-white/60 uppercase tracking-wider pb-2">Description</th>
+                <th className="text-center text-[10px] font-medium text-white/60 uppercase tracking-wider pb-2 w-12">Qty</th>
+                <th className="text-right text-[10px] font-medium text-white/60 uppercase tracking-wider pb-2 w-20">Price</th>
+                <th className="text-right text-[10px] font-medium text-white/60 uppercase tracking-wider pb-2 w-24">Total</th>
               </tr>
             </thead>
             <tbody>
               {invoice.items.map((item, idx) => (
                 <tr key={idx} className="border-b border-gray-50">
                   <td className="py-2.5 text-sm text-white">{item.description}</td>
-                  <td className="py-2.5 text-sm text-royal-light text-center">{item.quantity}</td>
-                  <td className="py-2.5 text-sm text-royal-light text-right">{formatCurrency(item.unitPrice, currency)}</td>
+                  <td className="py-2.5 text-sm text-white text-center">{item.quantity}</td>
+                  <td className="py-2.5 text-sm text-white text-right">{formatCurrency(item.unitPrice, currency)}</td>
                   <td className="py-2.5 text-sm font-medium text-white text-right">{formatCurrency(item.total, currency)}</td>
                 </tr>
               ))}
@@ -197,12 +197,12 @@ export default function InvoiceViewPage() {
         <div className="px-5 pb-4">
           <div className="border-t border-royal-border pt-3 space-y-1.5">
             <div className="flex justify-between">
-              <span className="text-sm text-royal-light">Subtotal</span>
+              <span className="text-sm text-white">Subtotal</span>
               <span className="text-sm text-white">{formatCurrency(invoice.subtotal, currency)}</span>
             </div>
             {invoice.tax > 0 && (
               <div className="flex justify-between">
-                <span className="text-sm text-royal-light">Tax ({invoice.taxRate}%)</span>
+                <span className="text-sm text-white">Tax ({invoice.taxRate}%)</span>
                 <span className="text-sm text-white">{formatCurrency(invoice.tax, currency)}</span>
               </div>
             )}
@@ -211,7 +211,7 @@ export default function InvoiceViewPage() {
               <span className="text-sm font-bold text-white">{formatCurrency(invoice.total, currency)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-royal-light">Amount Paid</span>
+              <span className="text-sm text-white">Amount Paid</span>
               <span className="text-sm font-medium text-green-400">{formatCurrency(invoice.amountPaid, currency)}</span>
             </div>
             <div className="flex justify-between pt-1.5 border-t border-royal-border">
@@ -227,15 +227,15 @@ export default function InvoiceViewPage() {
         {invoice.notes && (
           <div className="px-5 pb-4">
             <div className="bg-royal-bg rounded-lg p-3">
-              <p className="text-[10px] font-medium text-royal-muted uppercase tracking-wider mb-1">Notes</p>
-              <p className="text-xs text-royal-light">{invoice.notes}</p>
+              <p className="text-[10px] font-medium text-white/60 uppercase tracking-wider mb-1">Notes</p>
+              <p className="text-xs text-white">{invoice.notes}</p>
             </div>
           </div>
         )}
 
         {/* Footer */}
         <div className="px-5 py-3 bg-royal-bg border-t border-royal-border">
-          <p className="text-[10px] text-royal-muted text-center">
+          <p className="text-[10px] text-white/60 text-center">
             Generated by {businessName} via TailorBook
           </p>
         </div>
@@ -266,7 +266,7 @@ export default function InvoiceViewPage() {
         {project && (
           <button
             onClick={() => router.push(`/projects/${project.id}`)}
-            className="w-full py-3 bg-royal-card border border-royal-border text-gray-200 rounded-xl font-medium text-sm hover:bg-royal-hover transition-colors"
+            className="w-full py-3 bg-royal-card border border-royal-border text-white rounded-xl font-medium text-sm hover:bg-royal-hover transition-colors"
           >
             View Project
           </button>
@@ -274,7 +274,7 @@ export default function InvoiceViewPage() {
         {order && !project && (
           <button
             onClick={() => router.push(`/orders/${order.id}`)}
-            className="w-full py-3 bg-royal-card border border-royal-border text-gray-200 rounded-xl font-medium text-sm hover:bg-royal-hover transition-colors"
+            className="w-full py-3 bg-royal-card border border-royal-border text-white rounded-xl font-medium text-sm hover:bg-royal-hover transition-colors"
           >
             View Order
           </button>

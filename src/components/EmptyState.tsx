@@ -20,7 +20,7 @@ export default function EmptyState({ icon, title, description, action }: EmptySt
         </div>
       )}
       <h3 className="text-white font-medium text-lg mb-1">{title}</h3>
-      {description && <p className="text-royal-light text-sm mb-4">{description}</p>}
+      {description && <p className="text-white text-sm mb-4">{description}</p>}
       {action && <div>{action}</div>}
     </div>
   );

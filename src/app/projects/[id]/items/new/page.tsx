@@ -157,7 +157,7 @@ function NewProjectItemForm() {
   return (
     <div className="px-4 pt-4 pb-24">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.back()} className="p-1 text-royal-light">
+        <button onClick={() => router.back()} className="p-1 text-white">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -170,7 +170,7 @@ function NewProjectItemForm() {
       <div className="space-y-4">
         {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Name / Alias *</label>
+          <label className="block text-sm font-medium text-white mb-1">Name / Alias *</label>
           <input
             type="text"
             value={form.name}
@@ -182,17 +182,17 @@ function NewProjectItemForm() {
 
         {/* Measurements Section */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-2">Measurements</label>
+          <label className="block text-sm font-medium text-white mb-2">Measurements</label>
           <div className="bg-royal-card rounded-xl border border-royal-border p-3 space-y-3">
             {measurementFields && measurementFields.length > 0 && (
               <>
                 {Object.entries(groupedFields).map(([category, fields]) => (
                   <div key={category}>
-                    <p className="text-xs font-semibold text-royal-light uppercase tracking-wide mb-2">{category}</p>
+                    <p className="text-xs font-semibold text-white uppercase tracking-wide mb-2">{category}</p>
                     <div className="grid grid-cols-2 gap-2">
                       {fields.map((field) => (
                         <div key={field.id}>
-                          <label className="block text-xs text-royal-light mb-0.5">
+                          <label className="block text-xs text-white mb-0.5">
                             {field.name} ({field.unit})
                           </label>
                           <input
@@ -241,7 +241,7 @@ function NewProjectItemForm() {
                   </button>
                   <button
                     onClick={() => { setShowAddField(false); setNewFieldName(''); }}
-                    className="py-2 px-3 bg-royal-hover text-royal-light rounded-lg text-xs font-medium"
+                    className="py-2 px-3 bg-royal-hover text-white rounded-lg text-xs font-medium"
                   >
                     Cancel
                   </button>
@@ -260,7 +260,7 @@ function NewProjectItemForm() {
 
         {/* Fabric Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Fabric Type</label>
+          <label className="block text-sm font-medium text-white mb-1">Fabric Type</label>
           <input
             type="text"
             value={form.fabricType}
@@ -272,7 +272,7 @@ function NewProjectItemForm() {
 
         {/* Style Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Style Description</label>
+          <label className="block text-sm font-medium text-white mb-1">Style Description</label>
           <textarea
             value={form.styleDescription}
             onChange={(e) => handleChange('styleDescription', e.target.value)}
@@ -284,7 +284,7 @@ function NewProjectItemForm() {
 
         {/* Style Images */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Style Reference Images</label>
+          <label className="block text-sm font-medium text-white mb-1">Style Reference Images</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {form.styleImages.map((img, i) => (
               <div key={i} className="relative w-20 h-20">
@@ -298,7 +298,7 @@ function NewProjectItemForm() {
               </div>
             ))}
           </div>
-          <label className="inline-flex items-center gap-2 px-4 py-2 bg-royal-hover rounded-lg text-sm text-royal-light cursor-pointer hover:bg-gray-200">
+          <label className="inline-flex items-center gap-2 px-4 py-2 bg-royal-hover rounded-lg text-sm text-white cursor-pointer hover:bg-gray-200">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
@@ -309,7 +309,7 @@ function NewProjectItemForm() {
 
         {/* Price */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Price</label>
+          <label className="block text-sm font-medium text-white mb-1">Price</label>
           <input
             type="number"
             value={form.price}
@@ -321,7 +321,7 @@ function NewProjectItemForm() {
 
         {/* Delivery Date */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Delivery Date</label>
+          <label className="block text-sm font-medium text-white mb-1">Delivery Date</label>
           <input
             type="date"
             value={form.deliveryDate}
@@ -332,7 +332,7 @@ function NewProjectItemForm() {
 
         {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Status</label>
+          <label className="block text-sm font-medium text-white mb-1">Status</label>
           <div className="grid grid-cols-2 gap-2">
             {(['pending', 'in_progress', 'ready', 'delivered'] as const).map((s) => {
               const labels: Record<string, string> = {
@@ -345,14 +345,14 @@ function NewProjectItemForm() {
                 pending: form.status === s ? 'bg-yellow-400/10 border-yellow-300 text-yellow-400' : '',
                 in_progress: form.status === s ? 'bg-blue-400/10 border-blue-300 text-blue-400' : '',
                 ready: form.status === s ? 'bg-green-400/10 border-green-300 text-green-400' : '',
-                delivered: form.status === s ? 'bg-royal-hover border-gray-400 text-gray-200' : '',
+                delivered: form.status === s ? 'bg-royal-hover border-gray-400 text-white' : '',
               };
               return (
                 <button
                   key={s}
                   onClick={() => setForm((p) => ({ ...p, status: s }))}
                   className={`py-2.5 rounded-xl text-sm font-medium border transition-colors ${
-                    form.status === s ? colors[s] : 'bg-royal-card border-royal-border text-royal-light'
+                    form.status === s ? colors[s] : 'bg-royal-card border-royal-border text-white'
                   }`}
                 >
                   {labels[s]}
@@ -364,7 +364,7 @@ function NewProjectItemForm() {
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-white mb-1">Notes</label>
           <textarea
             value={form.notes}
             onChange={(e) => handleChange('notes', e.target.value)}

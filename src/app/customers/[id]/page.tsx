@@ -136,7 +136,7 @@ export default function CustomerDetailPage() {
     <div className="px-4 pt-4">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.back()} className="p-1 text-royal-light">
+        <button onClick={() => router.back()} className="p-1 text-white">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -195,18 +195,18 @@ export default function CustomerDetailPage() {
         </div>
 
         {customer.address && (
-          <p className="text-sm text-royal-light mt-2">{customer.address}</p>
+          <p className="text-sm text-white mt-2">{customer.address}</p>
         )}
         {customer.stylePreferences && (
           <div className="mt-2">
-            <span className="text-xs font-medium text-royal-muted uppercase">Style Preferences</span>
-            <p className="text-sm text-royal-light">{customer.stylePreferences}</p>
+            <span className="text-xs font-medium text-white/60 uppercase">Style Preferences</span>
+            <p className="text-sm text-white">{customer.stylePreferences}</p>
           </div>
         )}
         {customer.notes && (
           <div className="mt-2">
-            <span className="text-xs font-medium text-royal-muted uppercase">Notes</span>
-            <p className="text-sm text-royal-light">{customer.notes}</p>
+            <span className="text-xs font-medium text-white/60 uppercase">Notes</span>
+            <p className="text-sm text-white">{customer.notes}</p>
           </div>
         )}
       </div>
@@ -220,7 +220,7 @@ export default function CustomerDetailPage() {
             className={`flex-1 py-3 text-sm font-medium capitalize transition-colors ${
               activeTab === tab
                 ? 'text-gold border-b-2 border-gold bg-gold-bg/50'
-                : 'text-royal-light border-b-2 border-transparent'
+                : 'text-white border-b-2 border-transparent'
             }`}
           >
             {tab}
@@ -234,19 +234,19 @@ export default function CustomerDetailPage() {
           {latestMeasurement && fields ? (
             <div className="bg-royal-card rounded-xl shadow-none p-4 mb-3">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-royal-muted uppercase">
+                <span className="text-xs font-medium text-white/60 uppercase">
                   Latest - {formatDate(latestMeasurement.createdAt)}
                 </span>
               </div>
               {Object.entries(groupedFields).map(([category, catFields]) => (
                 <div key={category} className="mb-3">
-                  <h4 className="text-xs font-semibold text-royal-muted uppercase mb-1">{category}</h4>
+                  <h4 className="text-xs font-semibold text-white/60 uppercase mb-1">{category}</h4>
                   <div className="grid grid-cols-2 gap-2">
                     {catFields!.map((f) => {
                       const val = latestMeasurement.fields[f.id];
                       return (
                         <div key={f.id} className="flex justify-between items-center bg-royal-bg rounded-lg px-3 py-2">
-                          <span className="text-sm text-royal-light">{f.name}</span>
+                          <span className="text-sm text-white">{f.name}</span>
                           <span className="text-sm font-semibold text-white">
                             {val !== undefined ? `${val} ${f.unit}` : '--'}
                           </span>
@@ -257,7 +257,7 @@ export default function CustomerDetailPage() {
                 </div>
               ))}
               {latestMeasurement.notes && (
-                <p className="text-sm text-royal-light mt-2">{latestMeasurement.notes}</p>
+                <p className="text-sm text-white mt-2">{latestMeasurement.notes}</p>
               )}
             </div>
           ) : (
@@ -301,8 +301,8 @@ export default function CustomerDetailPage() {
                       onClick={() => setShowHistoryId(showHistoryId === m.id ? null : m.id)}
                       className="w-full flex items-center justify-between"
                     >
-                      <span className="text-sm text-royal-light">{formatDate(m.createdAt)}</span>
-                      <svg className={`w-4 h-4 text-royal-muted transition-transform ${showHistoryId === m.id ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <span className="text-sm text-white">{formatDate(m.createdAt)}</span>
+                      <svg className={`w-4 h-4 text-white/60 transition-transform ${showHistoryId === m.id ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
@@ -313,12 +313,12 @@ export default function CustomerDetailPage() {
                           if (val === undefined) return null;
                           return (
                             <div key={f.id} className="flex justify-between text-xs px-2 py-1">
-                              <span className="text-royal-light">{f.name}</span>
-                              <span className="font-medium text-gray-200">{val} {f.unit}</span>
+                              <span className="text-white">{f.name}</span>
+                              <span className="font-medium text-white">{val} {f.unit}</span>
                             </div>
                           );
                         })}
-                        {m.notes && <p className="col-span-2 text-xs text-royal-muted mt-1">{m.notes}</p>}
+                        {m.notes && <p className="col-span-2 text-xs text-white/60 mt-1">{m.notes}</p>}
                       </div>
                     )}
                   </div>
@@ -358,15 +358,15 @@ export default function CustomerDetailPage() {
         <div>
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="bg-royal-card rounded-xl shadow-none p-3 text-center">
-              <p className="text-xs text-royal-muted mb-1">Billed</p>
+              <p className="text-xs text-white/60 mb-1">Billed</p>
               <p className="font-semibold text-white text-sm">{formatCurrency(totalBilled, currency)}</p>
             </div>
             <div className="bg-royal-card rounded-xl shadow-none p-3 text-center">
-              <p className="text-xs text-royal-muted mb-1">Paid</p>
+              <p className="text-xs text-white/60 mb-1">Paid</p>
               <p className="font-semibold text-green-400 text-sm">{formatCurrency(totalPaid, currency)}</p>
             </div>
             <div className="bg-royal-card rounded-xl shadow-none p-3 text-center">
-              <p className="text-xs text-royal-muted mb-1">Balance</p>
+              <p className="text-xs text-white/60 mb-1">Balance</p>
               <p className={`font-semibold text-sm ${outstanding > 0 ? 'text-red-400' : 'text-white'}`}>
                 {formatCurrency(outstanding, currency)}
               </p>
@@ -391,7 +391,7 @@ export default function CustomerDetailPage() {
                         <StatusBadge status={order.status} />
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-royal-light">Total: {formatCurrency(order.totalAmount, currency)}</span>
+                        <span className="text-white">Total: {formatCurrency(order.totalAmount, currency)}</span>
                         <span className={orderBalance > 0 ? 'text-red-400 font-medium' : 'text-green-400 font-medium'}>
                           {orderBalance > 0 ? `Owes: ${formatCurrency(orderBalance, currency)}` : 'Paid'}
                         </span>
@@ -414,11 +414,11 @@ export default function CustomerDetailPage() {
       >
         {fields && Object.entries(groupedFields).map(([category, catFields]) => (
           <div key={category} className="mb-4">
-            <h4 className="text-xs font-semibold text-royal-muted uppercase mb-2">{category}</h4>
+            <h4 className="text-xs font-semibold text-white/60 uppercase mb-2">{category}</h4>
             <div className="space-y-2">
               {catFields!.map((f) => (
                 <div key={f.id} className="flex items-center gap-2">
-                  <label className="text-sm text-royal-light w-28 flex-shrink-0">{f.name}</label>
+                  <label className="text-sm text-white w-28 flex-shrink-0">{f.name}</label>
                   <input
                     type="number"
                     step="0.1"
@@ -429,7 +429,7 @@ export default function CustomerDetailPage() {
                     className="flex-1 px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                     placeholder={f.unit}
                   />
-                  <span className="text-xs text-royal-muted w-10">{f.unit}</span>
+                  <span className="text-xs text-white/60 w-10">{f.unit}</span>
                 </div>
               ))}
             </div>
@@ -465,7 +465,7 @@ export default function CustomerDetailPage() {
                     className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       newFieldUnit === u
                         ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
-                        : 'bg-royal-card text-royal-light border border-royal-border'
+                        : 'bg-royal-card text-white border border-royal-border'
                     }`}
                   >
                     {u}
@@ -475,7 +475,7 @@ export default function CustomerDetailPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => { setShowAddField(false); setNewFieldName(''); }}
-                  className="flex-1 py-2 bg-royal-card text-royal-light rounded-lg text-sm font-medium border border-royal-border"
+                  className="flex-1 py-2 bg-royal-card text-white rounded-lg text-sm font-medium border border-royal-border"
                 >
                   Cancel
                 </button>
@@ -492,7 +492,7 @@ export default function CustomerDetailPage() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm text-royal-light mb-1">Notes</label>
+          <label className="block text-sm text-white mb-1">Notes</label>
           <textarea
             value={measurementNotes}
             onChange={(e) => setMeasurementNotes(e.target.value)}
@@ -518,7 +518,7 @@ export default function CustomerDetailPage() {
       >
         {latestMeasurement && fields ? (
           <div className="space-y-3">
-            <p className="text-sm text-royal-light">
+            <p className="text-sm text-white">
               Send {customer.name}&apos;s measurements to a colleague via WhatsApp.
             </p>
             {colleagues.length > 0 ? (
@@ -550,7 +550,7 @@ export default function CustomerDetailPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white truncate">{colleague.name}</p>
-                        <p className="text-xs text-royal-light">{colleague.phone}</p>
+                        <p className="text-xs text-white">{colleague.phone}</p>
                       </div>
                       <span className="text-xs text-green-400 font-medium">Send via WhatsApp</span>
                     </a>
@@ -559,13 +559,13 @@ export default function CustomerDetailPage() {
               </div>
             ) : (
               <div className="bg-royal-bg rounded-xl p-4 text-center">
-                <p className="text-sm text-royal-light mb-2">No colleagues added yet</p>
-                <p className="text-xs text-royal-muted">Add a contact as &quot;Colleague&quot; to send measurements to them</p>
+                <p className="text-sm text-white mb-2">No colleagues added yet</p>
+                <p className="text-xs text-white/60">Add a contact as &quot;Colleague&quot; to send measurements to them</p>
               </div>
             )}
           </div>
         ) : (
-          <p className="text-sm text-royal-light">No measurements to send.</p>
+          <p className="text-sm text-white">No measurements to send.</p>
         )}
       </Modal>
     </div>

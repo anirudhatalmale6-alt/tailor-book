@@ -20,12 +20,12 @@ export default function OrderCard({ order, customer, currency = 'NGN' }: OrderCa
             <h3 className="text-white font-medium truncate">
               {customer?.name || 'Unknown Account'}
             </h3>
-            <p className="text-sm text-royal-light truncate">{order.fabricType || 'No fabric specified'}</p>
+            <p className="text-sm text-white truncate">{order.fabricType || 'No fabric specified'}</p>
           </div>
           <StatusBadge status={order.status} />
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-royal-light">
+          <span className="text-white">
             Due: {order.deliveryDate ? formatDate(order.deliveryDate) : 'Not set'}
           </span>
           <span className="font-semibold text-white">

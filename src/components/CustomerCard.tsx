@@ -40,7 +40,7 @@ export default function CustomerCard({ customer }: CustomerCardProps) {
             <a
               href={getPhoneLink(customer.phone)}
               onClick={(e) => e.stopPropagation()}
-              className="text-sm text-royal-light hover:text-gold"
+              className="text-sm text-white hover:text-gold"
             >
               {customer.phone}
             </a>

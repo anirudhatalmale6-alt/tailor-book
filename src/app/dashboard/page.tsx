@@ -230,7 +230,7 @@ export default function DashboardPage() {
           {/* Dismiss button */}
           <button
             onClick={() => setDismissedReminders(true)}
-            className="w-full text-center text-xs text-royal-muted py-1"
+            className="w-full text-center text-xs text-white/60 py-1"
           >
             Dismiss reminders
           </button>
@@ -240,21 +240,21 @@ export default function DashboardPage() {
       {/* Revenue Cards */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         <div className="bg-royal-card rounded-xl shadow-none p-4">
-          <p className="text-xs text-royal-muted mb-1">Revenue This Month</p>
+          <p className="text-xs text-white/60 mb-1">Revenue This Month</p>
           <p className="text-xl font-bold text-green-400">{formatCurrency(netRevenue, currency)}</p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-4">
-          <p className="text-xs text-royal-muted mb-1">Expenses This Month</p>
+          <p className="text-xs text-white/60 mb-1">Expenses This Month</p>
           <p className="text-xl font-bold text-red-400">{formatCurrency(monthlyExpenses, currency)}</p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-4">
-          <p className="text-xs text-royal-muted mb-1">Profit This Month</p>
+          <p className="text-xs text-white/60 mb-1">Profit This Month</p>
           <p className={`text-xl font-bold ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {formatCurrency(profit, currency)}
           </p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-4">
-          <p className="text-xs text-royal-muted mb-1">Outstanding Debts</p>
+          <p className="text-xs text-white/60 mb-1">Outstanding Debts</p>
           <p className="text-xl font-bold text-orange-400">{formatCurrency(outstandingDebts, currency)}</p>
         </div>
       </div>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
           </div>
           <div className="text-left">
             <p className="text-sm font-semibold text-white">Active Projects</p>
-            <p className="text-xs text-royal-muted">Tap to view all projects</p>
+            <p className="text-xs text-white/60">Tap to view all projects</p>
           </div>
         </div>
         <p className="text-2xl font-bold text-gold">{activeProjectCount}</p>
@@ -322,7 +322,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="bg-royal-card rounded-xl shadow-none p-6 text-center">
-            <p className="text-royal-light text-sm">No orders yet</p>
+            <p className="text-white text-sm">No orders yet</p>
           </div>
         )}
       </div>

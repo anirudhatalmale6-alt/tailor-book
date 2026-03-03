@@ -122,7 +122,7 @@ export default function OrderDetailPage() {
     <div className="px-4 pt-4">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.back()} className="p-1 text-royal-light">
+        <button onClick={() => router.back()} className="p-1 text-white">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -144,7 +144,7 @@ export default function OrderDetailPage() {
           </div>
           <div className="text-left min-w-0">
             <p className="font-medium text-white truncate">{customer.name}</p>
-            <p className="text-xs text-royal-light">{customer.phone}</p>
+            <p className="text-xs text-white">{customer.phone}</p>
           </div>
           <svg className="w-5 h-5 text-royal-dark ml-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -158,33 +158,33 @@ export default function OrderDetailPage() {
         <div className="space-y-2">
           {order.fabricType && (
             <div className="flex justify-between">
-              <span className="text-sm text-royal-light">Fabric Type</span>
+              <span className="text-sm text-white">Fabric Type</span>
               <span className="text-sm font-medium text-white">{order.fabricType}</span>
             </div>
           )}
           {order.deliveryDate && (
             <div className="flex justify-between">
-              <span className="text-sm text-royal-light">Delivery Date</span>
+              <span className="text-sm text-white">Delivery Date</span>
               <span className="text-sm font-medium text-white">{formatDate(order.deliveryDate)}</span>
             </div>
           )}
           <div className="flex justify-between">
-            <span className="text-sm text-royal-light">Created</span>
+            <span className="text-sm text-white">Created</span>
             <span className="text-sm text-white">{formatDate(order.createdAt)}</span>
           </div>
         </div>
 
         {order.styleDescription && (
           <div className="mt-3 pt-3 border-t border-royal-border">
-            <span className="text-xs font-medium text-royal-muted uppercase">Style Description</span>
-            <p className="text-sm text-royal-light mt-1">{order.styleDescription}</p>
+            <span className="text-xs font-medium text-white/60 uppercase">Style Description</span>
+            <p className="text-sm text-white mt-1">{order.styleDescription}</p>
           </div>
         )}
 
         {order.notes && (
           <div className="mt-3 pt-3 border-t border-royal-border">
-            <span className="text-xs font-medium text-royal-muted uppercase">Notes</span>
-            <p className="text-sm text-royal-light mt-1">{order.notes}</p>
+            <span className="text-xs font-medium text-white/60 uppercase">Notes</span>
+            <p className="text-sm text-white mt-1">{order.notes}</p>
           </div>
         )}
       </div>
@@ -212,15 +212,15 @@ export default function OrderDetailPage() {
         <h3 className="text-sm font-semibold text-white mb-3">Payment Summary</h3>
         <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="text-sm text-royal-light">Total Amount</span>
+            <span className="text-sm text-white">Total Amount</span>
             <span className="text-sm font-semibold text-white">{formatCurrency(order.totalAmount, currency)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm text-royal-light">Total Paid</span>
+            <span className="text-sm text-white">Total Paid</span>
             <span className="text-sm font-medium text-green-400">{formatCurrency(totalPaid, currency)}</span>
           </div>
           <div className="flex justify-between pt-2 border-t border-royal-border">
-            <span className="text-sm font-medium text-gray-200">Outstanding</span>
+            <span className="text-sm font-medium text-white">Outstanding</span>
             <span className={`text-sm font-bold ${outstanding > 0 ? 'text-red-400' : 'text-green-400'}`}>
               {formatCurrency(Math.max(0, outstanding), currency)}
             </span>
@@ -258,7 +258,7 @@ export default function OrderDetailPage() {
       {existingInvoice ? (
         <button
           onClick={() => router.push(`/invoices/${existingInvoice.id}`)}
-          className="w-full py-3 bg-royal-card border border-royal-border text-gray-200 rounded-xl font-semibold hover:bg-royal-hover transition-colors text-sm mb-3 flex items-center justify-center gap-2"
+          className="w-full py-3 bg-royal-card border border-royal-border text-white rounded-xl font-semibold hover:bg-royal-hover transition-colors text-sm mb-3 flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -268,7 +268,7 @@ export default function OrderDetailPage() {
       ) : (
         <button
           onClick={() => router.push(`/invoices/new?orderId=${id}`)}
-          className="w-full py-3 bg-royal-card border border-royal-border text-gray-200 rounded-xl font-semibold hover:bg-royal-hover transition-colors text-sm mb-3 flex items-center justify-center gap-2"
+          className="w-full py-3 bg-royal-card border border-royal-border text-white rounded-xl font-semibold hover:bg-royal-hover transition-colors text-sm mb-3 flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -293,15 +293,15 @@ export default function OrderDetailPage() {
       {latestMeasurement && fields && (
         <div className="bg-royal-card rounded-xl shadow-none p-4 mb-3">
           <h3 className="text-sm font-semibold text-white mb-2">Account Measurements</h3>
-          <p className="text-xs text-royal-muted mb-2">As of {formatDate(latestMeasurement.createdAt)}</p>
+          <p className="text-xs text-white/60 mb-2">As of {formatDate(latestMeasurement.createdAt)}</p>
           <div className="grid grid-cols-2 gap-1">
             {fields.map((f) => {
               const val = latestMeasurement.fields[f.id];
               if (val === undefined) return null;
               return (
                 <div key={f.id} className="flex justify-between bg-royal-bg rounded-lg px-2 py-1.5 text-xs">
-                  <span className="text-royal-light">{f.name}</span>
-                  <span className="font-medium text-gray-200">{val} {f.unit}</span>
+                  <span className="text-white">{f.name}</span>
+                  <span className="font-medium text-white">{val} {f.unit}</span>
                 </div>
               );
             })}
@@ -317,7 +317,7 @@ export default function OrderDetailPage() {
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Amount *</label>
+            <label className="block text-sm font-medium text-white mb-1">Amount *</label>
             <input
               type="number"
               value={paymentForm.amount}
@@ -336,7 +336,7 @@ export default function OrderDetailPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Type</label>
+            <label className="block text-sm font-medium text-white mb-1">Type</label>
             <div className="flex gap-2">
               {(['deposit', 'balance', 'refund'] as const).map((t) => (
                 <button
@@ -345,7 +345,7 @@ export default function OrderDetailPage() {
                   className={`flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
                     paymentForm.type === t
                       ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
-                      : 'bg-royal-hover text-royal-light'
+                      : 'bg-royal-hover text-white'
                   }`}
                 >
                   {t}
@@ -355,7 +355,7 @@ export default function OrderDetailPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Method</label>
+            <label className="block text-sm font-medium text-white mb-1">Method</label>
             <select
               value={paymentForm.method}
               onChange={(e) =>
@@ -374,7 +374,7 @@ export default function OrderDetailPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-white mb-1">Notes</label>
             <input
               type="text"
               value={paymentForm.notes}

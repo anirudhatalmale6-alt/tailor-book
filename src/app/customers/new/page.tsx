@@ -81,7 +81,7 @@ function NewCustomerForm() {
   return (
     <div className="px-4 pt-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.back()} className="p-1 text-royal-light">
+        <button onClick={() => router.back()} className="p-1 text-white">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -103,7 +103,7 @@ function NewCustomerForm() {
 
         {/* Contact Type Selector */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">This person is a...</label>
+          <label className="block text-sm font-medium text-white mb-1">This person is a...</label>
           <div className="flex gap-2">
             <button
               type="button"
@@ -111,7 +111,7 @@ function NewCustomerForm() {
               className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                 form.contactType === 'client'
                   ? 'bg-gold-bg border-indigo-300 text-gold-dim'
-                  : 'bg-royal-card border-royal-border text-royal-light'
+                  : 'bg-royal-card border-royal-border text-white'
               }`}
             >
               Client
@@ -122,7 +122,7 @@ function NewCustomerForm() {
               className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                 form.contactType === 'colleague'
                   ? 'bg-amber-50 border-amber-300 text-gold'
-                  : 'bg-royal-card border-royal-border text-royal-light'
+                  : 'bg-royal-card border-royal-border text-white'
               }`}
             >
               Colleague (Tailor)
@@ -131,7 +131,7 @@ function NewCustomerForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Name *</label>
+          <label className="block text-sm font-medium text-white mb-1">Name *</label>
           <input
             type="text"
             value={form.name}
@@ -142,7 +142,7 @@ function NewCustomerForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Phone</label>
+          <label className="block text-sm font-medium text-white mb-1">Phone</label>
           <input
             type="tel"
             value={form.phone}
@@ -153,7 +153,7 @@ function NewCustomerForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">WhatsApp</label>
+          <label className="block text-sm font-medium text-white mb-1">WhatsApp</label>
           <input
             type="tel"
             value={form.whatsapp}
@@ -164,7 +164,7 @@ function NewCustomerForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Email</label>
+          <label className="block text-sm font-medium text-white mb-1">Email</label>
           <input
             type="email"
             value={form.email}
@@ -175,7 +175,7 @@ function NewCustomerForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Address</label>
+          <label className="block text-sm font-medium text-white mb-1">Address</label>
           <textarea
             value={form.address}
             onChange={(e) => handleChange('address', e.target.value)}
@@ -186,7 +186,7 @@ function NewCustomerForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Style Preferences</label>
+          <label className="block text-sm font-medium text-white mb-1">Style Preferences</label>
           <textarea
             value={form.stylePreferences}
             onChange={(e) => handleChange('stylePreferences', e.target.value)}
@@ -197,7 +197,7 @@ function NewCustomerForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-white mb-1">Notes</label>
           <textarea
             value={form.notes}
             onChange={(e) => handleChange('notes', e.target.value)}

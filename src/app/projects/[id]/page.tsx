@@ -126,14 +126,14 @@ export default function ProjectDetailPage() {
     <div className="px-4 pt-4 pb-24">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.back()} className="p-1 text-royal-light">
+        <button onClick={() => router.back()} className="p-1 text-white">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-xl font-bold text-white truncate">{project.name}</h1>
-          <p className="text-sm text-royal-light">{customer?.name || 'Loading...'}</p>
+          <p className="text-sm text-white">{customer?.name || 'Loading...'}</p>
         </div>
         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusColors.bg} ${statusColors.text}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${statusColors.dot}`} />
@@ -145,7 +145,7 @@ export default function ProjectDetailPage() {
       <div className="flex gap-2 mb-2">
         <button
           onClick={() => router.push(`/projects/new?edit=${project.id}`)}
-          className="flex-1 py-2 bg-royal-card border border-royal-border text-gray-200 rounded-xl text-sm font-medium hover:bg-royal-hover transition-colors"
+          className="flex-1 py-2 bg-royal-card border border-royal-border text-white rounded-xl text-sm font-medium hover:bg-royal-hover transition-colors"
         >
           Edit Project
         </button>
@@ -185,30 +185,30 @@ export default function ProjectDetailPage() {
       {/* Notes */}
       {project.notes && (
         <div className="bg-royal-bg rounded-xl p-3 mb-4">
-          <p className="text-xs text-royal-light mb-1">Notes</p>
-          <p className="text-sm text-gray-200">{project.notes}</p>
+          <p className="text-xs text-white mb-1">Notes</p>
+          <p className="text-sm text-white">{project.notes}</p>
         </div>
       )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         <div className="bg-royal-card rounded-xl shadow-none p-3">
-          <p className="text-xs text-royal-muted mb-1">Sub-Clients</p>
+          <p className="text-xs text-white/60 mb-1">Sub-Clients</p>
           <p className="text-lg font-bold text-white">
             {completedCount}/{items?.length || 0}
-            <span className="text-xs font-normal text-royal-muted ml-1">done</span>
+            <span className="text-xs font-normal text-white/60 ml-1">done</span>
           </p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-3">
-          <p className="text-xs text-royal-muted mb-1">Total Price</p>
+          <p className="text-xs text-white/60 mb-1">Total Price</p>
           <p className="text-lg font-bold text-green-400">{formatCurrency(totalPrice, currency)}</p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-3">
-          <p className="text-xs text-royal-muted mb-1">Total Expenses</p>
+          <p className="text-xs text-white/60 mb-1">Total Expenses</p>
           <p className="text-lg font-bold text-red-400">{formatCurrency(totalExpenses, currency)}</p>
         </div>
         <div className="bg-royal-card rounded-xl shadow-none p-3">
-          <p className="text-xs text-royal-muted mb-1">Net</p>
+          <p className="text-xs text-white/60 mb-1">Net</p>
           <p className={`text-lg font-bold ${(totalPrice - totalExpenses) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {formatCurrency(totalPrice - totalExpenses, currency)}
           </p>
@@ -259,7 +259,7 @@ export default function ProjectDetailPage() {
                         <p className="text-sm font-semibold text-white truncate">{item.name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {item.fabricType && (
-                            <span className="text-xs text-royal-muted">{item.fabricType}</span>
+                            <span className="text-xs text-white/60">{item.fabricType}</span>
                           )}
                           <span className="text-xs font-medium text-white">
                             {formatCurrency(item.price || 0, currency)}
@@ -269,7 +269,7 @@ export default function ProjectDetailPage() {
                       <div className="flex items-center gap-2">
                         <StatusBadge status={item.status} />
                         <svg
-                          className={`w-4 h-4 text-royal-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                          className={`w-4 h-4 text-white/60 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -286,11 +286,11 @@ export default function ProjectDetailPage() {
                       {/* Measurements */}
                       {item.measurements && Object.keys(item.measurements).length > 0 && (
                         <div>
-                          <p className="text-xs font-medium text-royal-light mb-1">Measurements</p>
+                          <p className="text-xs font-medium text-white mb-1">Measurements</p>
                           <div className="grid grid-cols-2 gap-1">
                             {Object.entries(item.measurements).map(([key, val]) => (
                               <div key={key} className="flex justify-between text-xs py-0.5">
-                                <span className="text-royal-light">{key}</span>
+                                <span className="text-white">{key}</span>
                                 <span className="text-white font-medium">{val}</span>
                               </div>
                             ))}
@@ -301,15 +301,15 @@ export default function ProjectDetailPage() {
                       {/* Style Description */}
                       {item.styleDescription && (
                         <div>
-                          <p className="text-xs font-medium text-royal-light mb-1">Style</p>
-                          <p className="text-xs text-gray-200">{item.styleDescription}</p>
+                          <p className="text-xs font-medium text-white mb-1">Style</p>
+                          <p className="text-xs text-white">{item.styleDescription}</p>
                         </div>
                       )}
 
                       {/* Style Images */}
                       {item.styleImages && item.styleImages.length > 0 && (
                         <div>
-                          <p className="text-xs font-medium text-royal-light mb-1">Style Images</p>
+                          <p className="text-xs font-medium text-white mb-1">Style Images</p>
                           <div className="flex gap-2 overflow-x-auto">
                             {item.styleImages.map((img, i) => (
                               <img key={i} src={img} alt={`Style ${i + 1}`} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
@@ -321,7 +321,7 @@ export default function ProjectDetailPage() {
                       {/* Delivery Date */}
                       {item.deliveryDate && (
                         <div className="flex items-center gap-1 text-xs">
-                          <span className="text-royal-light">Delivery:</span>
+                          <span className="text-white">Delivery:</span>
                           <span className="text-white font-medium">{formatDate(item.deliveryDate)}</span>
                         </div>
                       )}
@@ -329,8 +329,8 @@ export default function ProjectDetailPage() {
                       {/* Notes */}
                       {item.notes && (
                         <div>
-                          <p className="text-xs font-medium text-royal-light mb-1">Notes</p>
-                          <p className="text-xs text-gray-200">{item.notes}</p>
+                          <p className="text-xs font-medium text-white mb-1">Notes</p>
+                          <p className="text-xs text-white">{item.notes}</p>
                         </div>
                       )}
 
@@ -376,7 +376,7 @@ export default function ProjectDetailPage() {
               <div key={e.id} className="bg-royal-card rounded-xl shadow-none p-3 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-white">{e.description}</p>
-                  <p className="text-xs text-royal-muted">
+                  <p className="text-xs text-white/60">
                     {e.category || 'General'} &middot; {formatDate(e.date)}
                   </p>
                 </div>
@@ -388,7 +388,7 @@ export default function ProjectDetailPage() {
           </div>
         ) : (
           <div className="bg-royal-card rounded-xl shadow-none p-4 text-center">
-            <p className="text-xs text-royal-muted">No sewing expenses recorded for this project</p>
+            <p className="text-xs text-white/60">No sewing expenses recorded for this project</p>
           </div>
         )}
       </div>
@@ -401,7 +401,7 @@ export default function ProjectDetailPage() {
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Description *</label>
+            <label className="block text-sm font-medium text-white mb-1">Description *</label>
             <input
               type="text"
               value={expenseForm.description}
@@ -411,7 +411,7 @@ export default function ProjectDetailPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Amount *</label>
+            <label className="block text-sm font-medium text-white mb-1">Amount *</label>
             <input
               type="number"
               value={expenseForm.amount}
@@ -421,7 +421,7 @@ export default function ProjectDetailPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Category</label>
+            <label className="block text-sm font-medium text-white mb-1">Category</label>
             <input
               type="text"
               value={expenseForm.category}
@@ -432,7 +432,7 @@ export default function ProjectDetailPage() {
           </div>
           {items && items.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-200 mb-1">For Sub-Client (optional)</label>
+              <label className="block text-sm font-medium text-white mb-1">For Sub-Client (optional)</label>
               <select
                 value={expenseForm.projectItemId}
                 onChange={(e) => setExpenseForm((p) => ({ ...p, projectItemId: e.target.value }))}
@@ -446,7 +446,7 @@ export default function ProjectDetailPage() {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Date</label>
+            <label className="block text-sm font-medium text-white mb-1">Date</label>
             <input
               type="date"
               value={expenseForm.date}
@@ -471,13 +471,13 @@ export default function ProjectDetailPage() {
         title="Delete Project"
       >
         <div className="space-y-4">
-          <p className="text-sm text-royal-light">
+          <p className="text-sm text-white">
             Are you sure you want to delete &ldquo;{project.name}&rdquo;? This will also delete all sub-clients and linked expenses. This action cannot be undone.
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setShowDeleteConfirm(false)}
-              className="flex-1 py-2.5 bg-royal-card border border-royal-border text-gray-200 rounded-xl text-sm font-medium"
+              className="flex-1 py-2.5 bg-royal-card border border-royal-border text-white rounded-xl text-sm font-medium"
             >
               Cancel
             </button>
@@ -498,13 +498,13 @@ export default function ProjectDetailPage() {
         title="Delete Sub-Client"
       >
         <div className="space-y-4">
-          <p className="text-sm text-royal-light">
+          <p className="text-sm text-white">
             Are you sure you want to delete this sub-client? This action cannot be undone.
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setShowDeleteItemConfirm(null)}
-              className="flex-1 py-2.5 bg-royal-card border border-royal-border text-gray-200 rounded-xl text-sm font-medium"
+              className="flex-1 py-2.5 bg-royal-card border border-royal-border text-white rounded-xl text-sm font-medium"
             >
               Cancel
             </button>

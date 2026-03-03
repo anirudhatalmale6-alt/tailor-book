@@ -91,7 +91,7 @@ export default function ProjectsPage() {
         <div className="space-y-4 pb-24">
           {grouped.active.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-royal-light uppercase tracking-wide mb-2">
+              <h2 className="text-sm font-semibold text-white uppercase tracking-wide mb-2">
                 Active ({grouped.active.length})
               </h2>
               <div className="space-y-2">
@@ -107,7 +107,7 @@ export default function ProjectsPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0 mr-2">
                           <p className="text-sm font-semibold text-white truncate">{project.name}</p>
-                          <p className="text-xs text-royal-light truncate">
+                          <p className="text-xs text-white truncate">
                             {customers[project.customerId]?.name || 'Unknown Client'}
                           </p>
                         </div>
@@ -116,7 +116,7 @@ export default function ProjectsPage() {
                           {getStatusLabel(project.status)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-royal-muted">
+                      <div className="flex items-center justify-between text-xs text-white/60">
                         <span>{stats.count} item{stats.count !== 1 ? 's' : ''} &middot; {stats.completed} done</span>
                         <span className="font-medium text-white">{formatCurrency(stats.totalPrice, currency)}</span>
                       </div>
@@ -129,7 +129,7 @@ export default function ProjectsPage() {
 
           {grouped.completed.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-royal-light uppercase tracking-wide mb-2">
+              <h2 className="text-sm font-semibold text-white uppercase tracking-wide mb-2">
                 Completed ({grouped.completed.length})
               </h2>
               <div className="space-y-2">
@@ -145,7 +145,7 @@ export default function ProjectsPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0 mr-2">
                           <p className="text-sm font-semibold text-white truncate">{project.name}</p>
-                          <p className="text-xs text-royal-light truncate">
+                          <p className="text-xs text-white truncate">
                             {customers[project.customerId]?.name || 'Unknown Client'}
                           </p>
                         </div>
@@ -154,7 +154,7 @@ export default function ProjectsPage() {
                           {getStatusLabel(project.status)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-royal-muted">
+                      <div className="flex items-center justify-between text-xs text-white/60">
                         <span>{stats.count} item{stats.count !== 1 ? 's' : ''} &middot; {stats.completed} done</span>
                         <span className="font-medium text-white">{formatCurrency(stats.totalPrice, currency)}</span>
                       </div>
@@ -167,7 +167,7 @@ export default function ProjectsPage() {
 
           {grouped.cancelled.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-royal-light uppercase tracking-wide mb-2">
+              <h2 className="text-sm font-semibold text-white uppercase tracking-wide mb-2">
                 Cancelled ({grouped.cancelled.length})
               </h2>
               <div className="space-y-2">
@@ -183,7 +183,7 @@ export default function ProjectsPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0 mr-2">
                           <p className="text-sm font-semibold text-white truncate">{project.name}</p>
-                          <p className="text-xs text-royal-light truncate">
+                          <p className="text-xs text-white truncate">
                             {customers[project.customerId]?.name || 'Unknown Client'}
                           </p>
                         </div>
@@ -192,7 +192,7 @@ export default function ProjectsPage() {
                           {getStatusLabel(project.status)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-royal-muted">
+                      <div className="flex items-center justify-between text-xs text-white/60">
                         <span>{stats.count} item{stats.count !== 1 ? 's' : ''}</span>
                         <span className="font-medium text-white">{formatCurrency(stats.totalPrice, currency)}</span>
                       </div>

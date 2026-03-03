@@ -200,7 +200,7 @@ export default function SettingsPage() {
         <h2 className="text-sm font-semibold text-white mb-3">Business</h2>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs text-royal-light mb-1">Business Name</label>
+            <label className="block text-xs text-white mb-1">Business Name</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -218,7 +218,7 @@ export default function SettingsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-xs text-royal-light mb-1">Default Currency</label>
+            <label className="block text-xs text-white mb-1">Default Currency</label>
             <div className="flex gap-2">
               <select
                 value={curr}
@@ -244,7 +244,7 @@ export default function SettingsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-xs text-royal-light mb-1">Tax Rate (%)</label>
+            <label className="block text-xs text-white mb-1">Tax Rate (%)</label>
             <div className="flex gap-2">
               <input
                 type="number"
@@ -263,7 +263,7 @@ export default function SettingsPage() {
                 Save
               </button>
             </div>
-            <p className="text-[10px] text-royal-muted mt-1">Applied to invoices. Set to 0 for no tax.</p>
+            <p className="text-[10px] text-white/60 mt-1">Applied to invoices. Set to 0 for no tax.</p>
           </div>
         </div>
       </div>
@@ -295,7 +295,7 @@ export default function SettingsPage() {
                   <button
                     onClick={() => handleMoveField(field, 'up')}
                     disabled={idx === 0}
-                    className="text-royal-muted hover:text-royal-light disabled:opacity-30"
+                    className="text-white/60 hover:text-white disabled:opacity-30"
                   >
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
@@ -304,7 +304,7 @@ export default function SettingsPage() {
                   <button
                     onClick={() => handleMoveField(field, 'down')}
                     disabled={idx === fields.length - 1}
-                    className="text-royal-muted hover:text-royal-light disabled:opacity-30"
+                    className="text-white/60 hover:text-white disabled:opacity-30"
                   >
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -313,11 +313,11 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{field.name}</p>
-                  <p className="text-[10px] text-royal-muted">{field.category} - {field.unit}</p>
+                  <p className="text-[10px] text-white/60">{field.category} - {field.unit}</p>
                 </div>
                 <button
                   onClick={() => openEditField(field)}
-                  className="p-1 text-royal-muted hover:text-gold"
+                  className="p-1 text-white/60 hover:text-gold"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -325,7 +325,7 @@ export default function SettingsPage() {
                 </button>
                 <button
                   onClick={() => handleDeleteField(field)}
-                  className="p-1 text-royal-muted hover:text-red-400"
+                  className="p-1 text-white/60 hover:text-red-400"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -343,7 +343,7 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <button
             onClick={handleExport}
-            className="w-full py-3 bg-royal-hover text-gray-200 rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-royal-hover text-white rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -352,7 +352,7 @@ export default function SettingsPage() {
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full py-3 bg-royal-hover text-gray-200 rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-royal-hover text-white rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -371,8 +371,8 @@ export default function SettingsPage() {
 
       {/* App Info */}
       <div className="text-center py-4">
-        <p className="text-xs text-royal-muted">TailorBook v1.0</p>
-        <p className="text-xs text-royal-muted">All data stored locally on your device</p>
+        <p className="text-xs text-white/60">TailorBook v1.0</p>
+        <p className="text-xs text-white/60">All data stored locally on your device</p>
       </div>
 
       {/* Measurement Field Modal */}
@@ -383,7 +383,7 @@ export default function SettingsPage() {
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Field Name *</label>
+            <label className="block text-sm font-medium text-white mb-1">Field Name *</label>
             <input
               type="text"
               value={fieldForm.name}
@@ -393,7 +393,7 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Unit</label>
+            <label className="block text-sm font-medium text-white mb-1">Unit</label>
             <div className="flex gap-2">
               {(['inches', 'cm'] as const).map((u) => (
                 <button
@@ -402,7 +402,7 @@ export default function SettingsPage() {
                   className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                     fieldForm.unit === u
                       ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
-                      : 'bg-royal-hover text-royal-light'
+                      : 'bg-royal-hover text-white'
                   }`}
                 >
                   {u}
@@ -411,7 +411,7 @@ export default function SettingsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Category</label>
+            <label className="block text-sm font-medium text-white mb-1">Category</label>
             <select
               value={fieldForm.category}
               onChange={(e) => setFieldForm((p) => ({ ...p, category: e.target.value }))}

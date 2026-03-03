@@ -128,7 +128,7 @@ function NewOrderForm() {
   return (
     <div className="px-4 pt-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.back()} className="p-1 text-royal-light">
+        <button onClick={() => router.back()} className="p-1 text-white">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -139,7 +139,7 @@ function NewOrderForm() {
       <div className="space-y-4">
         {/* Customer Selector */}
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-200 mb-1">Account Holder *</label>
+          <label className="block text-sm font-medium text-white mb-1">Account Holder *</label>
           <input
             type="text"
             value={customerSearch}
@@ -173,14 +173,14 @@ function NewOrderForm() {
                   </button>
                 ))
               ) : (
-                <div className="px-4 py-2 text-sm text-royal-light">No accounts found</div>
+                <div className="px-4 py-2 text-sm text-white">No accounts found</div>
               )}
             </div>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Fabric Type</label>
+          <label className="block text-sm font-medium text-white mb-1">Fabric Type</label>
           <input
             type="text"
             value={form.fabricType}
@@ -191,7 +191,7 @@ function NewOrderForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Fabric Photo</label>
+          <label className="block text-sm font-medium text-white mb-1">Fabric Photo</label>
           <PhotoUpload
             value={form.fabricPhoto}
             onChange={(v) => handleChange('fabricPhoto', v)}
@@ -201,7 +201,7 @@ function NewOrderForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Style Description</label>
+          <label className="block text-sm font-medium text-white mb-1">Style Description</label>
           <textarea
             value={form.styleDescription}
             onChange={(e) => handleChange('styleDescription', e.target.value)}
@@ -212,7 +212,7 @@ function NewOrderForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Style Reference Images</label>
+          <label className="block text-sm font-medium text-white mb-1">Style Reference Images</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {form.styleImages.map((img, i) => (
               <div key={i} className="relative w-20 h-20">
@@ -226,7 +226,7 @@ function NewOrderForm() {
               </div>
             ))}
           </div>
-          <label className="inline-flex items-center gap-2 px-4 py-2 bg-royal-hover rounded-lg text-sm text-royal-light cursor-pointer hover:bg-gray-200">
+          <label className="inline-flex items-center gap-2 px-4 py-2 bg-royal-hover rounded-lg text-sm text-white cursor-pointer hover:bg-gray-200">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
@@ -236,7 +236,7 @@ function NewOrderForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Delivery Date</label>
+          <label className="block text-sm font-medium text-white mb-1">Delivery Date</label>
           <input
             type="date"
             value={form.deliveryDate}
@@ -247,7 +247,7 @@ function NewOrderForm() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Total Amount *</label>
+            <label className="block text-sm font-medium text-white mb-1">Total Amount *</label>
             <input
               type="number"
               value={form.totalAmount}
@@ -257,7 +257,7 @@ function NewOrderForm() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Deposit</label>
+            <label className="block text-sm font-medium text-white mb-1">Deposit</label>
             <input
               type="number"
               value={form.depositAmount}
@@ -269,7 +269,7 @@ function NewOrderForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-white mb-1">Notes</label>
           <textarea
             value={form.notes}
             onChange={(e) => handleChange('notes', e.target.value)}

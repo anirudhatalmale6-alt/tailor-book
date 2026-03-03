@@ -108,7 +108,7 @@ function NewProjectForm() {
   return (
     <div className="px-4 pt-4">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.back()} className="p-1 text-royal-light">
+        <button onClick={() => router.back()} className="p-1 text-white">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -121,7 +121,7 @@ function NewProjectForm() {
       <div className="space-y-4">
         {/* Project Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Project Name *</label>
+          <label className="block text-sm font-medium text-white mb-1">Project Name *</label>
           <input
             type="text"
             value={form.name}
@@ -133,7 +133,7 @@ function NewProjectForm() {
 
         {/* Client Selector */}
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-200 mb-1">Account Holder *</label>
+          <label className="block text-sm font-medium text-white mb-1">Account Holder *</label>
           <input
             type="text"
             value={customerSearch}
@@ -167,7 +167,7 @@ function NewProjectForm() {
                   </button>
                 ))
               ) : (
-                <div className="px-4 py-2 text-sm text-royal-light">No clients found</div>
+                <div className="px-4 py-2 text-sm text-white">No clients found</div>
               )}
             </div>
           )}
@@ -175,7 +175,7 @@ function NewProjectForm() {
 
         {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Status</label>
+          <label className="block text-sm font-medium text-white mb-1">Status</label>
           <div className="flex gap-2">
             {(['active', 'completed', 'cancelled'] as const).map((s) => (
               <button
@@ -188,7 +188,7 @@ function NewProjectForm() {
                       : s === 'completed'
                       ? 'bg-green-400/10 border-green-300 text-green-400'
                       : 'bg-red-400/10 border-red-300 text-red-400'
-                    : 'bg-royal-card border-royal-border text-royal-light'
+                    : 'bg-royal-card border-royal-border text-white'
                 }`}
               >
                 {s === 'active' ? 'Active' : s === 'completed' ? 'Completed' : 'Cancelled'}
@@ -199,7 +199,7 @@ function NewProjectForm() {
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Notes</label>
+          <label className="block text-sm font-medium text-white mb-1">Notes</label>
           <textarea
             value={form.notes}
             onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}

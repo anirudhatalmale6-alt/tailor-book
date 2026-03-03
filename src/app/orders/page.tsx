@@ -45,7 +45,7 @@ export default function OrdersPage() {
             className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               statusFilter === f.key
                 ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
-                : 'bg-royal-card text-royal-light border border-royal-border'
+                : 'bg-royal-card text-white border border-royal-border'
             }`}
           >
             {f.label}
