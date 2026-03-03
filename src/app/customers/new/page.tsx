@@ -58,7 +58,7 @@ function NewCustomerForm() {
 
   async function handleSave() {
     if (!form.name.trim()) {
-      alert('Please enter a customer name');
+      alert('Please enter an account name');
       return;
     }
     setSaving(true);
@@ -71,8 +71,8 @@ function NewCustomerForm() {
         router.replace(`/customers/${id}`);
       }
     } catch (err) {
-      console.error('Failed to save customer:', err);
-      alert('Failed to save customer. Please try again.');
+      console.error('Failed to save account:', err);
+      alert('Failed to save account. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -212,7 +212,7 @@ function NewCustomerForm() {
           disabled={saving}
           className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold hover:bg-gold-dim active:bg-gold-dim disabled:opacity-50 transition-colors"
         >
-          {saving ? 'Saving...' : editId ? 'Update Customer' : 'Save Customer'}
+          {saving ? 'Saving...' : editId ? 'Update Account' : 'Create Account'}
         </button>
       </div>
     </div>
