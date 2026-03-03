@@ -186,16 +186,18 @@ function NewCustomerForm() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-white mb-1">Style Preferences</label>
-          <textarea
-            value={form.stylePreferences}
-            onChange={(e) => handleChange('stylePreferences', e.target.value)}
-            className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold resize-none"
-            rows={2}
-            placeholder="e.g., Prefers slim fit, likes French cuffs..."
-          />
-        </div>
+        {form.contactType !== 'colleague' && (
+          <div>
+            <label className="block text-sm font-medium text-white mb-1">Style Preferences</label>
+            <textarea
+              value={form.stylePreferences}
+              onChange={(e) => handleChange('stylePreferences', e.target.value)}
+              className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold resize-none"
+              rows={2}
+              placeholder="e.g., Prefers slim fit, likes French cuffs..."
+            />
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-white mb-1">Notes</label>
