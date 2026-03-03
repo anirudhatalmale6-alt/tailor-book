@@ -122,6 +122,28 @@ export interface Invoice {
   createdAt: string;
 }
 
+export interface ColleagueJob {
+  id: string;
+  colleagueId: string;
+  description: string;
+  agreedAmount: number;
+  status: 'in_progress' | 'delivered' | 'settled';
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ColleaguePayment {
+  id: string;
+  colleagueId: string;
+  jobId: string;
+  amount: number;
+  type: 'advance' | 'balance';
+  method: 'cash' | 'transfer' | 'card' | 'mobile_money';
+  notes: string;
+  createdAt: string;
+}
+
 export interface AppSettings {
   key: string;
   value: string;
@@ -138,6 +160,8 @@ class TailorDB extends Dexie {
   invoices!: Table<Invoice>;
   projects!: Table<Project>;
   projectItems!: Table<ProjectItem>;
+  colleagueJobs!: Table<ColleagueJob>;
+  colleaguePayments!: Table<ColleaguePayment>;
 
   constructor() {
     super('TailorBookDB');
@@ -225,6 +249,20 @@ class TailorDB extends Dexie {
           customer.styleImages = [];
         }
       });
+    });
+    this.version(7).stores({
+      customers: 'id, name, phone, contactType, createdAt',
+      measurementFields: 'id, name, category, sortOrder',
+      measurements: 'id, customerId, createdAt',
+      orders: 'id, customerId, status, deliveryDate, createdAt',
+      payments: 'id, orderId, customerId, createdAt',
+      expenses: 'id, category, date, createdAt, expenseType, projectId',
+      settings: 'key',
+      invoices: 'id, invoiceNumber, orderId, customerId, projectId, createdAt',
+      projects: 'id, customerId, status, createdAt',
+      projectItems: 'id, projectId, status, createdAt',
+      colleagueJobs: 'id, colleagueId, status, createdAt',
+      colleaguePayments: 'id, colleagueId, jobId, createdAt',
     });
   }
 }

@@ -6,6 +6,7 @@ import { useCustomer, useCustomers } from '@/hooks/useCustomers';
 import { useMeasurementFields, useCustomerMeasurements, addMeasurement, addMeasurementField } from '@/hooks/useMeasurements';
 import { useCustomerOrders } from '@/hooks/useOrders';
 import { useCustomerPayments } from '@/hooks/usePayments';
+import { useColleagueJobs, useColleaguePayments as useColleaguePaymentsList, addColleagueJob, updateColleagueJob, addColleaguePayment } from '@/hooks/useColleagueJobs';
 import { useCurrency } from '@/hooks/useSettings';
 import { getInitials, getWhatsAppLink, getPhoneLink, formatDate, formatCurrency } from '@/lib/utils';
 import OrderCard from '@/components/OrderCard';
@@ -13,7 +14,7 @@ import StatusBadge from '@/components/StatusBadge';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
 
-type TabType = 'measurements' | 'orders' | 'balance';
+type TabType = 'measurements' | 'orders' | 'balance' | 'jobs' | 'payments';
 
 export default function CustomerDetailPage() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function CustomerDetailPage() {
   const payments = useCustomerPayments(id);
   const currency = useCurrency();
 
-  const [activeTab, setActiveTab] = useState<TabType>('measurements');
+  const [activeTab, setActiveTab] = useState<TabType | null>(null);
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
   const [measurementValues, setMeasurementValues] = useState<Record<string, string>>({});
   const [measurementNotes, setMeasurementNotes] = useState('');
@@ -37,6 +38,17 @@ export default function CustomerDetailPage() {
   const [newFieldUnit, setNewFieldUnit] = useState<'inches' | 'cm'>('inches');
   const [addingField, setAddingField] = useState(false);
   const [showSendToColleague, setShowSendToColleague] = useState(false);
+  const [showAddJob, setShowAddJob] = useState(false);
+  const [showAddPayment, setShowAddPayment] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [jobForm, setJobForm] = useState({ description: '', agreedAmount: '', notes: '' });
+  const [paymentForm, setPaymentForm] = useState({ amount: '', type: 'advance' as 'advance' | 'balance', method: 'cash' as 'cash' | 'transfer' | 'card' | 'mobile_money', notes: '' });
+  const [savingJob, setSavingJob] = useState(false);
+  const [savingPayment, setSavingPayment] = useState(false);
+
+  const colleagueJobs = useColleagueJobs(id);
+  const colleaguePayments = useColleaguePaymentsList(id);
+
   const allCustomers = useCustomers();
   const colleagues = useMemo(() => {
     if (!allCustomers) return [];
@@ -223,12 +235,15 @@ export default function CustomerDetailPage() {
 
       {/* Tabs */}
       <div className="flex bg-royal-card rounded-xl shadow-none mb-4 overflow-hidden">
-        {(['measurements', 'orders', 'balance'] as TabType[]).map((tab) => (
+        {(customer.contactType === 'colleague'
+          ? (['jobs', 'payments'] as TabType[])
+          : (['measurements', 'orders', 'balance'] as TabType[])
+        ).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`flex-1 py-3 text-sm font-medium capitalize transition-colors ${
-              activeTab === tab
+              (activeTab || (customer.contactType === 'colleague' ? 'jobs' : 'measurements')) === tab
                 ? 'text-gold border-b-2 border-gold bg-gold-bg/50'
                 : 'text-white border-b-2 border-transparent'
             }`}
@@ -239,7 +254,7 @@ export default function CustomerDetailPage() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'measurements' && (
+      {(activeTab || (customer.contactType === 'colleague' ? 'jobs' : 'measurements')) === 'measurements' && customer.contactType !== 'colleague' && (
         <div>
           {latestMeasurement && fields ? (
             <div className="bg-royal-card rounded-xl shadow-none p-4 mb-3">
@@ -339,7 +354,7 @@ export default function CustomerDetailPage() {
         </div>
       )}
 
-      {activeTab === 'orders' && (
+      {(activeTab || 'measurements') === 'orders' && (
         <div>
           {orders && orders.length > 0 ? (
             <div className="space-y-2">
@@ -364,7 +379,7 @@ export default function CustomerDetailPage() {
         </div>
       )}
 
-      {activeTab === 'balance' && (
+      {(activeTab || 'measurements') === 'balance' && (
         <div>
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="bg-royal-card rounded-xl shadow-none p-3 text-center">
@@ -415,6 +430,318 @@ export default function CustomerDetailPage() {
           )}
         </div>
       )}
+
+      {/* Colleague Jobs Tab */}
+      {(activeTab || (customer.contactType === 'colleague' ? 'jobs' : 'measurements')) === 'jobs' && customer.contactType === 'colleague' && (
+        <div>
+          {/* Financial Summary */}
+          {colleagueJobs && colleagueJobs.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="bg-royal-card rounded-xl shadow-none p-3 text-center">
+                <p className="text-xs text-white/60 mb-1">Total Jobs</p>
+                <p className="font-semibold text-white text-sm">
+                  {formatCurrency(colleagueJobs.reduce((s, j) => s + j.agreedAmount, 0), currency)}
+                </p>
+              </div>
+              <div className="bg-royal-card rounded-xl shadow-none p-3 text-center">
+                <p className="text-xs text-white/60 mb-1">Paid</p>
+                <p className="font-semibold text-green-400 text-sm">
+                  {formatCurrency(colleaguePayments?.reduce((s, p) => s + p.amount, 0) || 0, currency)}
+                </p>
+              </div>
+              <div className="bg-royal-card rounded-xl shadow-none p-3 text-center">
+                <p className="text-xs text-white/60 mb-1">Balance</p>
+                <p className={`font-semibold text-sm ${(colleagueJobs.reduce((s, j) => s + j.agreedAmount, 0) - (colleaguePayments?.reduce((s, p) => s + p.amount, 0) || 0)) > 0 ? 'text-red-400' : 'text-white'}`}>
+                  {formatCurrency(
+                    colleagueJobs.reduce((s, j) => s + j.agreedAmount, 0) - (colleaguePayments?.reduce((s, p) => s + p.amount, 0) || 0),
+                    currency
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Job List */}
+          {colleagueJobs && colleagueJobs.length > 0 ? (
+            <div className="space-y-2 mb-4">
+              {[...colleagueJobs].reverse().map((job) => {
+                const jobPayments = colleaguePayments?.filter((p) => p.jobId === job.id) || [];
+                const totalPaidForJob = jobPayments.reduce((s, p) => s + p.amount, 0);
+                const balanceDue = job.agreedAmount - totalPaidForJob;
+                return (
+                  <div key={job.id} className="bg-royal-card rounded-xl shadow-none p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white">{job.description}</p>
+                        <p className="text-xs text-white/60">{formatDate(job.createdAt)}</p>
+                      </div>
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        job.status === 'settled' ? 'bg-green-400/10 text-green-400' :
+                        job.status === 'delivered' ? 'bg-blue-400/10 text-blue-400' :
+                        'bg-yellow-400/10 text-yellow-400'
+                      }`}>
+                        {job.status === 'in_progress' ? 'In Progress' : job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs mb-2">
+                      <span className="text-white">Agreed: {formatCurrency(job.agreedAmount, currency)}</span>
+                      <span className="text-white">Paid: {formatCurrency(totalPaidForJob, currency)}</span>
+                      <span className={balanceDue > 0 ? 'text-red-400 font-medium' : 'text-green-400 font-medium'}>
+                        {balanceDue > 0 ? `Due: ${formatCurrency(balanceDue, currency)}` : 'Settled'}
+                      </span>
+                    </div>
+                    {job.notes && <p className="text-xs text-white/60 mb-2">{job.notes}</p>}
+                    <div className="flex gap-2">
+                      {job.status === 'in_progress' && (
+                        <button
+                          onClick={() => updateColleagueJob(job.id, { status: 'delivered' })}
+                          className="flex-1 py-1.5 bg-blue-400/10 text-blue-400 rounded-lg text-xs font-medium"
+                        >
+                          Mark Delivered
+                        </button>
+                      )}
+                      {job.status === 'delivered' && balanceDue <= 0 && (
+                        <button
+                          onClick={() => updateColleagueJob(job.id, { status: 'settled' })}
+                          className="flex-1 py-1.5 bg-green-400/10 text-green-400 rounded-lg text-xs font-medium"
+                        >
+                          Mark Settled
+                        </button>
+                      )}
+                      {balanceDue > 0 && (
+                        <button
+                          onClick={() => {
+                            setSelectedJobId(job.id);
+                            setPaymentForm({ amount: '', type: job.status === 'in_progress' ? 'advance' : 'balance', method: 'cash', notes: '' });
+                            setShowAddPayment(true);
+                          }}
+                          className="flex-1 py-1.5 bg-gold-bg text-gold rounded-lg text-xs font-medium"
+                        >
+                          Record Payment
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <EmptyState
+              title="No jobs yet"
+              description="Assign a job to this colleague to start tracking"
+            />
+          )}
+
+          <button
+            onClick={() => {
+              setJobForm({ description: '', agreedAmount: '', notes: '' });
+              setShowAddJob(true);
+            }}
+            className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold mb-4"
+          >
+            + Assign New Job
+          </button>
+        </div>
+      )}
+
+      {/* Colleague Payments Tab */}
+      {(activeTab || 'jobs') === 'payments' && customer.contactType === 'colleague' && (
+        <div>
+          {colleaguePayments && colleaguePayments.length > 0 ? (
+            <div className="space-y-2">
+              {[...colleaguePayments].reverse().map((payment) => {
+                const job = colleagueJobs?.find((j) => j.id === payment.jobId);
+                return (
+                  <div key={payment.id} className="bg-royal-card rounded-xl shadow-none p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-white">{formatCurrency(payment.amount, currency)}</span>
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        payment.type === 'advance' ? 'bg-yellow-400/10 text-yellow-400' : 'bg-green-400/10 text-green-400'
+                      }`}>
+                        {payment.type.charAt(0).toUpperCase() + payment.type.slice(1)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-white/60">
+                      <span>{job?.description || 'Unknown job'}</span>
+                      <span>{payment.method}</span>
+                    </div>
+                    <p className="text-xs text-white/60 mt-1">{formatDate(payment.createdAt)}</p>
+                    {payment.notes && <p className="text-xs text-white/60 mt-1">{payment.notes}</p>}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <EmptyState
+              title="No payments yet"
+              description="Payments will appear here when you record them against jobs"
+            />
+          )}
+        </div>
+      )}
+
+      {/* Add Job Modal */}
+      <Modal
+        isOpen={showAddJob}
+        onClose={() => setShowAddJob(false)}
+        title="Assign New Job"
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm text-white mb-1">Job Description *</label>
+            <textarea
+              value={jobForm.description}
+              onChange={(e) => setJobForm((p) => ({ ...p, description: e.target.value }))}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold resize-none"
+              rows={2}
+              placeholder="e.g., Sew 3 agbadas, Embroider 2 kaftans..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-white mb-1">Agreed Amount *</label>
+            <input
+              type="number"
+              value={jobForm.agreedAmount}
+              onChange={(e) => setJobForm((p) => ({ ...p, agreedAmount: e.target.value }))}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Total amount for this job"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-white mb-1">Notes</label>
+            <textarea
+              value={jobForm.notes}
+              onChange={(e) => setJobForm((p) => ({ ...p, notes: e.target.value }))}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold resize-none"
+              rows={2}
+              placeholder="Any additional notes..."
+            />
+          </div>
+          <button
+            onClick={async () => {
+              if (!jobForm.description.trim() || !jobForm.agreedAmount) {
+                alert('Please enter job description and agreed amount');
+                return;
+              }
+              setSavingJob(true);
+              try {
+                await addColleagueJob({
+                  colleagueId: id,
+                  description: jobForm.description.trim(),
+                  agreedAmount: parseFloat(jobForm.agreedAmount),
+                  status: 'in_progress',
+                  notes: jobForm.notes,
+                });
+                setShowAddJob(false);
+              } catch (err) {
+                console.error('Failed to add job:', err);
+                alert('Failed to add job');
+              } finally {
+                setSavingJob(false);
+              }
+            }}
+            disabled={savingJob}
+            className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold disabled:opacity-50"
+          >
+            {savingJob ? 'Saving...' : 'Assign Job'}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Add Payment Modal */}
+      <Modal
+        isOpen={showAddPayment}
+        onClose={() => setShowAddPayment(false)}
+        title="Record Payment"
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm text-white mb-1">Amount *</label>
+            <input
+              type="number"
+              value={paymentForm.amount}
+              onChange={(e) => setPaymentForm((p) => ({ ...p, amount: e.target.value }))}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Payment amount"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-white mb-1">Payment Type</label>
+            <div className="flex gap-2">
+              {(['advance', 'balance'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setPaymentForm((p) => ({ ...p, type: t }))}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    paymentForm.type === t
+                      ? 'bg-gold-bg border border-gold text-gold'
+                      : 'bg-royal-card border border-royal-border text-white'
+                  }`}
+                >
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm text-white mb-1">Payment Method</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(['cash', 'transfer', 'card', 'mobile_money'] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setPaymentForm((p) => ({ ...p, method: m }))}
+                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${
+                    paymentForm.method === m
+                      ? 'bg-gold-bg border border-gold text-gold'
+                      : 'bg-royal-card border border-royal-border text-white'
+                  }`}
+                >
+                  {m === 'mobile_money' ? 'Mobile Money' : m.charAt(0).toUpperCase() + m.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm text-white mb-1">Notes</label>
+            <input
+              type="text"
+              value={paymentForm.notes}
+              onChange={(e) => setPaymentForm((p) => ({ ...p, notes: e.target.value }))}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Optional note..."
+            />
+          </div>
+          <button
+            onClick={async () => {
+              if (!paymentForm.amount || !selectedJobId) {
+                alert('Please enter an amount');
+                return;
+              }
+              setSavingPayment(true);
+              try {
+                await addColleaguePayment({
+                  colleagueId: id,
+                  jobId: selectedJobId,
+                  amount: parseFloat(paymentForm.amount),
+                  type: paymentForm.type,
+                  method: paymentForm.method,
+                  notes: paymentForm.notes,
+                });
+                setShowAddPayment(false);
+              } catch (err) {
+                console.error('Failed to record payment:', err);
+                alert('Failed to record payment');
+              } finally {
+                setSavingPayment(false);
+              }
+            }}
+            disabled={savingPayment}
+            className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold disabled:opacity-50"
+          >
+            {savingPayment ? 'Saving...' : 'Record Payment'}
+          </button>
+        </div>
+      </Modal>
 
       {/* Measurement Modal */}
       <Modal
