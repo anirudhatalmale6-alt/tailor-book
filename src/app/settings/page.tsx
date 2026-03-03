@@ -243,6 +243,30 @@ export default function SettingsPage() {
     <div className="px-4 pt-4">
       <h1 className="text-2xl font-bold text-white mb-4">Settings</h1>
 
+      {/* Subscription & Referral */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <a
+          href="/subscription"
+          className="bg-gradient-to-br from-gold-dim/20 to-gold/10 rounded-xl p-4 border border-gold/20 text-center"
+        >
+          <svg className="w-6 h-6 text-gold mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+          <p className="text-sm font-semibold text-gold">Premium</p>
+          <p className="text-[10px] text-white/40">Upgrade your plan</p>
+        </a>
+        <a
+          href="/referral"
+          className="bg-royal-card rounded-xl p-4 border border-royal-border text-center"
+        >
+          <svg className="w-6 h-6 text-white mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+          <p className="text-sm font-semibold text-white">Referrals</p>
+          <p className="text-[10px] text-white/40">Earn 5% forever</p>
+        </a>
+      </div>
+
       {/* Business Settings */}
       <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
         <h2 className="text-sm font-semibold text-white mb-3">Business</h2>
