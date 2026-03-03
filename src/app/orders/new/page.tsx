@@ -139,7 +139,7 @@ function NewOrderForm() {
       <div className="space-y-4">
         {/* Customer Selector */}
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-200 mb-1">Customer *</label>
+          <label className="block text-sm font-medium text-gray-200 mb-1">Account Holder *</label>
           <input
             type="text"
             value={customerSearch}
@@ -154,7 +154,7 @@ function NewOrderForm() {
             className={`w-full px-4 py-3 bg-royal-card rounded-xl border text-white focus:outline-none focus:ring-2 focus:ring-gold ${
               selectedCustomer ? 'border-green-300' : 'border-royal-border'
             }`}
-            placeholder="Search customer..."
+            placeholder="Search accounts..."
           />
           {showCustomerDropdown && !selectedCustomer && customerSearch && (
             <div className="absolute z-10 w-full mt-1 bg-royal-card rounded-xl shadow-lg shadow-black/20 border border-royal-border max-h-48 overflow-y-auto">
@@ -173,7 +173,7 @@ function NewOrderForm() {
                   </button>
                 ))
               ) : (
-                <div className="px-4 py-2 text-sm text-royal-light">No customers found</div>
+                <div className="px-4 py-2 text-sm text-royal-light">No accounts found</div>
               )}
             </div>
           )}

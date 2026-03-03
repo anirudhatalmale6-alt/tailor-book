@@ -87,7 +87,7 @@ function NewCustomerForm() {
           </svg>
         </button>
         <h1 className="text-xl font-bold text-white">
-          {editId ? 'Edit Customer' : 'New Customer'}
+          {editId ? 'Edit Account' : 'New Account'}
         </h1>
       </div>
 
@@ -137,7 +137,7 @@ function NewCustomerForm() {
             value={form.name}
             onChange={(e) => handleChange('name', e.target.value)}
             className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
-            placeholder="Customer name"
+            placeholder="Account holder name"
           />
         </div>
 

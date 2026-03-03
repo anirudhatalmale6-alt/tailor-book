@@ -149,7 +149,7 @@ export default function DashboardPage() {
                       <Link key={order.id} href={`/orders/${order.id}`} className="block">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-red-400 font-medium truncate">
-                            {customers[order.customerId]?.name || 'Customer'} — {order.fabricType || 'Order'}
+                            {customers[order.customerId]?.name || 'Account'} — {order.fabricType || 'Order'}
                           </span>
                           <span className="text-red-500 flex-shrink-0 ml-2">
                             Due {formatDate(order.deliveryDate)}
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                       <Link key={order.id} href={`/orders/${order.id}`} className="block">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-orange-700 font-medium truncate">
-                            {customers[order.customerId]?.name || 'Customer'} — {order.fabricType || 'Order'}
+                            {customers[order.customerId]?.name || 'Account'} — {order.fabricType || 'Order'}
                           </span>
                           <span className="text-orange-500 flex-shrink-0 ml-2">
                             {order.status === 'ready' ? 'Ready for pickup' : getStatusLabel(order.status)}
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                       <Link key={order.id} href={`/orders/${order.id}`} className="block">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-blue-400 font-medium truncate">
-                            {customers[order.customerId]?.name || 'Customer'} — {order.fabricType || 'Order'}
+                            {customers[order.customerId]?.name || 'Account'} — {order.fabricType || 'Order'}
                           </span>
                           <span className="text-blue-500 flex-shrink-0 ml-2">
                             Due {formatDate(order.deliveryDate)}

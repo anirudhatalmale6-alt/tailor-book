@@ -194,7 +194,7 @@ function NewInvoiceForm() {
 
     const customerId = order?.customerId || project?.customerId || '';
     if (!customerId) {
-      alert('No customer linked');
+      alert('No account linked');
       return;
     }
 

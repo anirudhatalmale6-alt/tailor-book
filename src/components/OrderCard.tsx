@@ -18,7 +18,7 @@ export default function OrderCard({ order, customer, currency = 'NGN' }: OrderCa
         <div className="flex items-start justify-between mb-2">
           <div className="min-w-0 flex-1">
             <h3 className="text-white font-medium truncate">
-              {customer?.name || 'Unknown Customer'}
+              {customer?.name || 'Unknown Account'}
             </h3>
             <p className="text-sm text-royal-light truncate">{order.fabricType || 'No fabric specified'}</p>
           </div>

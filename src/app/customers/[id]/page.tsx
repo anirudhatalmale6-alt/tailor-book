@@ -119,7 +119,7 @@ export default function CustomerDetailPage() {
   if (customer === null) {
     return (
       <div className="px-4 pt-4">
-        <EmptyState title="Customer not found" description="This customer may have been deleted." />
+        <EmptyState title="Account not found" description="This account may have been deleted." />
       </div>
     );
   }
@@ -263,7 +263,7 @@ export default function CustomerDetailPage() {
           ) : (
             <EmptyState
               title="No measurements yet"
-              description="Take your first measurement for this customer"
+              description="Take your first measurement for this account"
             />
           )}
 
@@ -340,7 +340,7 @@ export default function CustomerDetailPage() {
           ) : (
             <EmptyState
               title="No orders yet"
-              description="Create an order for this customer"
+              description="Create an order for this account"
               action={
                 <button
                   onClick={() => router.push(`/orders/new?customerId=${id}`)}

@@ -183,7 +183,7 @@ export default function PaymentsPage() {
                 <div className="text-left">
                   <p className="text-sm font-medium text-white">{inv.invoiceNumber}</p>
                   <p className="text-xs text-royal-muted">
-                    {customers[inv.customerId]?.name || 'Customer'} &middot; {formatDate(inv.createdAt)}
+                    {customers[inv.customerId]?.name || 'Account'} &middot; {formatDate(inv.createdAt)}
                   </p>
                 </div>
                 <div className="text-right">

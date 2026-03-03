@@ -292,7 +292,7 @@ export default function OrderDetailPage() {
       {/* Latest Measurements */}
       {latestMeasurement && fields && (
         <div className="bg-royal-card rounded-xl shadow-none p-4 mb-3">
-          <h3 className="text-sm font-semibold text-white mb-2">Customer Measurements</h3>
+          <h3 className="text-sm font-semibold text-white mb-2">Account Measurements</h3>
           <p className="text-xs text-royal-muted mb-2">As of {formatDate(latestMeasurement.createdAt)}</p>
           <div className="grid grid-cols-2 gap-1">
             {fields.map((f) => {
