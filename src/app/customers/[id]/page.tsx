@@ -203,6 +203,16 @@ export default function CustomerDetailPage() {
             <p className="text-sm text-white">{customer.stylePreferences}</p>
           </div>
         )}
+        {customer.styleImages && customer.styleImages.length > 0 && (
+          <div className="mt-2">
+            <span className="text-xs font-medium text-white/60 uppercase">Style Reference Images</span>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {customer.styleImages.map((img, i) => (
+                <img key={i} src={img} alt={`Style ${i + 1}`} className="w-20 h-20 object-cover rounded-lg" />
+              ))}
+            </div>
+          </div>
+        )}
         {customer.notes && (
           <div className="mt-2">
             <span className="text-xs font-medium text-white/60 uppercase">Notes</span>

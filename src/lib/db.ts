@@ -10,6 +10,7 @@ export interface Customer {
   photo: string;
   notes: string;
   stylePreferences: string;
+  styleImages: string[];
   contactType: 'client' | 'colleague';
   createdAt: string;
   updatedAt: string;
@@ -206,6 +207,24 @@ class TailorDB extends Dexie {
       invoices: 'id, invoiceNumber, orderId, customerId, projectId, createdAt',
       projects: 'id, customerId, status, createdAt',
       projectItems: 'id, projectId, status, createdAt',
+    });
+    this.version(6).stores({
+      customers: 'id, name, phone, contactType, createdAt',
+      measurementFields: 'id, name, category, sortOrder',
+      measurements: 'id, customerId, createdAt',
+      orders: 'id, customerId, status, deliveryDate, createdAt',
+      payments: 'id, orderId, customerId, createdAt',
+      expenses: 'id, category, date, createdAt, expenseType, projectId',
+      settings: 'key',
+      invoices: 'id, invoiceNumber, orderId, customerId, projectId, createdAt',
+      projects: 'id, customerId, status, createdAt',
+      projectItems: 'id, projectId, status, createdAt',
+    }).upgrade(tx => {
+      return tx.table('customers').toCollection().modify(customer => {
+        if (!customer.styleImages) {
+          customer.styleImages = [];
+        }
+      });
     });
   }
 }

@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { addCustomer, updateCustomer } from '@/hooks/useCustomers';
 import { db } from '@/lib/db';
+import { fileToBase64 } from '@/lib/utils';
 import PhotoUpload from '@/components/PhotoUpload';
 
 export default function NewCustomerPage() {
@@ -30,6 +31,7 @@ function NewCustomerForm() {
     photo: '',
     notes: '',
     stylePreferences: '',
+    styleImages: [] as string[],
     contactType: (presetType === 'colleague' ? 'colleague' : 'client') as 'client' | 'colleague',
   });
 
@@ -46,6 +48,7 @@ function NewCustomerForm() {
             photo: customer.photo,
             notes: customer.notes,
             stylePreferences: customer.stylePreferences,
+            styleImages: customer.styleImages || [],
             contactType: customer.contactType || 'client',
           });
         }
@@ -55,6 +58,24 @@ function NewCustomerForm() {
 
   function handleChange(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function handleStyleImages(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const images: string[] = [...form.styleImages];
+    for (let i = 0; i < files.length; i++) {
+      const base64 = await fileToBase64(files[i]);
+      images.push(base64);
+    }
+    setForm((prev) => ({ ...prev, styleImages: images }));
+  }
+
+  function removeStyleImage(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      styleImages: prev.styleImages.filter((_, i) => i !== index),
+    }));
   }
 
   async function handleSave() {
@@ -187,16 +208,43 @@ function NewCustomerForm() {
         </div>
 
         {form.contactType !== 'colleague' && (
-          <div>
-            <label className="block text-sm font-medium text-white mb-1">Style Preferences</label>
-            <textarea
-              value={form.stylePreferences}
-              onChange={(e) => handleChange('stylePreferences', e.target.value)}
-              className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold resize-none"
-              rows={2}
-              placeholder="e.g., Prefers slim fit, likes French cuffs..."
-            />
-          </div>
+          <>
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">Style Preferences</label>
+              <textarea
+                value={form.stylePreferences}
+                onChange={(e) => handleChange('stylePreferences', e.target.value)}
+                className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold resize-none"
+                rows={2}
+                placeholder="e.g., Prefers slim fit, likes French cuffs..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">Style Reference Images</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {form.styleImages.map((img, i) => (
+                  <div key={i} className="relative w-20 h-20">
+                    <img src={img} alt={`Style ${i + 1}`} className="w-full h-full object-cover rounded-lg" />
+                    <button
+                      type="button"
+                      onClick={() => removeStyleImage(i)}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-400 text-white rounded-full flex items-center justify-center text-xs"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <label className="inline-flex items-center gap-2 px-4 py-2 bg-royal-hover rounded-lg text-sm text-white cursor-pointer">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Images
+                <input type="file" accept="image/*" multiple onChange={handleStyleImages} className="hidden" />
+              </label>
+            </div>
+          </>
         )}
 
         <div>
