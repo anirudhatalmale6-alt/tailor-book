@@ -26,7 +26,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-royal-bg flex flex-col items-center justify-center px-6">
       {/* Logo / App Name */}
       <div className="text-center mb-10">
-        <img src="/logo.png" alt="Stitch Manager" className="w-24 h-24 mx-auto mb-4" />
+        <img src="/logo.png" alt="Stitch Manager" className="w-44 h-44 mx-auto mb-4" />
         <h1 className="text-3xl font-bold text-white mb-2">Stitch Manager</h1>
         <p className="text-white/60 text-sm">Your tailoring business, organized</p>
       </div>

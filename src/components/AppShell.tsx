@@ -82,7 +82,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen bg-royal-bg flex items-center justify-center">
         <div className="text-center">
-          <img src="/logo.png" alt="Stitch Manager" className="w-16 h-16 mx-auto mb-4" />
+          <img src="/logo.png" alt="Stitch Manager" className="w-32 h-32 mx-auto mb-4" />
           <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
       </div>
