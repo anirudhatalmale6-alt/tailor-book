@@ -95,3 +95,49 @@ export function getWhatsAppLink(phone: string): string {
 export function getPhoneLink(phone: string): string {
   return `tel:${phone.replace(/[^0-9+]/g, '')}`;
 }
+
+/**
+ * Convert local Nigerian numbers to international format with +234 prefix.
+ * e.g. 08037481552 → +2348037481552
+ * Already international numbers are left as-is.
+ */
+export function formatPhoneInternational(phone: string): string {
+  const cleaned = phone.replace(/[^0-9+]/g, '');
+  if (!cleaned) return phone;
+  // Nigerian local format: 0XXXXXXXXXX (11 digits starting with 0)
+  if (cleaned.startsWith('0') && cleaned.length === 11) {
+    return '+234' + cleaned.slice(1);
+  }
+  // Already has country code (starts with + or 234)
+  if (cleaned.startsWith('+')) return cleaned;
+  if (cleaned.startsWith('234') && cleaned.length >= 13) {
+    return '+' + cleaned;
+  }
+  return phone;
+}
+
+/**
+ * Check if Contact Picker API is available (Chrome on Android, etc.)
+ */
+export function isContactPickerSupported(): boolean {
+  return typeof window !== 'undefined' && 'contacts' in navigator && 'ContactsManager' in window;
+}
+
+/**
+ * Pick a contact from the phone's contact list.
+ * Returns { name, phone } or null if cancelled.
+ */
+export async function pickContact(): Promise<{ name: string; phone: string } | null> {
+  if (!isContactPickerSupported()) return null;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const contacts = await (navigator as any).contacts.select(['name', 'tel'], { multiple: false });
+    if (!contacts || contacts.length === 0) return null;
+    const contact = contacts[0];
+    const name = contact.name?.[0] || '';
+    const phone = contact.tel?.[0] || '';
+    return { name, phone: formatPhoneInternational(phone) };
+  } catch {
+    return null;
+  }
+}

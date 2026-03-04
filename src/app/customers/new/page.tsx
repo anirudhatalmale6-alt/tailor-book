@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { addCustomer, updateCustomer } from '@/hooks/useCustomers';
 import { db } from '@/lib/db';
-import { fileToBase64 } from '@/lib/utils';
+import { fileToBase64, isContactPickerSupported, pickContact, formatPhoneInternational } from '@/lib/utils';
 import PhotoUpload from '@/components/PhotoUpload';
 
 export default function NewCustomerPage() {
@@ -22,6 +22,8 @@ function NewCustomerForm() {
   const presetType = searchParams.get('type');
   const [saving, setSaving] = useState(false);
 
+  const [contactPickerAvailable, setContactPickerAvailable] = useState(false);
+
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -34,6 +36,10 @@ function NewCustomerForm() {
     styleImages: [] as string[],
     contactType: (presetType === 'colleague' ? 'colleague' : 'client') as 'client' | 'colleague',
   });
+
+  useEffect(() => {
+    setContactPickerAvailable(isContactPickerSupported());
+  }, []);
 
   useEffect(() => {
     if (editId) {
@@ -58,6 +64,19 @@ function NewCustomerForm() {
 
   function handleChange(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function handlePickContact(targetField: 'phone' | 'whatsapp') {
+    const contact = await pickContact();
+    if (!contact) return;
+    setForm((prev) => {
+      const updates: Record<string, string> = { [targetField]: contact.phone };
+      // If name is empty and we picked for the phone field, also fill the name
+      if (targetField === 'phone' && !prev.name && contact.name) {
+        updates.name = contact.name;
+      }
+      return { ...prev, ...updates };
+    });
   }
 
   async function handleStyleImages(e: React.ChangeEvent<HTMLInputElement>) {
@@ -85,11 +104,17 @@ function NewCustomerForm() {
     }
     setSaving(true);
     try {
+      // Auto-convert local numbers to international format before saving
+      const dataToSave = {
+        ...form,
+        phone: form.phone ? formatPhoneInternational(form.phone) : '',
+        whatsapp: form.whatsapp ? formatPhoneInternational(form.whatsapp) : '',
+      };
       if (editId) {
-        await updateCustomer(editId, form);
+        await updateCustomer(editId, dataToSave);
         router.back();
       } else {
-        const id = await addCustomer(form);
+        const id = await addCustomer(dataToSave);
         router.replace(`/customers/${id}`);
       }
     } catch (err) {
@@ -165,24 +190,52 @@ function NewCustomerForm() {
 
         <div>
           <label className="block text-sm font-medium text-white mb-1">Phone</label>
-          <input
-            type="tel"
-            value={form.phone}
-            onChange={(e) => handleChange('phone', e.target.value)}
-            className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
-            placeholder="Phone number"
-          />
+          <div className="flex gap-2">
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => handleChange('phone', e.target.value)}
+              className="flex-1 px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Phone number"
+            />
+            {contactPickerAvailable && (
+              <button
+                type="button"
+                onClick={() => handlePickContact('phone')}
+                className="px-3 bg-royal-card rounded-xl border border-royal-border text-white hover:bg-royal-hover active:bg-royal-hover transition-colors flex items-center justify-center"
+                title="Pick from contacts"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-white mb-1">WhatsApp</label>
-          <input
-            type="tel"
-            value={form.whatsapp}
-            onChange={(e) => handleChange('whatsapp', e.target.value)}
-            className="w-full px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
-            placeholder="WhatsApp number"
-          />
+          <div className="flex gap-2">
+            <input
+              type="tel"
+              value={form.whatsapp}
+              onChange={(e) => handleChange('whatsapp', e.target.value)}
+              className="flex-1 px-4 py-3 bg-royal-card rounded-xl border border-royal-border text-white focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="WhatsApp number"
+            />
+            {contactPickerAvailable && (
+              <button
+                type="button"
+                onClick={() => handlePickContact('whatsapp')}
+                className="px-3 bg-royal-card rounded-xl border border-royal-border text-white hover:bg-royal-hover active:bg-royal-hover transition-colors flex items-center justify-center"
+                title="Pick from contacts"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
         <div>
