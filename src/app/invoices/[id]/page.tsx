@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useInvoice } from '@/hooks/useInvoices';
-import { useCurrency, useBusinessName } from '@/hooks/useSettings';
+import { useCurrency, useBusinessName, useBusinessPhone, useBusinessAddress, useBusinessLogo } from '@/hooks/useSettings';
 import { db, type Customer, type Order, type Project } from '@/lib/db';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import EmptyState from '@/components/EmptyState';
@@ -15,6 +15,9 @@ export default function InvoiceViewPage() {
   const invoice = useInvoice(id);
   const currency = useCurrency();
   const businessName = useBusinessName();
+  const businessPhone = useBusinessPhone();
+  const businessAddress = useBusinessAddress();
+  const businessLogo = useBusinessLogo();
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [order, setOrder] = useState<Order | null>(null);
@@ -42,10 +45,14 @@ export default function InvoiceViewPage() {
     const lines = [
       `*INVOICE ${invoice.invoiceNumber}*`,
       `From: ${businessName}`,
+    ];
+    if (businessPhone) lines.push(`Tel: ${businessPhone}`);
+    if (businessAddress) lines.push(`Address: ${businessAddress}`);
+    lines.push(
       `Date: ${formatDate(invoice.createdAt)}`,
       '',
       `*Bill To:* ${customer.name}`,
-    ];
+    );
 
     if (customer.phone) lines.push(`Phone: ${customer.phone}`);
     if (customer.address) lines.push(`Address: ${customer.address}`);
@@ -122,11 +129,18 @@ export default function InvoiceViewPage() {
         {/* Header */}
         <div className="bg-gradient-to-r from-gold-dim to-gold px-5 py-4 text-white">
           <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-lg font-bold">{businessName}</h2>
-              <p className="text-indigo-200 text-xs mt-0.5">INVOICE</p>
+            <div className="flex items-start gap-3">
+              {businessLogo && (
+                <img src={businessLogo} alt="Logo" className="w-12 h-12 rounded-lg object-contain bg-white/20 p-1 flex-shrink-0" />
+              )}
+              <div>
+                <h2 className="text-lg font-bold">{businessName}</h2>
+                {businessPhone && <p className="text-white/80 text-xs">{businessPhone}</p>}
+                {businessAddress && <p className="text-white/80 text-xs">{businessAddress}</p>}
+                <p className="text-indigo-200 text-xs mt-0.5">INVOICE</p>
+              </div>
             </div>
-            <div className="text-right">
+            <div className="text-right flex-shrink-0">
               <p className="text-sm font-bold">{invoice.invoiceNumber}</p>
               <p className="text-indigo-200 text-xs">{formatDate(invoice.createdAt)}</p>
             </div>

@@ -27,3 +27,15 @@ export function useTaxRate() {
   const val = useSetting('taxRate', '0');
   return parseFloat(val) || 0;
 }
+
+export function useBusinessPhone() {
+  return useSetting('businessPhone', '');
+}
+
+export function useBusinessAddress() {
+  return useSetting('businessAddress', '');
+}
+
+export function useBusinessLogo() {
+  return useSetting('businessLogo', '');
+}
