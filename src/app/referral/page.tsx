@@ -43,7 +43,7 @@ export default function ReferralPage() {
 
   function shareViaWhatsApp() {
     const message = `Hey! I use StitchManager to manage my tailoring business — measurements, orders, payments, everything in one app. Use my referral code *${referralCode}* when you sign up and we both benefit! Download here: https://stitchmanager.vercel.app`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
   }
 
   if (!session?.user) {

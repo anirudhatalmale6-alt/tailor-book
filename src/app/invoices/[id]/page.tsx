@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useInvoice } from '@/hooks/useInvoices';
 import { useCurrency, useBusinessName, useBusinessPhone, useBusinessAddress, useBusinessLogo } from '@/hooks/useSettings';
-import { formatPhoneForWhatsApp } from '@/lib/utils';
 import { db, type Customer, type Order, type Project } from '@/lib/db';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatCurrency, formatDate, getWhatsAppLink } from '@/lib/utils';
 import EmptyState from '@/components/EmptyState';
 
 export default function InvoiceViewPage() {
@@ -87,12 +86,12 @@ export default function InvoiceViewPage() {
       lines.push('', `Note: ${invoice.notes}`);
     }
 
-    const text = encodeURIComponent(lines.join('\n'));
+    const messageText = lines.join('\n');
     const phone = customer.whatsapp || customer.phone;
     if (phone) {
-      window.open(`https://wa.me/${formatPhoneForWhatsApp(phone)}?text=${text}`, '_blank');
+      window.open(getWhatsAppLink(phone, messageText), '_blank');
     } else {
-      window.open(`https://wa.me/?text=${text}`, '_blank');
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(messageText)}`, '_blank');
     }
   }
 

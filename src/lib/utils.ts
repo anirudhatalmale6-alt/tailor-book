@@ -88,8 +88,10 @@ export function formatPhoneForWhatsApp(phone: string): string {
   return cleaned;
 }
 
-export function getWhatsAppLink(phone: string): string {
-  return `https://wa.me/${formatPhoneForWhatsApp(phone)}`;
+export function getWhatsAppLink(phone: string, text?: string): string {
+  const num = formatPhoneForWhatsApp(phone);
+  const base = `https://api.whatsapp.com/send?phone=${num}`;
+  return text ? `${base}&text=${encodeURIComponent(text)}` : base;
 }
 
 export function getPhoneLink(phone: string): string {

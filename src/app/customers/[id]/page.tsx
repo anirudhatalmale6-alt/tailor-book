@@ -8,7 +8,7 @@ import { useCustomerOrders } from '@/hooks/useOrders';
 import { useCustomerPayments } from '@/hooks/usePayments';
 import { useColleagueJobs, useColleaguePayments as useColleaguePaymentsList, addColleagueJob, updateColleagueJob, addColleaguePayment } from '@/hooks/useColleagueJobs';
 import { useCurrency } from '@/hooks/useSettings';
-import { getInitials, getWhatsAppLink, getPhoneLink, formatDate, formatCurrency, formatPhoneForWhatsApp } from '@/lib/utils';
+import { getInitials, getWhatsAppLink, getPhoneLink, formatDate, formatCurrency } from '@/lib/utils';
 import OrderCard from '@/components/OrderCard';
 import StatusBadge from '@/components/StatusBadge';
 import Modal from '@/components/Modal';
@@ -541,7 +541,7 @@ export default function CustomerDetailPage() {
                           ``,
                           `_Generated on ${formatDate(new Date().toISOString())}_`,
                         ].join('\n');
-                        const waLink = `https://wa.me/${formatPhoneForWhatsApp(customer.whatsapp)}?text=${encodeURIComponent(statement)}`;
+                        const waLink = getWhatsAppLink(customer.whatsapp, statement);
                         return (
                           <a
                             href={waLink}
@@ -904,7 +904,7 @@ export default function CustomerDetailPage() {
 
                   const message = `*Client Measurements*\n*Date:* ${formatDate(latestMeasurement.createdAt)}\n\n${measurementText}${latestMeasurement.notes ? `\n\n*Notes:* ${latestMeasurement.notes}` : ''}`;
                   const colleagueNumber = colleague.whatsapp || colleague.phone;
-                  const waLink = `https://wa.me/${formatPhoneForWhatsApp(colleagueNumber)}?text=${encodeURIComponent(message)}`;
+                  const waLink = getWhatsAppLink(colleagueNumber, message);
 
                   return (
                     <a
