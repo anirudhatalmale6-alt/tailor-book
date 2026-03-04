@@ -269,7 +269,7 @@ export default function SettingsPage() {
       window.location.reload();
     } catch (err) {
       console.error('Import failed:', err);
-      alert('Failed to import data. Make sure the file is a valid StitchManager backup.');
+      alert('Failed to import data. Make sure the file is a valid Stitch Manager backup.');
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
@@ -671,7 +671,7 @@ export default function SettingsPage() {
 
       {/* App Info */}
       <div className="text-center py-4">
-        <p className="text-xs text-white/60">StitchManager v1.0</p>
+        <p className="text-xs text-white/60">Stitch Manager v1.0</p>
         <p className="text-xs text-white/60">All data stored locally on your device</p>
       </div>
 

@@ -4,13 +4,13 @@ import AppShell from '@/components/AppShell';
 import Providers from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'StitchManager',
+  title: 'Stitch Manager',
   description: 'Tailoring Business Management App',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'StitchManager',
+    title: 'Stitch Manager',
   },
 };
 

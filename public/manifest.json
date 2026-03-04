@@ -1,6 +1,6 @@
 {
-  "name": "StitchManager",
-  "short_name": "StitchManager",
+  "name": "Stitch Manager",
+  "short_name": "Stitch Manager",
   "description": "Tailoring Business Management",
   "start_url": "/",
   "display": "standalone",
