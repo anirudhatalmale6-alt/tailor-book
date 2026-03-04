@@ -6,6 +6,7 @@ import { useOrders } from '@/hooks/useOrders';
 import { useCurrency } from '@/hooks/useSettings';
 import { db, type Customer } from '@/lib/db';
 import OrderCard from '@/components/OrderCard';
+import { useReadOnlyGuard } from '@/hooks/useSubscription';
 import FloatingButton from '@/components/FloatingButton';
 import EmptyState from '@/components/EmptyState';
 
@@ -22,6 +23,7 @@ export default function OrdersPage() {
   const orders = useOrders(statusFilter);
   const currency = useCurrency();
   const router = useRouter();
+  const canEdit = useReadOnlyGuard();
   const [customers, setCustomers] = useState<Record<string, Customer>>({});
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function OrdersPage() {
       )}
 
       <FloatingButton
-        onClick={() => router.push('/orders/new')}
+        onClick={() => { if (canEdit()) router.push('/orders/new'); }}
         label="New Order"
       />
     </div>

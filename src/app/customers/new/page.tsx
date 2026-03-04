@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { addCustomer, updateCustomer } from '@/hooks/useCustomers';
 import { db } from '@/lib/db';
 import { fileToBase64, isContactPickerSupported, pickContact, formatPhoneInternational } from '@/lib/utils';
+import { useReadOnlyGuard } from '@/hooks/useSubscription';
 import PhotoUpload from '@/components/PhotoUpload';
 
 export default function NewCustomerPage() {
@@ -21,6 +22,7 @@ function NewCustomerForm() {
   const editId = searchParams.get('edit');
   const presetType = searchParams.get('type');
   const [saving, setSaving] = useState(false);
+  const canEdit = useReadOnlyGuard();
 
   const [contactPickerAvailable, setContactPickerAvailable] = useState(false);
 
@@ -98,6 +100,7 @@ function NewCustomerForm() {
   }
 
   async function handleSave() {
+    if (!canEdit()) return;
     if (!form.name.trim()) {
       alert('Please enter an account name');
       return;

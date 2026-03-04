@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCustomers } from '@/hooks/useCustomers';
+import { useReadOnlyGuard } from '@/hooks/useSubscription';
 import CustomerCard from '@/components/CustomerCard';
 import SearchBar from '@/components/SearchBar';
 import FloatingButton from '@/components/FloatingButton';
@@ -12,6 +13,7 @@ export default function CustomersPage() {
   const [search, setSearch] = useState('');
   const customers = useCustomers(search);
   const router = useRouter();
+  const canEdit = useReadOnlyGuard();
 
   return (
     <div className="px-4 pt-4">
@@ -47,7 +49,7 @@ export default function CustomersPage() {
       )}
 
       <FloatingButton
-        onClick={() => router.push('/customers/new')}
+        onClick={() => { if (canEdit()) router.push('/customers/new'); }}
         label="Create Account"
       />
     </div>

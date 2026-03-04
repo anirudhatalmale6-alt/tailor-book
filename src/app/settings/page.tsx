@@ -10,11 +10,13 @@ import {
 } from '@/hooks/useMeasurements';
 import { useBusinessName, useCurrency, useTaxRate, useBusinessPhone, useBusinessAddress, useBusinessLogo, useBackupFrequency, useLastAutoBackup, setSetting } from '@/hooks/useSettings';
 import { fileToBase64 } from '@/lib/utils';
+import { useReadOnlyGuard } from '@/hooks/useSubscription';
 import { db, type MeasurementField } from '@/lib/db';
 import { backupToGoogleDrive, restoreFromGoogleDrive, getBackupInfo } from '@/lib/gdrive-backup';
 import Modal from '@/components/Modal';
 
 export default function SettingsPage() {
+  const canEdit = useReadOnlyGuard();
   const fields = useMeasurementFields();
   const businessName = useBusinessName();
   const currency = useCurrency();
@@ -179,6 +181,7 @@ export default function SettingsPage() {
   }
 
   async function handleSaveAllBusiness() {
+    if (!canEdit()) return;
     await setSetting('businessName', bizName);
     await setSetting('currency', curr);
     const rate = parseFloat(tax) || 0;

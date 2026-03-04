@@ -4,6 +4,51 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import BottomNav from './BottomNav';
+import { useSubscription } from '@/hooks/useSubscription';
+
+function SubscriptionBanner() {
+  const sub = useSubscription();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Don't show on subscription or login pages
+  if (pathname === '/subscription' || pathname === '/login' || pathname.startsWith('/api/')) return null;
+  if (sub.status !== 'expired') return null;
+
+  return (
+    <div className="max-w-lg mx-auto">
+      <div
+        className={`mx-4 mt-2 px-4 py-3 rounded-xl flex items-center gap-3 ${
+          sub.isReadOnly
+            ? 'bg-red-400/10 border border-red-400/30'
+            : 'bg-yellow-400/10 border border-yellow-400/30'
+        }`}
+      >
+        <svg className={`w-5 h-5 flex-shrink-0 ${sub.isReadOnly ? 'text-red-400' : 'text-yellow-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+        <div className="flex-1 min-w-0">
+          <p className={`text-xs font-medium ${sub.isReadOnly ? 'text-red-400' : 'text-yellow-400'}`}>
+            {sub.isReadOnly
+              ? 'Subscription expired — Read-only mode'
+              : 'Subscription expired — Renew soon'}
+          </p>
+          <p className="text-xs text-white/60">
+            {sub.isReadOnly
+              ? 'You can view your data but cannot make changes.'
+              : 'Your grace period is ending. Renew to keep editing.'}
+          </p>
+        </div>
+        <button
+          onClick={() => router.push('/subscription')}
+          className="px-3 py-1.5 bg-gradient-to-r from-gold-dim to-gold text-white rounded-lg text-xs font-medium flex-shrink-0"
+        >
+          Renew
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -55,6 +100,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-royal-bg">
+      <SubscriptionBanner />
       <main className="max-w-lg mx-auto pb-20">
         {children}
       </main>

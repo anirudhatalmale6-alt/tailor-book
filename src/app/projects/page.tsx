@@ -6,12 +6,14 @@ import { useProjects } from '@/hooks/useProjects';
 import { useCurrency } from '@/hooks/useSettings';
 import { db, type Customer, type ProjectItem } from '@/lib/db';
 import { formatCurrency, getStatusColor, getStatusLabel } from '@/lib/utils';
+import { useReadOnlyGuard } from '@/hooks/useSubscription';
 import SearchBar from '@/components/SearchBar';
 import FloatingButton from '@/components/FloatingButton';
 import EmptyState from '@/components/EmptyState';
 
 export default function ProjectsPage() {
   const router = useRouter();
+  const canEdit = useReadOnlyGuard();
   const projects = useProjects();
   const currency = useCurrency();
   const [search, setSearch] = useState('');
@@ -219,7 +221,7 @@ export default function ProjectsPage() {
       )}
 
       <FloatingButton
-        onClick={() => router.push('/projects/new')}
+        onClick={() => { if (canEdit()) router.push('/projects/new'); }}
         label="New Project"
       />
     </div>

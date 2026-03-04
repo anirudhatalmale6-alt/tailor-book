@@ -9,6 +9,7 @@ import { useCustomerPayments } from '@/hooks/usePayments';
 import { useColleagueJobs, useColleaguePayments as useColleaguePaymentsList, addColleagueJob, updateColleagueJob, addColleaguePayment } from '@/hooks/useColleagueJobs';
 import { useCurrency } from '@/hooks/useSettings';
 import { getInitials, getWhatsAppLink, getPhoneLink, formatDate, formatCurrency } from '@/lib/utils';
+import { useReadOnlyGuard } from '@/hooks/useSubscription';
 import OrderCard from '@/components/OrderCard';
 import StatusBadge from '@/components/StatusBadge';
 import Modal from '@/components/Modal';
@@ -26,6 +27,7 @@ export default function CustomerDetailPage() {
   const orders = useCustomerOrders(id);
   const payments = useCustomerPayments(id);
   const currency = useCurrency();
+  const canEdit = useReadOnlyGuard();
 
   const [activeTab, setActiveTab] = useState<TabType | null>(null);
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
@@ -80,6 +82,7 @@ export default function CustomerDetailPage() {
   }, [latestMeasurement, fields]);
 
   async function handleSaveMeasurement() {
+    if (!canEdit()) return;
     setSaving(true);
     try {
       const fieldValues: Record<string, number | string> = {};
