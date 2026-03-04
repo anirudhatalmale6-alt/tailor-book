@@ -8,7 +8,7 @@ import {
   updateMeasurementField,
   deleteMeasurementField,
 } from '@/hooks/useMeasurements';
-import { useBusinessName, useCurrency, useTaxRate, useBusinessPhone, useBusinessAddress, useBusinessLogo, setSetting } from '@/hooks/useSettings';
+import { useBusinessName, useCurrency, useTaxRate, useBusinessPhone, useBusinessAddress, useBusinessLogo, useBackupFrequency, useLastAutoBackup, setSetting } from '@/hooks/useSettings';
 import { fileToBase64 } from '@/lib/utils';
 import { db, type MeasurementField } from '@/lib/db';
 import { backupToGoogleDrive, restoreFromGoogleDrive, getBackupInfo } from '@/lib/gdrive-backup';
@@ -22,6 +22,8 @@ export default function SettingsPage() {
   const businessPhone = useBusinessPhone();
   const businessAddress = useBusinessAddress();
   const businessLogo = useBusinessLogo();
+  const backupFrequency = useBackupFrequency();
+  const lastAutoBackup = useLastAutoBackup();
 
   const [showFieldModal, setShowFieldModal] = useState(false);
   const [editingField, setEditingField] = useState<MeasurementField | null>(null);
@@ -581,9 +583,39 @@ export default function SettingsPage() {
           <p className="text-xs text-white/60 mb-3">
             Your data is backed up to your personal Google Drive. Only you can access it.
           </p>
+          {/* Auto Backup Schedule */}
+          <div className="mb-3">
+            <label className="block text-xs text-white mb-1.5">Auto Backup Schedule</label>
+            <div className="grid grid-cols-4 gap-1.5">
+              {[
+                { value: 'off', label: 'Off' },
+                { value: 'daily', label: 'Daily' },
+                { value: 'weekly', label: 'Weekly' },
+                { value: 'monthly', label: 'Monthly' },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setSetting('backupFrequency', opt.value)}
+                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${
+                    backupFrequency === opt.value
+                      ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
+                      : 'bg-royal-bg text-white/60 border border-royal-border'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {backupFrequency !== 'off' && (
+              <p className="text-[10px] text-white/40 mt-1">
+                Auto backup runs {backupFrequency} when you open the app.
+                {lastAutoBackup && ` Last auto backup: ${new Date(lastAutoBackup).toLocaleString()}`}
+              </p>
+            )}
+          </div>
           {lastBackup && (
             <p className="text-xs text-white/40 mb-3">
-              Last backup: {new Date(lastBackup).toLocaleString()}
+              Last manual backup: {new Date(lastBackup).toLocaleString()}
             </p>
           )}
           {backupMessage && (

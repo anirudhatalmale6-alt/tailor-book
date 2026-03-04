@@ -39,3 +39,11 @@ export function useBusinessAddress() {
 export function useBusinessLogo() {
   return useSetting('businessLogo', '');
 }
+
+export function useBackupFrequency() {
+  return useSetting('backupFrequency', 'off');
+}
+
+export function useLastAutoBackup() {
+  return useSetting('lastAutoBackup', '');
+}
