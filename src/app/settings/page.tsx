@@ -669,6 +669,22 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Admin Panel (visible to admin only) */}
+      {session?.user?.email === 'pgmclement@gmail.com' && (
+        <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
+          <h2 className="text-sm font-semibold text-white mb-3">Admin</h2>
+          <a
+            href="/admin/referrals"
+            className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-medium text-sm flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Manage Referrals (RMS)
+          </a>
+        </div>
+      )}
+
       {/* App Info */}
       <div className="text-center py-4">
         <p className="text-xs text-white/60">Stitch Manager v1.0</p>

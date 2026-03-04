@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-  const { email, amount, plan } = await req.json();
+  const { email, amount, plan, referralCode } = await req.json();
 
   if (!email || !amount || !plan) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -25,11 +25,17 @@ export async function POST(req: Request) {
         callback_url: `${process.env.NEXTAUTH_URL || process.env.AUTH_URL}/subscription/verify`,
         metadata: {
           plan,
+          referral_code: (referralCode || 'STITCHMANAGER').toUpperCase(),
           custom_fields: [
             {
               display_name: 'Plan',
               variable_name: 'plan',
               value: plan,
+            },
+            {
+              display_name: 'Referral Code',
+              variable_name: 'referral_code',
+              value: referralCode || 'STITCHMANAGER',
             },
           ],
         },

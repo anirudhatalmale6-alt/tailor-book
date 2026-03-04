@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -56,6 +56,45 @@ export default function SubscriptionPage() {
   const { data: session } = useSession();
   const [selectedPlan, setSelectedPlan] = useState<string>('biannual');
   const [processing, setProcessing] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
+  const [codeStatus, setCodeStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
+
+  // Load previously saved referral code (once set, it's locked)
+  useEffect(() => {
+    const saved = localStorage.getItem('rms_referral_code');
+    if (saved) {
+      setReferralCode(saved);
+      setCodeStatus('valid');
+    }
+  }, []);
+
+  // Validate referral code
+  useEffect(() => {
+    const code = referralCode.trim().toUpperCase();
+    if (!code) {
+      setCodeStatus('idle');
+      return;
+    }
+    // Don't re-validate if already locked
+    const saved = localStorage.getItem('rms_referral_code');
+    if (saved && saved === code) {
+      setCodeStatus('valid');
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setCodeStatus('checking');
+      try {
+        const res = await fetch(`/api/referral?validate=${encodeURIComponent(code)}`);
+        const data = await res.json();
+        setCodeStatus(data.valid ? 'valid' : 'invalid');
+      } catch {
+        setCodeStatus('invalid');
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [referralCode]);
 
   async function handleSubscribe() {
     if (!session?.user?.email) {
@@ -66,23 +105,34 @@ export default function SubscriptionPage() {
     const plan = PLANS.find((p) => p.id === selectedPlan);
     if (!plan) return;
 
+    // Referral code defaults to STITCHMANAGER if empty
+    const code = referralCode.trim().toUpperCase() || 'STITCHMANAGER';
+
+    // Validate code before proceeding
+    if (code !== 'STITCHMANAGER' && codeStatus !== 'valid') {
+      alert('Please enter a valid referral code, or leave it blank to use the default.');
+      return;
+    }
+
     setProcessing(true);
 
     try {
-      // Initialize Paystack payment
       const response = await fetch('/api/paystack/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: session.user.email,
-          amount: Math.round(plan.price * 100), // Paystack uses kobo
+          amount: Math.round(plan.price * 100),
           plan: plan.id,
+          referralCode: code,
         }),
       });
 
       const data = await response.json();
 
       if (data.authorization_url) {
+        // Lock the referral code once payment starts
+        localStorage.setItem('rms_referral_code', code);
         window.location.href = data.authorization_url;
       } else {
         alert('Failed to initialize payment. Please try again.');
@@ -94,6 +144,8 @@ export default function SubscriptionPage() {
       setProcessing(false);
     }
   }
+
+  const isCodeLocked = !!localStorage.getItem('rms_referral_code');
 
   return (
     <div className="px-4 pt-4 pb-24">
@@ -186,18 +238,53 @@ export default function SubscriptionPage() {
 
       {/* Referral Code */}
       <div className="bg-royal-card rounded-xl p-4 mb-6">
-        <label className="block text-sm text-white mb-2">Have a referral code?</label>
-        <input
-          type="text"
-          className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold uppercase"
-          placeholder="Enter referral code"
-        />
+        <label className="block text-sm text-white mb-1">Referral Code</label>
+        <p className="text-[10px] text-white/40 mb-2">
+          {isCodeLocked
+            ? 'Your referral code is locked and cannot be changed.'
+            : 'Enter a referral code from another tailor, or leave blank to use the default.'}
+        </p>
+        <div className="relative">
+          <input
+            type="text"
+            value={referralCode}
+            onChange={(e) => !isCodeLocked && setReferralCode(e.target.value.toUpperCase())}
+            disabled={isCodeLocked}
+            className={`w-full px-3 py-2 bg-royal-bg rounded-lg border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold uppercase pr-10 ${
+              isCodeLocked ? 'border-royal-border opacity-60 cursor-not-allowed' : 'border-royal-border'
+            }`}
+            placeholder="Enter referral code (optional)"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {codeStatus === 'checking' && (
+              <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+            )}
+            {codeStatus === 'valid' && (
+              <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+            {codeStatus === 'invalid' && (
+              <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
+            {isCodeLocked && codeStatus !== 'valid' && (
+              <svg className="w-5 h-5 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            )}
+          </div>
+        </div>
+        {codeStatus === 'invalid' && (
+          <p className="text-[10px] text-red-400 mt-1">Invalid referral code. Please check and try again.</p>
+        )}
       </div>
 
       {/* Subscribe Button */}
       <button
         onClick={handleSubscribe}
-        disabled={processing}
+        disabled={processing || codeStatus === 'checking'}
         className="w-full py-3.5 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-base disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {processing ? (
