@@ -23,6 +23,16 @@ export interface ReferralUser {
   updatedAt: string;
 }
 
+export interface EarningTransaction {
+  id: string;
+  type: 'commission' | 'registration';  // commission = 5% earning, registration = new referral joined
+  fromEmail: string;                     // The user who triggered this
+  amount: number;                        // Commission amount (0 for registration events)
+  paymentAmount: number;                 // The original payment amount
+  plan?: string;                         // Plan name if applicable
+  date: string;
+}
+
 export interface Withdrawal {
   id: string;
   email: string;
@@ -130,7 +140,7 @@ export async function saveUser(user: ReferralUser): Promise<void> {
   });
 }
 
-export async function addEarning(referrerCode: string, amount: number): Promise<void> {
+export async function addEarning(referrerCode: string, amount: number, fromEmail?: string, plan?: string): Promise<void> {
   if (!referrerCode || referrerCode === COMPANY_CODE) return;
 
   const referrer = await getUserByCode(referrerCode);
@@ -140,6 +150,57 @@ export async function addEarning(referrerCode: string, amount: number): Promise<
   referrer.totalEarnings += commission;
   referrer.availableBalance = referrer.totalEarnings - referrer.withdrawnAmount;
   await saveUser(referrer);
+
+  // Log the earning transaction
+  const txn: EarningTransaction = {
+    id: `TXN${Date.now()}`,
+    type: 'commission',
+    fromEmail: fromEmail || 'unknown',
+    amount: commission,
+    paymentAmount: amount,
+    plan: plan || '',
+    date: new Date().toISOString(),
+  };
+  await put(`${PREFIX}transactions/${referrer.email}/${txn.id}.json`, JSON.stringify(txn), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+  });
+}
+
+export async function addRegistrationEvent(referrerCode: string, newUserEmail: string): Promise<void> {
+  if (!referrerCode || referrerCode === COMPANY_CODE) return;
+
+  const referrer = await getUserByCode(referrerCode);
+  if (!referrer) return;
+
+  const txn: EarningTransaction = {
+    id: `REG${Date.now()}`,
+    type: 'registration',
+    fromEmail: newUserEmail,
+    amount: 0,
+    paymentAmount: 0,
+    date: new Date().toISOString(),
+  };
+  await put(`${PREFIX}transactions/${referrer.email}/${txn.id}.json`, JSON.stringify(txn), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+  });
+}
+
+export async function getTransactions(email: string): Promise<EarningTransaction[]> {
+  try {
+    const { blobs } = await list({ prefix: `${PREFIX}transactions/${email}/` });
+    const txns: EarningTransaction[] = [];
+    for (const blob of blobs) {
+      const res = await fetch(blob.url);
+      txns.push(await res.json());
+    }
+    return txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  } catch {
+    return [];
+  }
 }
 
 // --- Withdrawal Operations ---

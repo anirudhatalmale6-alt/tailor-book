@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface Plan {
   id: string;
@@ -51,34 +51,51 @@ const PLANS: Plan[] = [
   },
 ];
 
-export default function SubscriptionPage() {
+function SubscriptionContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [selectedPlan, setSelectedPlan] = useState<string>('biannual');
   const [processing, setProcessing] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [codeStatus, setCodeStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
+  const [isCodeLocked, setIsCodeLocked] = useState(false);
 
-  // Load previously saved referral code (once set, it's locked)
+  // Load referral code: from URL param (?ref=CODE), or from server (if user already registered)
   useEffect(() => {
-    const saved = localStorage.getItem('rms_referral_code');
-    if (saved) {
-      setReferralCode(saved);
-      setCodeStatus('valid');
+    // Check URL param first
+    const refParam = searchParams.get('ref');
+    if (refParam) {
+      setReferralCode(refParam.toUpperCase());
+      return;
     }
-  }, []);
+
+    // Check if user already has a locked referral code from the server
+    if (session?.user?.email) {
+      fetch(`/api/referral?email=${encodeURIComponent(session.user.email)}`)
+        .then((res) => {
+          if (res.ok) return res.json();
+          return null;
+        })
+        .then((data) => {
+          if (data && data.referredBy && data.referredBy !== 'STITCHMANAGER') {
+            // User already has a non-default referral code — lock it
+            setReferralCode(data.referredBy);
+            setIsCodeLocked(true);
+            setCodeStatus('valid');
+          }
+        })
+        .catch(() => {});
+    }
+  }, [searchParams, session?.user?.email]);
 
   // Validate referral code
   useEffect(() => {
+    if (isCodeLocked) return;
+
     const code = referralCode.trim().toUpperCase();
     if (!code) {
       setCodeStatus('idle');
-      return;
-    }
-    // Don't re-validate if already locked
-    const saved = localStorage.getItem('rms_referral_code');
-    if (saved && saved === code) {
-      setCodeStatus('valid');
       return;
     }
 
@@ -94,7 +111,7 @@ export default function SubscriptionPage() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [referralCode]);
+  }, [referralCode, isCodeLocked]);
 
   async function handleSubscribe() {
     if (!session?.user?.email) {
@@ -131,8 +148,6 @@ export default function SubscriptionPage() {
       const data = await response.json();
 
       if (data.authorization_url) {
-        // Lock the referral code once payment starts
-        localStorage.setItem('rms_referral_code', code);
         window.location.href = data.authorization_url;
       } else {
         alert('Failed to initialize payment. Please try again.');
@@ -144,8 +159,6 @@ export default function SubscriptionPage() {
       setProcessing(false);
     }
   }
-
-  const isCodeLocked = !!localStorage.getItem('rms_referral_code');
 
   return (
     <div className="px-4 pt-4 pb-24">
@@ -303,5 +316,17 @@ export default function SubscriptionPage() {
         Secured by Paystack. Cancel anytime.
       </p>
     </div>
+  );
+}
+
+export default function SubscriptionPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-royal-bg flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <SubscriptionContent />
+    </Suspense>
   );
 }

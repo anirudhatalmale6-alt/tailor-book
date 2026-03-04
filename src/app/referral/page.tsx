@@ -23,6 +23,16 @@ interface ReferralUser {
   updatedAt: string;
 }
 
+interface EarningTransaction {
+  id: string;
+  type: 'commission' | 'registration';
+  fromEmail: string;
+  amount: number;
+  paymentAmount: number;
+  plan?: string;
+  date: string;
+}
+
 interface Withdrawal {
   id: string;
   amount: number;
@@ -32,12 +42,13 @@ interface Withdrawal {
   reason?: string;
 }
 
-type TabKey = 'overview' | 'bank' | 'withdraw';
+type TabKey = 'overview' | 'history' | 'bank' | 'withdraw';
 
 export default function ReferralPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const [user, setUser] = useState<ReferralUser | null>(null);
+  const [transactions, setTransactions] = useState<EarningTransaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabKey>('overview');
@@ -64,9 +75,10 @@ export default function ReferralPage() {
       const res = await fetch(`/api/referral?email=${encodeURIComponent(email)}&withdrawals=1`);
       if (res.ok) {
         const data = await res.json();
-        const { withdrawals: w, ...userData } = data;
+        const { withdrawals: w, transactions: t, ...userData } = data;
         setUser(userData);
         setWithdrawals(w || []);
+        setTransactions(t || []);
         setBankName(userData.bankName || '');
         setAccountNumber(userData.accountNumber || '');
         setAccountName(userData.accountName || '');
@@ -92,7 +104,7 @@ export default function ReferralPage() {
 
   function shareWhatsApp() {
     if (!user) return;
-    const message = `Hey! I use Stitch Manager to manage my tailoring business — measurements, orders, payments, everything in one app. Use my referral code *${user.referralCode}* when you sign up and we both benefit! Download here: https://stitchmanager.vercel.app`;
+    const message = `Hey! I use Stitch Manager to manage my tailoring business — measurements, orders, payments, everything in one app. Use my referral code *${user.referralCode}* when you sign up and we both benefit! Download here: https://stitchmanager.vercel.app/subscription?ref=${user.referralCode}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
   }
 
@@ -200,7 +212,7 @@ export default function ReferralPage() {
     );
   }
 
-  // Not registered in RMS yet — show info card
+  // Not registered in RMS yet
   if (!user) {
     return (
       <div className="px-4 pt-4 pb-24">
@@ -227,8 +239,6 @@ export default function ReferralPage() {
             Subscribe Now
           </button>
         </div>
-
-        {/* How It Works */}
         <div className="bg-royal-card rounded-xl p-4 mt-4">
           <h2 className="text-sm font-semibold text-white mb-3">How It Works</h2>
           <div className="space-y-3">
@@ -296,16 +306,17 @@ export default function ReferralPage() {
       </button>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-royal-card rounded-xl p-1 mb-4">
+      <div className="flex gap-0.5 bg-royal-card rounded-xl p-1 mb-4">
         {([
           { key: 'overview' as TabKey, label: 'Overview' },
-          { key: 'bank' as TabKey, label: 'Bank Details' },
-          { key: 'withdraw' as TabKey, label: 'Withdrawals' },
+          { key: 'history' as TabKey, label: 'Activity' },
+          { key: 'bank' as TabKey, label: 'Bank' },
+          { key: 'withdraw' as TabKey, label: 'Withdraw' },
         ]).map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex-1 py-2 rounded-lg text-[11px] font-medium transition-colors ${
               tab === t.key
                 ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
                 : 'text-white/60'
@@ -319,7 +330,6 @@ export default function ReferralPage() {
       {/* Overview Tab */}
       {tab === 'overview' && (
         <div className="space-y-4">
-          {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-royal-card rounded-xl p-4 text-center">
               <p className="text-xs text-white/60 mb-1">Total Referrals</p>
@@ -339,7 +349,6 @@ export default function ReferralPage() {
             </div>
           </div>
 
-          {/* Withdraw Button */}
           <button
             onClick={() => canWithdraw ? setShowWithdrawModal(true) : null}
             disabled={!canWithdraw}
@@ -364,24 +373,22 @@ export default function ReferralPage() {
             </div>
           )}
 
-          {/* Referred Users */}
           {user.referredUsers.length > 0 && (
             <div className="bg-royal-card rounded-xl p-4">
               <h3 className="text-sm font-semibold text-white mb-2">Your Referrals</h3>
               <div className="space-y-2">
-                {user.referredUsers.map((email) => (
-                  <div key={email} className="flex items-center gap-2 bg-royal-bg rounded-lg px-3 py-2">
+                {user.referredUsers.map((refEmail) => (
+                  <div key={refEmail} className="flex items-center gap-2 bg-royal-bg rounded-lg px-3 py-2">
                     <div className="w-8 h-8 rounded-full bg-gold-bg flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-gold">{email[0].toUpperCase()}</span>
+                      <span className="text-xs font-bold text-gold">{refEmail[0].toUpperCase()}</span>
                     </div>
-                    <span className="text-sm text-white truncate">{email}</span>
+                    <span className="text-sm text-white truncate">{refEmail}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* How It Works */}
           <div className="bg-royal-card rounded-xl p-4">
             <h3 className="text-sm font-semibold text-white mb-3">How It Works</h3>
             <div className="space-y-3">
@@ -402,6 +409,69 @@ export default function ReferralPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Activity / Transaction History Tab */}
+      {tab === 'history' && (
+        <div className="space-y-4">
+          <div className="bg-royal-card rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-white mb-3">Transaction History</h3>
+            {transactions.length === 0 ? (
+              <div className="text-center py-6">
+                <svg className="w-10 h-10 text-white/20 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <p className="text-xs text-white/40">No transactions yet</p>
+                <p className="text-[10px] text-white/30 mt-1">When someone uses your code, you&apos;ll see their activity here</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {transactions.map((txn) => (
+                  <div key={txn.id} className="bg-royal-bg rounded-lg px-3 py-2.5">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          txn.type === 'commission' ? 'bg-green-400/10' : 'bg-blue-400/10'
+                        }`}>
+                          {txn.type === 'commission' ? (
+                            <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-white">
+                            {txn.type === 'commission' ? 'Commission Earned' : 'New Referral Joined'}
+                          </p>
+                          <p className="text-[10px] text-white/40 truncate">{txn.fromEmail}</p>
+                        </div>
+                      </div>
+                      {txn.type === 'commission' && (
+                        <span className="text-sm font-bold text-green-400 flex-shrink-0">
+                          +₦{txn.amount.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-[10px] text-white/30">
+                        {new Date(txn.date).toLocaleDateString()} {new Date(txn.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                      {txn.type === 'commission' && txn.paymentAmount > 0 && (
+                        <p className="text-[10px] text-white/30">
+                          5% of ₦{txn.paymentAmount.toLocaleString()}{txn.plan ? ` (${txn.plan})` : ''}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -446,7 +516,6 @@ export default function ReferralPage() {
             </div>
           </div>
 
-          {/* BVN Section */}
           <div className="bg-royal-card rounded-xl p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-white">BVN Verification</h3>
@@ -494,7 +563,6 @@ export default function ReferralPage() {
       {/* Withdrawals Tab */}
       {tab === 'withdraw' && (
         <div className="space-y-4">
-          {/* Balance Card */}
           <div className="bg-gradient-to-br from-gold-dim/20 to-gold/10 rounded-xl p-4 border border-gold/20">
             <p className="text-xs text-white/60 mb-1">Available Balance</p>
             <p className="text-3xl font-bold text-gold">₦{user.availableBalance.toLocaleString()}</p>
@@ -509,7 +577,6 @@ export default function ReferralPage() {
             Request Withdrawal
           </button>
 
-          {/* Withdrawal History */}
           <div className="bg-royal-card rounded-xl p-4">
             <h3 className="text-sm font-semibold text-white mb-3">Withdrawal History</h3>
             {withdrawals.length === 0 ? (

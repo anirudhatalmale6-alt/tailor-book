@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUser, createUser, saveUser, getUserByCode, addEarning, createWithdrawal, getWithdrawals } from '@/lib/referral-store';
+import { getUser, createUser, saveUser, getUserByCode, addEarning, createWithdrawal, getWithdrawals, getTransactions } from '@/lib/referral-store';
 
 // GET /api/referral?email=...  — Get user's referral dashboard data
 // GET /api/referral?email=...&withdrawals=1  — Include withdrawal history
@@ -31,10 +31,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'User not found in RMS' }, { status: 404 });
   }
 
-  // Include withdrawals if requested
+  // Include withdrawals and transactions if requested
   if (searchParams.get('withdrawals') === '1') {
-    const withdrawals = await getWithdrawals(email);
-    return NextResponse.json({ ...user, withdrawals });
+    const [withdrawals, transactions] = await Promise.all([
+      getWithdrawals(email),
+      getTransactions(email),
+    ]);
+    return NextResponse.json({ ...user, withdrawals, transactions });
   }
 
   return NextResponse.json(user);

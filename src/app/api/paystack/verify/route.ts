@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createUser, getUser, addEarning } from '@/lib/referral-store';
+import { createUser, getUser, addEarning, addRegistrationEvent } from '@/lib/referral-store';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -35,11 +35,13 @@ export async function GET(req: Request) {
           const existing = await getUser(email);
           if (!existing) {
             await createUser(email, referralCode);
+            // Log registration event for the referrer
+            await addRegistrationEvent(referralCode, email);
           }
           // Add 5% earning to the referrer
           const user = existing || await getUser(email);
           if (user) {
-            await addEarning(user.referredBy, amountNaira);
+            await addEarning(user.referredBy, amountNaira, email, plan);
           }
         } catch (e) {
           console.error('RMS registration error:', e);
