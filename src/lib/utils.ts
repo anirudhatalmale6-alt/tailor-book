@@ -77,9 +77,19 @@ export function isThisMonth(dateString: string): boolean {
   return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
 }
 
+export function formatPhoneForWhatsApp(phone: string): string {
+  let cleaned = phone.replace(/[^0-9+]/g, '');
+  // Remove leading +
+  cleaned = cleaned.replace(/^\+/, '');
+  // Nigerian local format: 0XXXXXXXXXX (11 digits starting with 0) → 234XXXXXXXXXX
+  if (cleaned.startsWith('0') && cleaned.length === 11) {
+    cleaned = '234' + cleaned.slice(1);
+  }
+  return cleaned;
+}
+
 export function getWhatsAppLink(phone: string): string {
-  const cleaned = phone.replace(/[^0-9+]/g, '');
-  return `https://wa.me/${cleaned.replace('+', '')}`;
+  return `https://wa.me/${formatPhoneForWhatsApp(phone)}`;
 }
 
 export function getPhoneLink(phone: string): string {

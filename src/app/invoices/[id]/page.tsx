@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useInvoice } from '@/hooks/useInvoices';
 import { useCurrency, useBusinessName, useBusinessPhone, useBusinessAddress, useBusinessLogo } from '@/hooks/useSettings';
+import { formatPhoneForWhatsApp } from '@/lib/utils';
 import { db, type Customer, type Order, type Project } from '@/lib/db';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import EmptyState from '@/components/EmptyState';
@@ -89,8 +90,7 @@ export default function InvoiceViewPage() {
     const text = encodeURIComponent(lines.join('\n'));
     const phone = customer.whatsapp || customer.phone;
     if (phone) {
-      const cleaned = phone.replace(/[^0-9+]/g, '').replace('+', '');
-      window.open(`https://wa.me/${cleaned}?text=${text}`, '_blank');
+      window.open(`https://wa.me/${formatPhoneForWhatsApp(phone)}?text=${text}`, '_blank');
     } else {
       window.open(`https://wa.me/?text=${text}`, '_blank');
     }
