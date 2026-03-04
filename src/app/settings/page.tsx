@@ -237,7 +237,7 @@ export default function SettingsPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `tailorbook-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `stitchmanager-backup-${new Date().toISOString().split('T')[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -280,7 +280,7 @@ export default function SettingsPage() {
       window.location.reload();
     } catch (err) {
       console.error('Import failed:', err);
-      alert('Failed to import data. Make sure the file is a valid TailorBook backup.');
+      alert('Failed to import data. Make sure the file is a valid StitchManager backup.');
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
@@ -668,7 +668,7 @@ export default function SettingsPage() {
 
       {/* App Info */}
       <div className="text-center py-4">
-        <p className="text-xs text-white/60">TailorBook v1.0</p>
+        <p className="text-xs text-white/60">StitchManager v1.0</p>
         <p className="text-xs text-white/60">All data stored locally on your device</p>
       </div>
 

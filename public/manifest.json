@@ -1,6 +1,6 @@
 {
-  "name": "TailorBook",
-  "short_name": "TailorBook",
+  "name": "StitchManager",
+  "short_name": "StitchManager",
   "description": "Tailoring Business Management",
   "start_url": "/",
   "display": "standalone",

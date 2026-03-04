@@ -20,7 +20,7 @@ export function useCurrency() {
 }
 
 export function useBusinessName() {
-  return useSetting('businessName', 'TailorBook');
+  return useSetting('businessName', 'StitchManager');
 }
 
 export function useTaxRate() {
