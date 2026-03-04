@@ -902,8 +902,9 @@ export default function CustomerDetailPage() {
                     .filter(Boolean)
                     .join('\n');
 
-                  const message = `*Client Measurements*\n*Name:* ${customer.name}\n*Date:* ${formatDate(latestMeasurement.createdAt)}\n\n${measurementText}${latestMeasurement.notes ? `\n\n*Notes:* ${latestMeasurement.notes}` : ''}`;
-                  const waLink = `https://wa.me/${formatPhoneForWhatsApp(colleague.whatsapp)}?text=${encodeURIComponent(message)}`;
+                  const message = `*Client Measurements*\n*Date:* ${formatDate(latestMeasurement.createdAt)}\n\n${measurementText}${latestMeasurement.notes ? `\n\n*Notes:* ${latestMeasurement.notes}` : ''}`;
+                  const colleagueNumber = colleague.whatsapp || colleague.phone;
+                  const waLink = `https://wa.me/${formatPhoneForWhatsApp(colleagueNumber)}?text=${encodeURIComponent(message)}`;
 
                   return (
                     <a
@@ -920,7 +921,7 @@ export default function CustomerDetailPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white truncate">{colleague.name}</p>
-                        <p className="text-xs text-white">{colleague.phone}</p>
+                        <p className="text-xs text-white">{colleague.whatsapp || colleague.phone}</p>
                       </div>
                       <span className="text-xs text-green-400 font-medium">Send via WhatsApp</span>
                     </a>
