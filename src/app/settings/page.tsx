@@ -178,30 +178,14 @@ export default function SettingsPage() {
     await updateMeasurementField(other.id, { sortOrder: field.sortOrder });
   }
 
-  async function handleSaveBusinessName() {
+  async function handleSaveAllBusiness() {
     await setSetting('businessName', bizName);
-    alert('Business name saved');
-  }
-
-  async function handleSaveCurrency() {
     await setSetting('currency', curr);
-    alert('Currency saved');
-  }
-
-  async function handleSaveTaxRate() {
     const rate = parseFloat(tax) || 0;
     await setSetting('taxRate', rate.toString());
-    alert('Tax rate saved');
-  }
-
-  async function handleSaveBusinessPhone() {
     await setSetting('businessPhone', bizPhone);
-    alert('Business phone saved');
-  }
-
-  async function handleSaveBusinessAddress() {
     await setSetting('businessAddress', bizAddr);
-    alert('Business address saved');
+    alert('Business settings saved');
   }
 
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -319,63 +303,57 @@ export default function SettingsPage() {
         </a>
       </div>
 
+      {/* Business Profile Preview */}
+      {(businessName || businessPhone || businessAddress || businessLogo) && (
+        <div className="bg-gradient-to-r from-gold-dim to-gold rounded-xl p-4 mb-4">
+          <div className="flex items-start gap-3">
+            {businessLogo && (
+              <img src={businessLogo} alt="Logo" className="w-14 h-14 rounded-lg object-contain bg-white/20 p-1 flex-shrink-0" />
+            )}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-bold text-white truncate">{businessName || 'Your Business'}</h3>
+              {businessPhone && <p className="text-white/80 text-xs">{businessPhone}</p>}
+              {businessAddress && <p className="text-white/80 text-xs">{businessAddress}</p>}
+              {currency && <p className="text-white/60 text-[10px] mt-1">Currency: {currency} | Tax: {taxRate}%</p>}
+            </div>
+          </div>
+          <p className="text-white/50 text-[10px] mt-2 text-center">This is how your business appears on invoices</p>
+        </div>
+      )}
+
       {/* Business Settings */}
       <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
         <h2 className="text-sm font-semibold text-white mb-3">Business</h2>
         <div className="space-y-3">
           <div>
             <label className="block text-xs text-white mb-1">Business Name</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={bizName}
-                onChange={(e) => setBizName(e.target.value)}
-                className="flex-1 px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                placeholder="Your business name"
-              />
-              <button
-                onClick={handleSaveBusinessName}
-                className="px-3 py-2 bg-gradient-to-r from-gold-dim to-gold text-white rounded-lg text-sm font-medium hover:bg-gold-dim"
-              >
-                Save
-              </button>
-            </div>
+            <input
+              type="text"
+              value={bizName}
+              onChange={(e) => setBizName(e.target.value)}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Your business name"
+            />
           </div>
           <div>
             <label className="block text-xs text-white mb-1">Business Phone</label>
-            <div className="flex gap-2">
-              <input
-                type="tel"
-                value={bizPhone}
-                onChange={(e) => setBizPhone(e.target.value)}
-                className="flex-1 px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                placeholder="e.g., +234 801 234 5678"
-              />
-              <button
-                onClick={handleSaveBusinessPhone}
-                className="px-3 py-2 bg-gradient-to-r from-gold-dim to-gold text-white rounded-lg text-sm font-medium hover:bg-gold-dim"
-              >
-                Save
-              </button>
-            </div>
+            <input
+              type="tel"
+              value={bizPhone}
+              onChange={(e) => setBizPhone(e.target.value)}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="e.g., +234 801 234 5678"
+            />
           </div>
           <div>
             <label className="block text-xs text-white mb-1">Business Address</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={bizAddr}
-                onChange={(e) => setBizAddr(e.target.value)}
-                className="flex-1 px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                placeholder="e.g., 12 Broad St, Lagos"
-              />
-              <button
-                onClick={handleSaveBusinessAddress}
-                className="px-3 py-2 bg-gradient-to-r from-gold-dim to-gold text-white rounded-lg text-sm font-medium hover:bg-gold-dim"
-              >
-                Save
-              </button>
-            </div>
+            <input
+              type="text"
+              value={bizAddr}
+              onChange={(e) => setBizAddr(e.target.value)}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="e.g., 12 Broad St, Lagos"
+            />
           </div>
           <div>
             <label className="block text-xs text-white mb-1">Business Logo</label>
@@ -418,52 +396,42 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="block text-xs text-white mb-1">Default Currency</label>
-            <div className="flex gap-2">
-              <select
-                value={curr}
-                onChange={(e) => setCurr(e.target.value)}
-                className="flex-1 px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-              >
-                <option value="NGN">NGN - Nigerian Naira</option>
-                <option value="USD">USD - US Dollar</option>
-                <option value="GBP">GBP - British Pound</option>
-                <option value="EUR">EUR - Euro</option>
-                <option value="GHS">GHS - Ghanaian Cedi</option>
-                <option value="KES">KES - Kenyan Shilling</option>
-                <option value="ZAR">ZAR - South African Rand</option>
-                <option value="XOF">XOF - CFA Franc</option>
-                <option value="INR">INR - Indian Rupee</option>
-              </select>
-              <button
-                onClick={handleSaveCurrency}
-                className="px-3 py-2 bg-gradient-to-r from-gold-dim to-gold text-white rounded-lg text-sm font-medium hover:bg-gold-dim"
-              >
-                Save
-              </button>
-            </div>
+            <select
+              value={curr}
+              onChange={(e) => setCurr(e.target.value)}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+            >
+              <option value="NGN">NGN - Nigerian Naira</option>
+              <option value="USD">USD - US Dollar</option>
+              <option value="GBP">GBP - British Pound</option>
+              <option value="EUR">EUR - Euro</option>
+              <option value="GHS">GHS - Ghanaian Cedi</option>
+              <option value="KES">KES - Kenyan Shilling</option>
+              <option value="ZAR">ZAR - South African Rand</option>
+              <option value="XOF">XOF - CFA Franc</option>
+              <option value="INR">INR - Indian Rupee</option>
+            </select>
           </div>
           <div>
             <label className="block text-xs text-white mb-1">Tax Rate (%)</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                value={tax}
-                onChange={(e) => setTax(e.target.value)}
-                className="flex-1 px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                placeholder="0"
-                min="0"
-                max="100"
-                step="0.1"
-              />
-              <button
-                onClick={handleSaveTaxRate}
-                className="px-3 py-2 bg-gradient-to-r from-gold-dim to-gold text-white rounded-lg text-sm font-medium hover:bg-gold-dim"
-              >
-                Save
-              </button>
-            </div>
+            <input
+              type="number"
+              value={tax}
+              onChange={(e) => setTax(e.target.value)}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="0"
+              min="0"
+              max="100"
+              step="0.1"
+            />
             <p className="text-[10px] text-white/60 mt-1">Applied to invoices. Set to 0 for no tax.</p>
           </div>
+          <button
+            onClick={handleSaveAllBusiness}
+            className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm mt-2"
+          >
+            Save Business Settings
+          </button>
         </div>
       </div>
 

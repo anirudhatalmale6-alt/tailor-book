@@ -2,9 +2,11 @@
 
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   async function handleGoogleSignIn() {
     setLoading(true);
@@ -13,6 +15,11 @@ export default function LoginPage() {
     } catch {
       setLoading(false);
     }
+  }
+
+  function handleSkip() {
+    localStorage.setItem('sm_skip_login', '1');
+    router.replace('/');
   }
 
   return (
@@ -55,9 +62,9 @@ export default function LoginPage() {
 
         {/* Skip for now */}
         <div className="mt-4 text-center">
-          <a href="/" className="text-sm text-white/40 hover:text-white/60 transition-colors">
+          <button onClick={handleSkip} className="text-sm text-white/40 hover:text-white/60 transition-colors">
             Skip for now — use offline
-          </a>
+          </button>
         </div>
 
         <p className="text-xs text-white/30 text-center mt-6">
