@@ -13,10 +13,14 @@ import { fileToBase64 } from '@/lib/utils';
 import { useReadOnlyGuard } from '@/hooks/useSubscription';
 import { db, type MeasurementField } from '@/lib/db';
 import { backupToGoogleDrive, restoreFromGoogleDrive, getBackupInfo } from '@/lib/gdrive-backup';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
+import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
 
 export default function SettingsPage() {
   const canEdit = useReadOnlyGuard();
+  const { user: localUser, logout } = useLocalAuth();
+  const router = useRouter();
   const fields = useMeasurementFields();
   const businessName = useBusinessName();
   const currency = useCurrency();
@@ -510,29 +514,132 @@ export default function SettingsPage() {
       {/* Account */}
       <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
         <h2 className="text-sm font-semibold text-white mb-3">Account</h2>
-        {session?.user ? (
+        {localUser ? (
           <div>
             <div className="flex items-center gap-3 mb-3">
-              {session.user.image && (
-                <img src={session.user.image} alt="" className="w-10 h-10 rounded-full" />
-              )}
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold-dim to-gold flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm">{localUser.name.charAt(0).toUpperCase()}</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{session.user.name}</p>
-                <p className="text-xs text-white/60 truncate">{session.user.email}</p>
+                <p className="text-sm font-medium text-white truncate">{localUser.name}</p>
+                <p className="text-xs text-white/60 truncate">{localUser.email}</p>
+                <p className="text-[10px] text-white/40 truncate">{localUser.phone}</p>
               </div>
             </div>
             <button
-              onClick={() => signOut()}
+              onClick={() => { logout(); router.replace('/login'); }}
               className="w-full py-2 bg-royal-hover text-white/60 rounded-xl text-sm font-medium"
             >
-              Sign Out
+              Log Out
             </button>
           </div>
         ) : (
+          <p className="text-sm text-white/60">Not logged in</p>
+        )}
+      </div>
+
+      {/* Cloud Backup (Google Drive) */}
+      <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
+        <h2 className="text-sm font-semibold text-white mb-3">Cloud Backup</h2>
+        {session?.user ? (
+          <>
+            <p className="text-xs text-white/60 mb-3">
+              Linked to <span className="text-white">{session.user.email}</span> for Google Drive backup.
+            </p>
+            {/* Auto Backup Schedule */}
+            <div className="mb-3">
+              <label className="block text-xs text-white mb-1.5">Auto Backup Schedule</label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {[
+                  { value: 'off', label: 'Off' },
+                  { value: 'daily', label: 'Daily' },
+                  { value: 'weekly', label: 'Weekly' },
+                  { value: 'monthly', label: 'Monthly' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setSetting('backupFrequency', opt.value)}
+                    className={`py-2 rounded-lg text-xs font-medium transition-colors ${
+                      backupFrequency === opt.value
+                        ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
+                        : 'bg-royal-bg text-white/60 border border-royal-border'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {backupFrequency !== 'off' && (
+                <p className="text-[10px] text-white/40 mt-1">
+                  Auto backup runs {backupFrequency} when you open the app.
+                  {lastAutoBackup && ` Last auto backup: ${new Date(lastAutoBackup).toLocaleString()}`}
+                </p>
+              )}
+            </div>
+            {lastBackup && (
+              <p className="text-xs text-white/40 mb-3">
+                Last manual backup: {new Date(lastBackup).toLocaleString()}
+              </p>
+            )}
+            {backupMessage && (
+              <p className={`text-xs mb-3 ${backupMessage.includes('failed') ? 'text-red-400' : 'text-green-400'}`}>
+                {backupMessage}
+              </p>
+            )}
+            <div className="space-y-2">
+              <button
+                onClick={handleCloudBackup}
+                disabled={backingUp}
+                className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-medium text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {backingUp ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Backing up...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Backup to Google Drive
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleCloudRestore}
+                disabled={restoring}
+                className="w-full py-3 bg-royal-hover text-white rounded-xl font-medium text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {restoring ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Restoring...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                    </svg>
+                    Restore from Google Drive
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => signOut()}
+                className="w-full py-2 bg-royal-hover text-white/40 rounded-xl text-xs font-medium"
+              >
+                Unlink Google Account
+              </button>
+            </div>
+          </>
+        ) : (
           <div>
-            <p className="text-sm text-white/60 mb-3">Sign in with Google to enable cloud backup</p>
+            <p className="text-xs text-white/60 mb-3">
+              Link your Google account to enable automatic cloud backup to Google Drive.
+            </p>
             <button
-              onClick={() => signIn('google')}
+              onClick={() => signIn('google', { callbackUrl: '/settings' })}
               className="w-full flex items-center justify-center gap-2 py-3 bg-white rounded-xl text-gray-800 font-medium text-sm"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -541,101 +648,11 @@ export default function SettingsPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              Sign in with Google
+              Link Google Account
             </button>
           </div>
         )}
       </div>
-
-      {/* Cloud Backup */}
-      {session?.user && (
-        <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
-          <h2 className="text-sm font-semibold text-white mb-3">Cloud Backup</h2>
-          <p className="text-xs text-white/60 mb-3">
-            Your data is backed up to your personal Google Drive. Only you can access it.
-          </p>
-          {/* Auto Backup Schedule */}
-          <div className="mb-3">
-            <label className="block text-xs text-white mb-1.5">Auto Backup Schedule</label>
-            <div className="grid grid-cols-4 gap-1.5">
-              {[
-                { value: 'off', label: 'Off' },
-                { value: 'daily', label: 'Daily' },
-                { value: 'weekly', label: 'Weekly' },
-                { value: 'monthly', label: 'Monthly' },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setSetting('backupFrequency', opt.value)}
-                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${
-                    backupFrequency === opt.value
-                      ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
-                      : 'bg-royal-bg text-white/60 border border-royal-border'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            {backupFrequency !== 'off' && (
-              <p className="text-[10px] text-white/40 mt-1">
-                Auto backup runs {backupFrequency} when you open the app.
-                {lastAutoBackup && ` Last auto backup: ${new Date(lastAutoBackup).toLocaleString()}`}
-              </p>
-            )}
-          </div>
-          {lastBackup && (
-            <p className="text-xs text-white/40 mb-3">
-              Last manual backup: {new Date(lastBackup).toLocaleString()}
-            </p>
-          )}
-          {backupMessage && (
-            <p className={`text-xs mb-3 ${backupMessage.includes('failed') ? 'text-red-400' : 'text-green-400'}`}>
-              {backupMessage}
-            </p>
-          )}
-          <div className="space-y-2">
-            <button
-              onClick={handleCloudBackup}
-              disabled={backingUp}
-              className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-medium text-sm disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {backingUp ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Backing up...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  Backup to Google Drive
-                </>
-              )}
-            </button>
-            <button
-              onClick={handleCloudRestore}
-              disabled={restoring}
-              className="w-full py-3 bg-royal-hover text-white rounded-xl font-medium text-sm disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {restoring ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Restoring...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                  </svg>
-                  Restore from Google Drive
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Data Management */}
       <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
@@ -670,7 +687,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Admin Panel (visible to admin only) */}
-      {session?.user?.email === 'pgmclement@gmail.com' && (
+      {localUser?.email === 'pgmclement@gmail.com' && (
         <div className="bg-royal-card rounded-xl shadow-none p-4 mb-4">
           <h2 className="text-sm font-semibold text-white mb-3">Admin</h2>
           <a

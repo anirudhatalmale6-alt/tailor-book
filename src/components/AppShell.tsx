@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import BottomNav from './BottomNav';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
 
 function SubscriptionBanner() {
   const sub = useSubscription();
@@ -51,34 +51,34 @@ function SubscriptionBanner() {
 }
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+  const { user, loading } = useLocalAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (loading) return;
     // Don't redirect if already on login page or auth callback
     if (pathname === '/login' || pathname.startsWith('/api/auth')) {
       setChecked(true);
       return;
     }
-    // If signed in, allow through
-    if (session?.user) {
+    // If local user exists, allow through
+    if (user) {
       setChecked(true);
       return;
     }
-    // If user previously skipped login, allow through
+    // If user previously skipped login (legacy), allow through
     if (typeof window !== 'undefined' && localStorage.getItem('sm_skip_login')) {
       setChecked(true);
       return;
     }
     // Otherwise redirect to login
     router.replace('/login');
-  }, [status, session, pathname, router]);
+  }, [loading, user, pathname, router]);
 
   // Show loading while checking auth
-  if (!checked && status === 'loading') {
+  if (!checked && loading) {
     return (
       <div className="min-h-screen bg-royal-bg flex items-center justify-center">
         <div className="text-center">

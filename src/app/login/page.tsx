@@ -1,70 +1,231 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalAuth, getLocalUser } from '@/hooks/useLocalAuth';
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { register, login } = useLocalAuth();
+  const [tab, setTab] = useState<'login' | 'register'>('login');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  async function handleGoogleSignIn() {
+  // Register fields
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [pin, setPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+
+  // Login fields
+  const [loginPhone, setLoginPhone] = useState('');
+  const [loginPin, setLoginPin] = useState('');
+
+  // If no existing account, show register tab by default
+  useEffect(() => {
+    const existing = getLocalUser();
+    if (!existing) {
+      setTab('register');
+    }
+  }, []);
+
+  async function handleRegister() {
+    setError('');
+    if (!name.trim()) { setError('Please enter your name'); return; }
+    if (!phone.trim()) { setError('Please enter your phone number'); return; }
+    if (!email.trim()) { setError('Please enter your email'); return; }
+    if (pin.length !== 4 || !/^\d{4}$/.test(pin)) { setError('PIN must be exactly 4 digits'); return; }
+    if (pin !== confirmPin) { setError('PINs do not match'); return; }
+
     setLoading(true);
     try {
-      await signIn('google', { callbackUrl: '/' });
+      await register(name.trim(), phone.trim(), email.trim().toLowerCase(), pin);
+      router.replace('/');
     } catch {
+      setError('Registration failed. Please try again.');
+    } finally {
       setLoading(false);
     }
   }
 
-  function handleSkip() {
-    localStorage.setItem('sm_skip_login', '1');
-    router.replace('/');
+  async function handleLogin() {
+    setError('');
+    if (!loginPhone.trim()) { setError('Please enter your phone number'); return; }
+    if (loginPin.length !== 4 || !/^\d{4}$/.test(loginPin)) { setError('PIN must be exactly 4 digits'); return; }
+
+    setLoading(true);
+    try {
+      const success = await login(loginPhone.trim(), loginPin);
+      if (success) {
+        router.replace('/');
+      } else {
+        setError('Invalid phone number or PIN');
+      }
+    } catch {
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="min-h-screen bg-royal-bg flex flex-col items-center justify-center px-6">
-      {/* Logo / App Name */}
-      <div className="text-center mb-10">
-        <img src="/logo.png" alt="Stitch Manager" className="w-44 h-44 mx-auto mb-4" />
-        <h1 className="text-3xl font-bold text-white mb-2">Stitch Manager</h1>
+      {/* Logo */}
+      <div className="text-center mb-8">
+        <img src="/logo.png" alt="Stitch Manager" className="w-36 h-36 mx-auto mb-3" />
+        <h1 className="text-3xl font-bold text-white mb-1">Stitch Manager</h1>
         <p className="text-white/60 text-sm">Your tailoring business, organized</p>
       </div>
 
-      {/* Sign In Card */}
+      {/* Auth Card */}
       <div className="w-full max-w-sm">
-        <div className="bg-royal-card rounded-2xl p-6 shadow-lg border border-royal-border">
-          <h2 className="text-lg font-semibold text-white text-center mb-2">Welcome</h2>
-          <p className="text-sm text-white/60 text-center mb-6">Sign in to sync your data across devices</p>
+        <div className="bg-royal-card rounded-2xl p-5 shadow-lg border border-royal-border">
+          {/* Tabs */}
+          <div className="flex gap-1 bg-royal-bg rounded-xl p-1 mb-5">
+            <button
+              onClick={() => { setTab('login'); setError(''); }}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                tab === 'login'
+                  ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
+                  : 'text-white/60'
+              }`}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => { setTab('register'); setError(''); }}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                tab === 'register'
+                  ? 'bg-gradient-to-r from-gold-dim to-gold text-white'
+                  : 'text-white/60'
+              }`}
+            >
+              Register
+            </button>
+          </div>
 
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white rounded-xl text-gray-800 font-medium hover:bg-gray-50 active:bg-gray-100 transition-colors disabled:opacity-50"
-          >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-              </svg>
-            )}
-            {loading ? 'Signing in...' : 'Continue with Google'}
-          </button>
-        </div>
+          {error && (
+            <div className="bg-red-400/10 border border-red-400/30 rounded-lg px-3 py-2 mb-4">
+              <p className="text-xs text-red-400">{error}</p>
+            </div>
+          )}
 
-        {/* Skip for now */}
-        <div className="mt-4 text-center">
-          <button onClick={handleSkip} className="text-sm text-white/40 hover:text-white/60 transition-colors">
-            Skip for now — use offline
-          </button>
+          {tab === 'register' ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+                  placeholder="Enter your full name"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+                  placeholder="e.g., 08012345678"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Create 4-digit PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold tracking-[0.5em] text-center text-lg"
+                  placeholder="----"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Confirm PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={confirmPin}
+                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold tracking-[0.5em] text-center text-lg"
+                  placeholder="----"
+                />
+              </div>
+              <button
+                onClick={handleRegister}
+                disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 mt-1"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Phone Number</label>
+                <input
+                  type="tel"
+                  value={loginPhone}
+                  onChange={(e) => setLoginPhone(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+                  placeholder="e.g., 08012345678"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">4-digit PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={loginPin}
+                  onChange={(e) => setLoginPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold tracking-[0.5em] text-center text-lg"
+                  placeholder="----"
+                />
+              </div>
+              <button
+                onClick={handleLogin}
+                disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 mt-1"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Signing In...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         <p className="text-xs text-white/30 text-center mt-6">
-          By signing in, you agree to our Terms of Service and Privacy Policy
+          Your data is stored locally on your device. No internet needed after setup.
         </p>
       </div>
     </div>

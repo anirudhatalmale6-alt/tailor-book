@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
 
 interface Plan {
   id: string;
@@ -54,7 +54,7 @@ const PLANS: Plan[] = [
 function SubscriptionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { user: localUser } = useLocalAuth();
   const [selectedPlan, setSelectedPlan] = useState<string>('biannual');
   const [processing, setProcessing] = useState(false);
   const [referralCode, setReferralCode] = useState('');
@@ -71,8 +71,8 @@ function SubscriptionContent() {
     }
 
     // Check if user already has a locked referral code from the server
-    if (session?.user?.email) {
-      fetch(`/api/referral?email=${encodeURIComponent(session.user.email)}`)
+    if (localUser?.email) {
+      fetch(`/api/referral?email=${encodeURIComponent(localUser.email)}`)
         .then((res) => {
           if (res.ok) return res.json();
           return null;
@@ -87,7 +87,7 @@ function SubscriptionContent() {
         })
         .catch(() => {});
     }
-  }, [searchParams, session?.user?.email]);
+  }, [searchParams, localUser?.email]);
 
   // Validate referral code
   useEffect(() => {
@@ -114,7 +114,7 @@ function SubscriptionContent() {
   }, [referralCode, isCodeLocked]);
 
   async function handleSubscribe() {
-    if (!session?.user?.email) {
+    if (!localUser?.email) {
       router.push('/login');
       return;
     }
@@ -138,7 +138,7 @@ function SubscriptionContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: session.user.email,
+          email: localUser.email,
           amount: Math.round(plan.price * 100),
           plan: plan.id,
           referralCode: code,

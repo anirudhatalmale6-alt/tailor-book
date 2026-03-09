@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
 import Modal from '@/components/Modal';
 
 interface ReferralUser {
@@ -46,7 +46,7 @@ type TabKey = 'overview' | 'history' | 'bank' | 'withdraw';
 
 export default function ReferralPage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user: localUser } = useLocalAuth();
   const [user, setUser] = useState<ReferralUser | null>(null);
   const [transactions, setTransactions] = useState<EarningTransaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
@@ -66,7 +66,7 @@ export default function ReferralPage() {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawing, setWithdrawing] = useState(false);
 
-  const email = session?.user?.email;
+  const email = localUser?.email;
 
   const fetchData = useCallback(async () => {
     if (!email) return;
@@ -169,7 +169,7 @@ export default function ReferralPage() {
   }
 
   // Not signed in
-  if (!session?.user) {
+  if (!localUser) {
     return (
       <div className="px-4 pt-4">
         <div className="flex items-center gap-3 mb-6">

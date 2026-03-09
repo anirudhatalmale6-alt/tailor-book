@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
 import Modal from '@/components/Modal';
 
 const ADMIN_EMAIL = 'pgmclement@gmail.com';
@@ -41,7 +41,7 @@ type TabKey = 'users' | 'withdrawals';
 
 export default function AdminReferralsPage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user: localUser } = useLocalAuth();
   const [users, setUsers] = useState<ReferralUser[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ export default function AdminReferralsPage() {
   const [rejectingWithdrawal, setRejectingWithdrawal] = useState<Withdrawal | null>(null);
   const [rejectReason, setRejectReason] = useState('');
 
-  const email = session?.user?.email;
+  const email = localUser?.email;
 
   const fetchData = useCallback(async () => {
     if (email !== ADMIN_EMAIL) return;
@@ -136,7 +136,7 @@ export default function AdminReferralsPage() {
     }
   }
 
-  if (!session?.user || email !== ADMIN_EMAIL) {
+  if (!localUser || email !== ADMIN_EMAIL) {
     return (
       <div className="px-4 pt-4">
         <div className="flex items-center gap-3 mb-6">
