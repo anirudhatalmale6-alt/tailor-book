@@ -164,7 +164,7 @@ class TailorDB extends Dexie {
   colleaguePayments!: Table<ColleaguePayment>;
 
   constructor() {
-    super('TailorBookDB');
+    super('TailorBookDB'); // Keep legacy DB name for backward compatibility
     this.version(1).stores({
       customers: 'id, name, phone, createdAt',
       measurementFields: 'id, name, category, sortOrder',

@@ -1,17 +1,19 @@
-# TailorBook
+# Stitch Manager
 
 Tailoring Business Management App — manage customers, measurements, orders, payments, and more.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fanirudhatalmale6-alt%2Ftailor-book)
-
 ## Features
 
-- Customer management with photos, phone, WhatsApp
-- Custom measurement fields (tailor-defined)
-- Measurement history tracking
-- Order management with status tracking
-- Payment tracking (deposits, balances)
-- Financial dashboard
-- Data export/import
-- PWA — installable on any phone
-- Works offline
+- Phone + PIN authentication (works offline)
+- Customer management with style preferences
+- Custom measurement fields
+- Order tracking with status workflow
+- Payment & expense tracking
+- Invoice generation
+- Project management with items
+- Colleague job tracking & payments
+- Google Drive cloud backup (optional)
+- Referral management system (RMS)
+- Paystack subscription billing
+- WhatsApp sharing for measurements & invoices
+- PWA — installable on any device
