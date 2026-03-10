@@ -11,7 +11,6 @@ export interface LocalUser {
 const STORAGE_KEY = 'sm_user';
 const PIN_KEY = 'sm_pin_hash';
 
-// Simple hash for PIN verification (not for security-critical purposes)
 async function hashPin(phone: string, pin: string): Promise<string> {
   const data = new TextEncoder().encode(`${phone}:${pin}`);
   const hash = await crypto.subtle.digest('SHA-256', data);
@@ -31,6 +30,11 @@ export function getLocalUser(): LocalUser | null {
   }
 }
 
+export function hasRegisteredAccount(): boolean {
+  if (typeof window === 'undefined') return false;
+  return !!localStorage.getItem(PIN_KEY) && !!localStorage.getItem(STORAGE_KEY);
+}
+
 export function useLocalAuth() {
   const [user, setUser] = useState<LocalUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,17 +49,28 @@ export function useLocalAuth() {
     const pinHash = await hashPin(phone, pin);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
     localStorage.setItem(PIN_KEY, pinHash);
-    // Remove old skip flag if it exists
     localStorage.removeItem('sm_skip_login');
     setUser(userData);
   }, []);
 
+  // PIN-only login: reads stored phone from localStorage
+  const loginWithPin = useCallback(async (pin: string): Promise<boolean> => {
+    const stored = localStorage.getItem(PIN_KEY);
+    if (!stored) return false;
+    const existing = getLocalUser();
+    if (!existing) return false;
+    const attempt = await hashPin(existing.phone, pin);
+    if (attempt !== stored) return false;
+    setUser(existing);
+    return true;
+  }, []);
+
+  // Legacy login with phone (kept for compatibility)
   const login = useCallback(async (phone: string, pin: string): Promise<boolean> => {
     const stored = localStorage.getItem(PIN_KEY);
     if (!stored) return false;
     const attempt = await hashPin(phone, pin);
     if (attempt !== stored) return false;
-    // User is already registered, just reload their profile
     const existing = getLocalUser();
     if (existing) {
       setUser(existing);
@@ -79,5 +94,5 @@ export function useLocalAuth() {
     setUser(updated);
   }, []);
 
-  return { user, loading, register, login, logout, updateProfile };
+  return { user, loading, register, login, loginWithPin, logout, updateProfile };
 }
