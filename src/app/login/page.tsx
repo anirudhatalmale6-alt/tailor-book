@@ -261,7 +261,7 @@ function RegisterFlow({ onComplete }: { onComplete: () => void }) {
           {/* Step 1: Details */}
           {step === 1 && (
             <div className="space-y-3">
-              <h3 className="text-white font-semibold text-sm mb-3">Create Your Account</h3>
+              <h3 className="text-white font-semibold text-sm mb-3 text-center">Create Account</h3>
               <div>
                 <label className="block text-xs text-white/60 mb-1">Full Name</label>
                 <input

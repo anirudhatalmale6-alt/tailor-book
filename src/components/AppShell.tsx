@@ -63,8 +63,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       setChecked(true);
       return;
     }
-    // If local user exists, allow through
+    // If local user exists (from hook state or localStorage directly), allow through
     if (user) {
+      setChecked(true);
+      return;
+    }
+    // Double-check localStorage directly in case hook state hasn't caught up
+    if (typeof window !== 'undefined' && localStorage.getItem('sm_user')) {
       setChecked(true);
       return;
     }

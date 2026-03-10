@@ -11,12 +11,40 @@ export interface LocalUser {
 const STORAGE_KEY = 'sm_user';
 const PIN_KEY = 'sm_pin_hash';
 
+// Simple fallback hash when crypto.subtle is not available
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  // Expand to a longer string for better uniqueness
+  const h1 = Math.abs(hash).toString(16).padStart(8, '0');
+  let hash2 = 0;
+  for (let i = str.length - 1; i >= 0; i--) {
+    const char = str.charCodeAt(i);
+    hash2 = ((hash2 << 7) - hash2) + char;
+    hash2 = hash2 & hash2;
+  }
+  const h2 = Math.abs(hash2).toString(16).padStart(8, '0');
+  return `fb_${h1}${h2}`;
+}
+
 async function hashPin(phone: string, pin: string): Promise<string> {
-  const data = new TextEncoder().encode(`${phone}:${pin}`);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+  const input = `${phone}:${pin}`;
+  try {
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+      const data = new TextEncoder().encode(input);
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(hash))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+  } catch {
+    // Fall through to fallback
+  }
+  return simpleHash(input);
 }
 
 export function getLocalUser(): LocalUser | null {
@@ -36,7 +64,17 @@ export function hasRegisteredAccount(): boolean {
 }
 
 export function useLocalAuth() {
-  const [user, setUser] = useState<LocalUser | null>(null);
+  const [user, setUser] = useState<LocalUser | null>(() => {
+    // Initialize from localStorage immediately (avoids flash)
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
