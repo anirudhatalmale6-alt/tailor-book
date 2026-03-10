@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
       const resend = new Resend(resendKey);
       await resend.emails.send({
-        from: 'Stitch Manager <onboarding@resend.dev>',
+        from: 'Stitch Manager <noreply@sendmails.stitchmanager.online>',
         to: email,
         subject: 'Your Stitch Manager Verification Code',
         html: `
