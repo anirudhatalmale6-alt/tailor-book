@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { db, type Customer } from '@/lib/db';
 import { addOrder } from '@/hooks/useOrders';
@@ -21,6 +21,7 @@ function NewOrderForm() {
   const searchParams = useSearchParams();
   const preselectedCustomerId = searchParams.get('customerId');
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSearch, setCustomerSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -78,6 +79,7 @@ function NewOrderForm() {
   }
 
   async function handleSave() {
+    if (savingRef.current) return;
     if (!selectedCustomer) {
       alert('Please select a customer');
       return;
@@ -87,6 +89,7 @@ function NewOrderForm() {
       return;
     }
 
+    savingRef.current = true;
     setSaving(true);
     try {
       const totalAmount = parseFloat(form.totalAmount);
@@ -121,6 +124,7 @@ function NewOrderForm() {
       console.error('Failed to save order:', err);
       alert('Failed to save order. Please try again.');
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }

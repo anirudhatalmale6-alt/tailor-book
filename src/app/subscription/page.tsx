@@ -61,13 +61,20 @@ function SubscriptionContent() {
   const [codeStatus, setCodeStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   const [isCodeLocked, setIsCodeLocked] = useState(false);
 
-  // Load referral code: from URL param (?ref=CODE), or from server (if user already registered)
+  // Load referral code: from URL param, localStorage (set during registration), or from server
   useEffect(() => {
     // Check URL param first
     const refParam = searchParams.get('ref');
     if (refParam) {
       setReferralCode(refParam.toUpperCase());
       return;
+    }
+
+    // Check localStorage (set during registration)
+    const savedCode = localStorage.getItem('sm_referral_code');
+    if (savedCode) {
+      setReferralCode(savedCode);
+      // Don't return — still check server to see if code is locked
     }
 
     // Check if user already has a locked referral code from the server
@@ -169,6 +176,12 @@ function SubscriptionContent() {
           </svg>
         </button>
         <h1 className="text-xl font-bold text-white">Choose Your Plan</h1>
+      </div>
+
+      {/* Free tier info */}
+      <div className="bg-amber-400/10 border border-amber-400/30 rounded-xl p-4 mb-4">
+        <p className="text-sm text-amber-400 font-medium">You&apos;re on the Free Plan</p>
+        <p className="text-xs text-amber-400/70 mt-1">Free plan includes up to 20 clients. Subscribe for unlimited clients and premium features.</p>
       </div>
 
       {/* Features */}

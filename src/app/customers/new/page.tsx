@@ -1,12 +1,14 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { addCustomer, updateCustomer } from '@/hooks/useCustomers';
 import { db } from '@/lib/db';
 import { fileToBase64, isContactPickerSupported, pickContact, formatPhoneInternational } from '@/lib/utils';
-import { useReadOnlyGuard } from '@/hooks/useSubscription';
+import { useReadOnlyGuard, useSubscription } from '@/hooks/useSubscription';
 import PhotoUpload from '@/components/PhotoUpload';
+
+const FREE_CLIENT_LIMIT = 20;
 
 export default function NewCustomerPage() {
   return (
@@ -22,7 +24,14 @@ function NewCustomerForm() {
   const editId = searchParams.get('edit');
   const presetType = searchParams.get('type');
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
   const canEdit = useReadOnlyGuard();
+  const subscription = useSubscription();
+  const [clientCount, setClientCount] = useState(0);
+
+  useEffect(() => {
+    db.customers.where('contactType').equals('client').count().then(setClientCount);
+  }, []);
 
   const [contactPickerAvailable, setContactPickerAvailable] = useState(false);
 
@@ -100,11 +109,23 @@ function NewCustomerForm() {
   }
 
   async function handleSave() {
+    if (savingRef.current) return;
     if (!canEdit()) return;
     if (!form.name.trim()) {
       alert('Please enter an account name');
       return;
     }
+
+    // Free tier limit: 20 clients before subscription required
+    if (!editId && form.contactType === 'client' && subscription.status !== 'active') {
+      const currentCount = await db.customers.where('contactType').equals('client').count();
+      if (currentCount >= FREE_CLIENT_LIMIT) {
+        router.push('/subscription');
+        return;
+      }
+    }
+
+    savingRef.current = true;
     setSaving(true);
     try {
       // Auto-convert local numbers to international format before saving
@@ -124,6 +145,7 @@ function NewCustomerForm() {
       console.error('Failed to save account:', err);
       alert('Failed to save account. Please try again.');
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }
@@ -313,6 +335,18 @@ function NewCustomerForm() {
             placeholder="Additional notes..."
           />
         </div>
+
+        {!editId && form.contactType === 'client' && subscription.status !== 'active' && clientCount >= FREE_CLIENT_LIMIT - 2 && (
+          <div className={`rounded-xl p-3 text-xs ${
+            clientCount >= FREE_CLIENT_LIMIT
+              ? 'bg-red-400/10 border border-red-400/30 text-red-400'
+              : 'bg-amber-400/10 border border-amber-400/30 text-amber-400'
+          }`}>
+            {clientCount >= FREE_CLIENT_LIMIT
+              ? `You've reached the free limit of ${FREE_CLIENT_LIMIT} clients. Subscribe to add more.`
+              : `${clientCount}/${FREE_CLIENT_LIMIT} free clients used. Subscribe for unlimited.`}
+          </div>
+        )}
 
         <button
           onClick={handleSave}

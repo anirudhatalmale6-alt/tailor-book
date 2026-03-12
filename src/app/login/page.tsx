@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocalAuth, hasRegisteredAccount, getLocalUser } from '@/hooks/useLocalAuth';
 
 // ─── PIN Pad Component (like Chipper) ─────────────────────────
@@ -107,6 +107,7 @@ function PinPad({ onComplete, loading, error, userName }: {
 // ─── Registration Flow ─────────────────────────────────────────
 function RegisterFlow({ onComplete }: { onComplete: () => void }) {
   const { register } = useLocalAuth();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(1); // 1=details, 2=verify email, 3=create PIN
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -115,6 +116,15 @@ function RegisterFlow({ onComplete }: { onComplete: () => void }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [referralCode, setReferralCode] = useState('');
+
+  // Pre-fill referral code from URL param (?ref=CODE)
+  useEffect(() => {
+    const refParam = searchParams.get('ref');
+    if (refParam) {
+      setReferralCode(refParam.toUpperCase());
+    }
+  }, [searchParams]);
 
   // Step 2 fields
   const [verifyToken, setVerifyToken] = useState('');
@@ -217,6 +227,11 @@ function RegisterFlow({ onComplete }: { onComplete: () => void }) {
     setLoading(true);
     try {
       await register(name.trim(), phone.trim(), email.trim().toLowerCase(), pin);
+      // Save referral code to localStorage for later use on subscription page
+      const code = referralCode.trim().toUpperCase();
+      if (code) {
+        localStorage.setItem('sm_referral_code', code);
+      }
       onComplete();
     } catch {
       setError('Registration failed. Please try again.');
@@ -290,6 +305,16 @@ function RegisterFlow({ onComplete }: { onComplete: () => void }) {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                   placeholder="your@email.com"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Referral Code <span className="text-white/30">(optional)</span></label>
+                <input
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold uppercase"
+                  placeholder="Enter referral code"
                 />
               </div>
               <button
@@ -424,7 +449,7 @@ function RegisterFlow({ onComplete }: { onComplete: () => void }) {
 }
 
 // ─── Main Login Page ─────────────────────────────────────────
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const { loginWithPin } = useLocalAuth();
   const [mode, setMode] = useState<'loading' | 'pin' | 'register'>('loading');
@@ -480,5 +505,17 @@ export default function LoginPage() {
 
   return (
     <RegisterFlow onComplete={() => router.replace('/')} />
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-royal-bg flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
