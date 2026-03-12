@@ -17,8 +17,6 @@ interface ReferralUser {
   bankName: string;
   accountNumber: string;
   accountName: string;
-  bvn: string;
-  bvnVerified: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -58,7 +56,6 @@ export default function ReferralPage() {
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
-  const [bvn, setBvn] = useState('');
   const [savingBank, setSavingBank] = useState(false);
 
   // Withdrawal
@@ -82,7 +79,6 @@ export default function ReferralPage() {
         setBankName(userData.bankName || '');
         setAccountNumber(userData.accountNumber || '');
         setAccountName(userData.accountName || '');
-        setBvn(userData.bvn || '');
       }
     } catch (e) {
       console.error('Failed to fetch referral data:', e);
@@ -121,7 +117,6 @@ export default function ReferralPage() {
           bankName,
           accountNumber,
           accountName,
-          bvn: bvn || undefined,
         }),
       });
       const data = await res.json();
@@ -264,7 +259,7 @@ export default function ReferralPage() {
     );
   }
 
-  const canWithdraw = user.bvnVerified && user.availableBalance >= 4320 && user.accountNumber;
+  const canWithdraw = user.availableBalance >= 4320 && user.accountNumber;
 
   return (
     <div className="px-4 pt-4 pb-24">
@@ -362,11 +357,7 @@ export default function ReferralPage() {
           {!canWithdraw && (
             <div className="bg-royal-card rounded-xl p-3">
               <p className="text-xs text-white/60">
-                {!user.bvnVerified && !user.accountNumber
-                  ? 'Add your bank details and verify your BVN to enable withdrawals.'
-                  : !user.bvnVerified
-                  ? 'Verify your BVN in Bank Details to enable withdrawals.'
-                  : !user.accountNumber
+                {!user.accountNumber
                   ? 'Add your bank details to enable withdrawals.'
                   : `Minimum withdrawal is ₦4,320. You need ₦${(4320 - user.availableBalance).toLocaleString()} more.`}
               </p>
@@ -514,33 +505,6 @@ export default function ReferralPage() {
                 />
               </div>
             </div>
-          </div>
-
-          <div className="bg-royal-card rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-white">BVN Verification</h3>
-              {user.bvnVerified ? (
-                <span className="text-xs bg-green-400/10 text-green-400 px-2 py-0.5 rounded-full font-medium">Verified</span>
-              ) : user.bvn ? (
-                <span className="text-xs bg-red-400/10 text-red-400 px-2 py-0.5 rounded-full font-medium">Not Verified</span>
-              ) : (
-                <span className="text-xs bg-yellow-400/10 text-yellow-400 px-2 py-0.5 rounded-full font-medium">Required</span>
-              )}
-            </div>
-            <p className="text-[10px] text-white/40 mb-3">
-              BVN verification is required to process withdrawals. Your BVN is securely verified via Paystack and never stored in plain text.
-            </p>
-            <input
-              type="text"
-              value={bvn}
-              onChange={(e) => setBvn(e.target.value.replace(/\D/g, '').slice(0, 11))}
-              disabled={user.bvnVerified}
-              className={`w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold ${
-                user.bvnVerified ? 'opacity-60 cursor-not-allowed' : ''
-              }`}
-              placeholder="11-digit BVN"
-              maxLength={11}
-            />
           </div>
 
           <button

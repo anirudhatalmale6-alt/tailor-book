@@ -35,6 +35,7 @@ export interface Measurement {
 
 export interface Order {
   id: string;
+  orderCode: string;
   customerId: string;
   fabricType: string;
   fabricPhoto: string;
@@ -45,6 +46,7 @@ export interface Order {
   totalAmount: number;
   depositPaid: number;
   notes: string;
+  readyPhoto?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -263,6 +265,26 @@ class TailorDB extends Dexie {
       projectItems: 'id, projectId, status, createdAt',
       colleagueJobs: 'id, colleagueId, status, createdAt',
       colleaguePayments: 'id, colleagueId, jobId, createdAt',
+    });
+    this.version(8).stores({
+      customers: 'id, name, phone, contactType, createdAt',
+      measurementFields: 'id, name, category, sortOrder',
+      measurements: 'id, customerId, createdAt',
+      orders: 'id, orderCode, customerId, status, deliveryDate, createdAt',
+      payments: 'id, orderId, customerId, createdAt',
+      expenses: 'id, category, date, createdAt, expenseType, projectId',
+      settings: 'key',
+      invoices: 'id, invoiceNumber, orderId, customerId, projectId, createdAt',
+      projects: 'id, customerId, status, createdAt',
+      projectItems: 'id, projectId, status, createdAt',
+      colleagueJobs: 'id, colleagueId, status, createdAt',
+      colleaguePayments: 'id, colleagueId, jobId, createdAt',
+    }).upgrade(async tx => {
+      const orders = await tx.table('orders').toArray();
+      for (let i = 0; i < orders.length; i++) {
+        const code = `SM-${String(i + 1).padStart(3, '0')}`;
+        await tx.table('orders').update(orders[i].id, { orderCode: code });
+      }
     });
   }
 }

@@ -26,9 +26,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Email required' }, { status: 400 });
   }
 
-  const user = await getUser(email);
+  // Auto-create user in RMS if they don't exist yet
+  let user = await getUser(email);
   if (!user) {
-    return NextResponse.json({ error: 'User not found in RMS' }, { status: 404 });
+    user = await createUser(email, 'STITCHMANAGER');
   }
 
   // Include withdrawals and transactions if requested
@@ -66,31 +67,23 @@ export async function POST(req: Request) {
   }
 
   if (action === 'update-bank') {
-    const { bankName, accountNumber, accountName, bvn } = body;
-    const user = await getUser(email);
-    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-
-    user.bankName = bankName || user.bankName;
-    user.accountNumber = accountNumber || user.accountNumber;
-    user.accountName = accountName || user.accountName;
-    if (bvn) {
-      user.bvn = bvn;
-      // BVN verification via Paystack
-      try {
-        const verifyRes = await fetch(`https://api.paystack.co/bank/resolve_bvn/${bvn}`, {
-          headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
-        });
-        if (verifyRes.ok) {
-          user.bvnVerified = true;
-        } else {
-          user.bvnVerified = false;
-        }
-      } catch {
-        user.bvnVerified = false;
+    const { bankName, accountNumber, accountName } = body;
+    try {
+      // Auto-create user in RMS if they don't exist yet
+      let user = await getUser(email);
+      if (!user) {
+        user = await createUser(email, 'STITCHMANAGER');
       }
+
+      user.bankName = bankName || user.bankName;
+      user.accountNumber = accountNumber || user.accountNumber;
+      user.accountName = accountName || user.accountName;
+      await saveUser(user);
+      return NextResponse.json(user);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
-    await saveUser(user);
-    return NextResponse.json(user);
   }
 
   if (action === 'add-earning') {

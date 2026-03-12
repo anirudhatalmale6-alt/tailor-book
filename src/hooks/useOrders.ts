@@ -41,14 +41,21 @@ export function useCustomerOrders(customerId: string) {
   return orders;
 }
 
+export async function generateOrderCode(): Promise<string> {
+  const count = await db.orders.count();
+  return `SM-${String(count + 1).padStart(3, '0')}`;
+}
+
 export async function addOrder(
-  data: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>
+  data: Omit<Order, 'id' | 'orderCode' | 'createdAt' | 'updatedAt'>
 ): Promise<string> {
   const id = uuidv4();
   const now = new Date().toISOString();
+  const orderCode = await generateOrderCode();
   await db.orders.add({
     ...data,
     id,
+    orderCode,
     createdAt: now,
     updatedAt: now,
   });

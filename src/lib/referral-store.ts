@@ -17,8 +17,6 @@ export interface ReferralUser {
   bankName: string;
   accountNumber: string;
   accountName: string;
-  bvn: string;
-  bvnVerified: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -95,8 +93,6 @@ export async function createUser(email: string, referredByCode: string): Promise
     bankName: '',
     accountNumber: '',
     accountName: '',
-    bvn: '',
-    bvnVerified: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -106,6 +102,7 @@ export async function createUser(email: string, referredByCode: string): Promise
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
 
   // Save code → email mapping
@@ -113,6 +110,7 @@ export async function createUser(email: string, referredByCode: string): Promise
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
 
   // Update the referrer's referred users list
@@ -137,6 +135,7 @@ export async function saveUser(user: ReferralUser): Promise<void> {
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
 }
 
@@ -165,6 +164,7 @@ export async function addEarning(referrerCode: string, amount: number, fromEmail
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
 }
 
@@ -186,6 +186,7 @@ export async function addRegistrationEvent(referrerCode: string, newUserEmail: s
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
 }
 
@@ -227,7 +228,6 @@ export async function getWithdrawals(email?: string): Promise<Withdrawal[]> {
 export async function createWithdrawal(email: string, amount: number): Promise<Withdrawal | { error: string }> {
   const user = await getUser(email);
   if (!user) return { error: 'User not found' };
-  if (!user.bvnVerified) return { error: 'BVN not verified' };
   if (user.availableBalance < 4320) return { error: 'Minimum withdrawal is ₦4,320' };
   if (amount > user.availableBalance) return { error: 'Insufficient balance' };
   if (!user.accountNumber || !user.bankName) return { error: 'Bank details not set' };
@@ -248,6 +248,7 @@ export async function createWithdrawal(email: string, amount: number): Promise<W
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
 
   return withdrawal;
@@ -267,6 +268,7 @@ export async function updateWithdrawal(email: string, id: string, status: 'appro
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
 
   // If paid, update user's withdrawn amount

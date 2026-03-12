@@ -82,13 +82,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     router.replace('/login');
   }, [loading, user, pathname, router]);
 
-  // Show loading while checking auth
+  // Show branded splash screen while loading
   if (!checked && loading) {
     return (
-      <div className="min-h-screen bg-royal-bg flex items-center justify-center">
-        <div className="text-center">
-          <img src="/logo.png" alt="Stitch Manager" className="w-32 h-32 mx-auto mb-4" />
+      <div className="min-h-screen bg-royal-bg flex flex-col items-center justify-center relative">
+        <div className="text-center flex-1 flex flex-col items-center justify-center">
+          <img src="/logo.png" alt="Stitch Manager" className="w-28 h-28 mx-auto mb-4 drop-shadow-lg" />
+          <h1 className="text-2xl font-bold text-white tracking-wide mb-1">Stitch Manager</h1>
+          <p className="text-xs text-white/40 mb-6">Your Tailoring Business, Simplified</p>
           <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
+        </div>
+        <div className="pb-8 text-center">
+          <p className="text-[10px] text-white/30 uppercase tracking-widest">from</p>
+          <p className="text-xs font-semibold text-white/50 tracking-wide">TECKMAKE</p>
         </div>
       </div>
     );

@@ -17,9 +17,16 @@ export default function OrderCard({ order, customer, currency = 'NGN' }: OrderCa
       <div className="bg-royal-card rounded-xl shadow-none p-4 active:bg-royal-hover transition-colors">
         <div className="flex items-start justify-between mb-2">
           <div className="min-w-0 flex-1">
-            <h3 className="text-white font-medium truncate">
-              {customer?.name || 'Unknown Account'}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-white font-medium truncate">
+                {customer?.name || 'Unknown Account'}
+              </h3>
+              {order.orderCode && (
+                <span className="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full font-mono shrink-0">
+                  {order.orderCode}
+                </span>
+              )}
+            </div>
             <p className="text-sm text-white truncate">{order.fabricType || 'No fabric specified'}</p>
           </div>
           <StatusBadge status={order.status} />
