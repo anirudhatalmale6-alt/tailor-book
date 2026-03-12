@@ -60,6 +60,8 @@ function SubscriptionContent() {
   const [referralCode, setReferralCode] = useState('');
   const [codeStatus, setCodeStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   const [isCodeLocked, setIsCodeLocked] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreMessage, setRestoreMessage] = useState('');
 
   // Load referral code: from URL param, localStorage (set during registration), or from server
   useEffect(() => {
@@ -123,6 +125,33 @@ function SubscriptionContent() {
 
     return () => clearTimeout(timer);
   }, [referralCode, isCodeLocked]);
+
+  async function handleRestore() {
+    if (!localUser?.email) return;
+    setRestoring(true);
+    setRestoreMessage('');
+    try {
+      const res = await fetch('/api/paystack/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: localUser.email }),
+      });
+      const data = await res.json();
+      if (data.restored) {
+        localStorage.setItem('subscription_status', 'active');
+        localStorage.setItem('subscription_plan', data.plan || 'monthly');
+        localStorage.setItem('subscription_date', data.paidAt || new Date().toISOString());
+        setRestoreMessage('success');
+        setTimeout(() => router.push('/'), 2000);
+      } else {
+        setRestoreMessage(data.message || 'No payment found for your email.');
+      }
+    } catch {
+      setRestoreMessage('Failed to check. Please try again.');
+    } finally {
+      setRestoring(false);
+    }
+  }
 
   async function handleSubscribe() {
     if (!localUser?.email) {
@@ -332,6 +361,30 @@ function SubscriptionContent() {
       <p className="text-center text-[10px] text-white/30 mt-3">
         Secured by Paystack. Cancel anytime.
       </p>
+
+      {/* Restore Purchase */}
+      <div className="mt-6 pt-4 border-t border-royal-border">
+        <p className="text-xs text-white/40 text-center mb-2">Already paid but subscription not showing?</p>
+        <button
+          onClick={handleRestore}
+          disabled={restoring}
+          className="w-full py-2.5 bg-royal-card text-white/60 rounded-xl text-sm font-medium flex items-center justify-center gap-2 border border-royal-border"
+        >
+          {restoring ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
+              Checking...
+            </>
+          ) : (
+            'Restore Purchase'
+          )}
+        </button>
+        {restoreMessage === 'success' ? (
+          <p className="text-xs text-green-400 text-center mt-2">Subscription restored! Redirecting...</p>
+        ) : restoreMessage ? (
+          <p className="text-xs text-red-400 text-center mt-2">{restoreMessage}</p>
+        ) : null}
+      </div>
     </div>
   );
 }
