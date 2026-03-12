@@ -64,6 +64,21 @@ function SubscriptionContent() {
   const [restoreMessage, setRestoreMessage] = useState('');
   const [showPaystackEmail, setShowPaystackEmail] = useState(false);
   const [paystackEmail, setPaystackEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [activePlan, setActivePlan] = useState('');
+  const [subscriptionDate, setSubscriptionDate] = useState('');
+
+  // Check subscription status on mount
+  useEffect(() => {
+    const status = localStorage.getItem('subscription_status');
+    const plan = localStorage.getItem('subscription_plan');
+    const date = localStorage.getItem('subscription_date');
+    if (status === 'active') {
+      setIsSubscribed(true);
+      setActivePlan(plan || 'monthly');
+      setSubscriptionDate(date || '');
+    }
+  }, []);
 
   // Load referral code: from URL param, localStorage (set during registration), or from server
   useEffect(() => {
@@ -146,8 +161,10 @@ function SubscriptionContent() {
         localStorage.setItem('subscription_status', 'active');
         localStorage.setItem('subscription_plan', data.plan || 'monthly');
         localStorage.setItem('subscription_date', data.paidAt || new Date().toISOString());
+        setIsSubscribed(true);
+        setActivePlan(data.plan || 'monthly');
+        setSubscriptionDate(data.paidAt || new Date().toISOString());
         setRestoreMessage('success');
-        setTimeout(() => router.push('/'), 2000);
       } else {
         setRestoreMessage(data.message || 'No payment found.');
         if (!showPaystackEmail) {
@@ -206,6 +223,69 @@ function SubscriptionContent() {
     } finally {
       setProcessing(false);
     }
+  }
+
+  if (isSubscribed) {
+    const planInfo = PLANS.find((p) => p.id === activePlan);
+    const dateStr = subscriptionDate ? new Date(subscriptionDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+    return (
+      <div className="px-4 pt-4 pb-24">
+        <div className="flex items-center gap-3 mb-6">
+          <button onClick={() => router.back()} className="p-1 text-white">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="text-xl font-bold text-white">Subscription</h1>
+        </div>
+
+        <div className="bg-green-400/10 border border-green-400/30 rounded-xl p-5 mb-6 text-center">
+          <div className="w-14 h-14 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-7 h-7 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p className="text-lg font-bold text-green-400">Premium Active</p>
+          <p className="text-sm text-white/60 mt-1">
+            {planInfo ? `${planInfo.name} Plan` : activePlan.charAt(0).toUpperCase() + activePlan.slice(1) + ' Plan'}
+          </p>
+          {dateStr && (
+            <p className="text-xs text-white/40 mt-1">Since {dateStr}</p>
+          )}
+        </div>
+
+        <div className="bg-royal-card rounded-xl p-4 mb-6">
+          <h2 className="text-sm font-semibold text-gold mb-3">Your Premium Features</h2>
+          <div className="space-y-2">
+            {[
+              'Unlimited accounts & measurements',
+              'Colleague financial tracking',
+              'Job statements via WhatsApp',
+              'Google Drive cloud backup',
+              'Style reference images',
+              'Invoice generation',
+              'Project management',
+              'Priority support',
+            ].map((feature) => (
+              <div key={feature} className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-sm text-white">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={() => router.push('/')}
+          className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold"
+        >
+          Go to Dashboard
+        </button>
+      </div>
+    );
   }
 
   return (
