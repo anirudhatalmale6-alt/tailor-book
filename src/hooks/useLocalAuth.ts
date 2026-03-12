@@ -31,7 +31,7 @@ function simpleHash(str: string): string {
   return `fb_${h1}${h2}`;
 }
 
-async function hashPin(phone: string, pin: string): Promise<string> {
+export async function hashPin(phone: string, pin: string): Promise<string> {
   const input = `${phone}:${pin}`;
   try {
     if (typeof crypto !== 'undefined' && crypto.subtle) {
@@ -89,6 +89,31 @@ export function useLocalAuth() {
     localStorage.setItem(PIN_KEY, pinHash);
     localStorage.removeItem('sm_skip_login');
     setUser(userData);
+
+    // Save to server (non-blocking)
+    const refCode = localStorage.getItem('sm_referral_code') || '';
+    fetch('/api/user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'register', name, phone, email, pinHash, referralCode: refCode }),
+    }).catch(() => {});
+  }, []);
+
+  // Recover account on new device: set local data from server response
+  const recoverAccount = useCallback(async (name: string, phone: string, email: string, pin: string) => {
+    const userData: LocalUser = { name, phone, email };
+    const pinHash = await hashPin(phone, pin);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+    localStorage.setItem(PIN_KEY, pinHash);
+    localStorage.removeItem('sm_skip_login');
+    setUser(userData);
+
+    // Update server with new PIN hash
+    fetch('/api/user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'recover', email, pinHash }),
+    }).catch(() => {});
   }, []);
 
   // PIN-only login: reads stored phone from localStorage
@@ -132,5 +157,5 @@ export function useLocalAuth() {
     setUser(updated);
   }, []);
 
-  return { user, loading, register, login, loginWithPin, logout, updateProfile };
+  return { user, loading, register, recoverAccount, login, loginWithPin, logout, updateProfile };
 }

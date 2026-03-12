@@ -105,7 +105,7 @@ function PinPad({ onComplete, loading, error, userName }: {
 }
 
 // ─── Registration Flow ─────────────────────────────────────────
-function RegisterFlow({ onComplete }: { onComplete: () => void }) {
+function RegisterFlow({ onComplete, onSwitchToRecover }: { onComplete: () => void; onSwitchToRecover: () => void }) {
   const { register } = useLocalAuth();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1); // 1=details, 2=verify email, 3=create PIN
@@ -440,9 +440,275 @@ function RegisterFlow({ onComplete }: { onComplete: () => void }) {
           )}
         </div>
 
-        <p className="text-xs text-white/30 text-center mt-6">
-          Your data is stored locally on your device. No internet needed after setup.
+        <p className="text-xs text-white/30 text-center mt-4">
+          Your data is stored securely. Synced to cloud for account recovery.
         </p>
+        <button
+          onClick={onSwitchToRecover}
+          className="text-gold text-xs mt-3 hover:text-gold/80 block mx-auto"
+        >
+          I already have an account →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Account Recovery Flow ─────────────────────────────────────
+function RecoverFlow({ onComplete, onBack }: { onComplete: () => void; onBack: () => void }) {
+  const { recoverAccount } = useLocalAuth();
+  const [step, setStep] = useState(1); // 1=email, 2=verify, 3=new PIN
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const [email, setEmail] = useState('');
+  const [serverName, setServerName] = useState('');
+  const [serverPhone, setServerPhone] = useState('');
+
+  const [verifyToken, setVerifyToken] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
+
+  const [pin, setPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const t = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [resendTimer]);
+
+  async function handleCheckEmail() {
+    setError('');
+    if (!email.trim() || !email.includes('@')) { setError('Please enter a valid email'); return; }
+
+    setLoading(true);
+    try {
+      // Check if account exists on server
+      const checkRes = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'check', email: email.trim().toLowerCase() }),
+      });
+      const checkData = await checkRes.json();
+
+      if (!checkData.exists) {
+        setError('No account found with this email. Please create a new account.');
+        return;
+      }
+
+      setServerName(checkData.name);
+      setServerPhone(checkData.phone);
+
+      // Send OTP
+      const res = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'send', email: email.trim().toLowerCase() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to send verification code');
+        return;
+      }
+      setVerifyToken(data.token);
+      setResendTimer(60);
+      setStep(2);
+    } catch {
+      setError('Network error. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleVerifyOtp() {
+    setError('');
+    if (otpCode.length !== 6) { setError('Please enter the 6-digit code'); return; }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', otp: otpCode, token: verifyToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Verification failed');
+        return;
+      }
+      setStep(3);
+    } catch {
+      setError('Network error. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSetPin() {
+    setError('');
+    if (pin.length !== 4 || !/^\d{4}$/.test(pin)) { setError('PIN must be exactly 4 digits'); return; }
+    if (pin !== confirmPin) { setError('PINs do not match'); return; }
+
+    setLoading(true);
+    try {
+      await recoverAccount(serverName, serverPhone, email.trim().toLowerCase(), pin);
+      onComplete();
+    } catch {
+      setError('Recovery failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-royal-bg flex flex-col items-center justify-center px-6">
+      <div className="text-center mb-6">
+        <img src="/logo.png" alt="Stitch Manager" className="w-28 h-28 mx-auto mb-2" />
+        <h1 className="text-2xl font-bold text-white mb-1">Welcome Back</h1>
+        <p className="text-white/60 text-xs">Recover your account on this device</p>
+      </div>
+
+      <div className="w-full max-w-sm">
+        <div className="bg-royal-card rounded-2xl p-5 shadow-lg border border-royal-border">
+          {error && (
+            <div className="bg-red-400/10 border border-red-400/30 rounded-lg px-3 py-2 mb-4">
+              <p className="text-xs text-red-400">{error}</p>
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="space-y-3">
+              <h3 className="text-white font-semibold text-sm mb-3 text-center">Enter Your Email</h3>
+              <p className="text-white/50 text-xs text-center mb-2">
+                Enter the email you used to create your account
+              </p>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-royal-bg rounded-xl border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+                  placeholder="your@email.com"
+                  autoFocus
+                />
+              </div>
+              <button
+                onClick={handleCheckEmail}
+                disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Checking...
+                  </>
+                ) : (
+                  'Find My Account'
+                )}
+              </button>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-3">
+              <h3 className="text-white font-semibold text-sm mb-1">Verify Your Email</h3>
+              <p className="text-white/50 text-xs mb-1">
+                Account found: <span className="text-gold">{serverName}</span>
+              </p>
+              <p className="text-white/50 text-xs mb-3">
+                We sent a code to <span className="text-gold">{email}</span>
+              </p>
+              <div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="w-full px-3 py-3 bg-royal-bg rounded-xl border border-royal-border text-white text-lg focus:outline-none focus:ring-2 focus:ring-gold tracking-[0.5em] text-center font-mono"
+                  placeholder="000000"
+                  autoFocus
+                />
+              </div>
+              <button
+                onClick={handleVerifyOtp}
+                disabled={loading || otpCode.length !== 6}
+                className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Verifying...
+                  </>
+                ) : 'Verify'}
+              </button>
+              <div className="flex items-center justify-between mt-2">
+                <button onClick={() => { setStep(1); setError(''); }} className="text-white/40 text-xs">← Change email</button>
+                {resendTimer > 0 ? (
+                  <span className="text-white/30 text-xs">Resend in {resendTimer}s</span>
+                ) : (
+                  <button onClick={handleCheckEmail} disabled={loading} className="text-gold text-xs">Resend Code</button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-3">
+              <h3 className="text-white font-semibold text-sm mb-1">Create New PIN</h3>
+              <p className="text-white/50 text-xs mb-3">
+                Welcome back, <span className="text-gold">{serverName}</span>! Set a new PIN for this device.
+              </p>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">New 4-digit PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  className="w-full px-3 py-3 bg-royal-bg rounded-xl border border-royal-border text-white text-lg focus:outline-none focus:ring-2 focus:ring-gold tracking-[0.5em] text-center"
+                  placeholder="- - - -"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/60 mb-1">Confirm PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={confirmPin}
+                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  className="w-full px-3 py-3 bg-royal-bg rounded-xl border border-royal-border text-white text-lg focus:outline-none focus:ring-2 focus:ring-gold tracking-[0.5em] text-center"
+                  placeholder="- - - -"
+                />
+              </div>
+              <button
+                onClick={handleSetPin}
+                disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 mt-1"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Recovering...
+                  </>
+                ) : 'Recover Account'}
+              </button>
+              <p className="text-[10px] text-white/30 text-center mt-2">
+                After recovery, go to Settings → Cloud Backup to restore your data.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <button onClick={onBack} className="text-gold/60 text-xs mt-6 hover:text-gold block mx-auto">
+          ← Back to Create Account
+        </button>
       </div>
     </div>
   );
@@ -452,7 +718,7 @@ function RegisterFlow({ onComplete }: { onComplete: () => void }) {
 function LoginContent() {
   const router = useRouter();
   const { loginWithPin } = useLocalAuth();
-  const [mode, setMode] = useState<'loading' | 'pin' | 'register'>('loading');
+  const [mode, setMode] = useState<'loading' | 'pin' | 'register' | 'recover'>('loading');
   const [pinError, setPinError] = useState('');
   const [pinLoading, setPinLoading] = useState(false);
   const [userName, setUserName] = useState('');
@@ -503,8 +769,20 @@ function LoginContent() {
     );
   }
 
+  if (mode === 'recover') {
+    return (
+      <RecoverFlow
+        onComplete={() => router.replace('/')}
+        onBack={() => setMode('register')}
+      />
+    );
+  }
+
   return (
-    <RegisterFlow onComplete={() => router.replace('/')} />
+    <RegisterFlow
+      onComplete={() => router.replace('/')}
+      onSwitchToRecover={() => setMode('recover')}
+    />
   );
 }
 
