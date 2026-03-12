@@ -14,13 +14,19 @@ import { useReadOnlyGuard } from '@/hooks/useSubscription';
 import { db, type MeasurementField } from '@/lib/db';
 import { backupToGoogleDrive, restoreFromGoogleDrive, getBackupInfo } from '@/lib/gdrive-backup';
 import { useLocalAuth } from '@/hooks/useLocalAuth';
+import { useDeviceTracking, type DeviceEntry } from '@/hooks/useDeviceTracking';
 import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
 
 export default function SettingsPage() {
   const canEdit = useReadOnlyGuard();
   const { user: localUser, logout } = useLocalAuth();
+  const { deviceLimitHit, removeDevice, getDevices } = useDeviceTracking();
   const router = useRouter();
+  const [devices, setDevices] = useState<DeviceEntry[]>([]);
+  const [showDevices, setShowDevices] = useState(false);
+  const [loadingDevices, setLoadingDevices] = useState(false);
+  const [removingDevice, setRemovingDevice] = useState<string | null>(null);
   const fields = useMeasurementFields();
   const businessName = useBusinessName();
   const currency = useCurrency();
@@ -79,6 +85,9 @@ export default function SettingsPage() {
     if (result.success) {
       setBackupMessage('Backup successful!');
       setLastBackup(new Date().toISOString());
+    } else if (result.error?.toLowerCase().includes('scope') || result.error?.toLowerCase().includes('insufficient')) {
+      // Scope error — need to re-link Google account
+      setBackupMessage('scope_error');
     } else {
       setBackupMessage(`Backup failed: ${result.error}`);
     }
@@ -532,6 +541,89 @@ export default function SettingsPage() {
             >
               Log Out
             </button>
+
+            {/* Active Devices */}
+            <div className="mt-3 pt-3 border-t border-royal-border">
+              <button
+                onClick={async () => {
+                  if (showDevices) {
+                    setShowDevices(false);
+                    return;
+                  }
+                  setLoadingDevices(true);
+                  const devs = await getDevices();
+                  setDevices(devs);
+                  setShowDevices(true);
+                  setLoadingDevices(false);
+                }}
+                className="w-full flex items-center justify-between py-2"
+              >
+                <span className="text-xs text-white/60 font-medium">Active Devices</span>
+                {loadingDevices ? (
+                  <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <svg className={`w-4 h-4 text-white/40 transition-transform ${showDevices ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                )}
+              </button>
+
+              {deviceLimitHit && !showDevices && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-2 mt-1">
+                  <p className="text-[10px] text-red-400">Device limit reached. Tap &quot;Active Devices&quot; to manage your devices.</p>
+                </div>
+              )}
+
+              {showDevices && (
+                <div className="space-y-2 mt-2">
+                  {devices.length === 0 ? (
+                    <p className="text-[10px] text-white/40 text-center py-2">No devices registered yet</p>
+                  ) : (
+                    devices.map((d) => (
+                      <div key={d.deviceId} className="flex items-center gap-2 bg-royal-bg rounded-lg px-3 py-2">
+                        <svg className="w-5 h-5 text-white/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-white truncate">
+                            {d.deviceName}
+                            {d.isCurrent && (
+                              <span className="ml-1.5 text-[10px] text-green-400 font-normal">(This device)</span>
+                            )}
+                          </p>
+                          <p className="text-[10px] text-white/40">
+                            Last active: {new Date(d.lastActive).toLocaleDateString()}
+                          </p>
+                        </div>
+                        {!d.isCurrent && (
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`Remove "${d.deviceName}" from your account?`)) return;
+                              setRemovingDevice(d.deviceId);
+                              await removeDevice(d.deviceId);
+                              const devs = await getDevices();
+                              setDevices(devs);
+                              setRemovingDevice(null);
+                            }}
+                            disabled={removingDevice === d.deviceId}
+                            className="p-1.5 text-red-400/60 hover:text-red-400 disabled:opacity-50"
+                          >
+                            {removingDevice === d.deviceId ? (
+                              <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  )}
+                  <p className="text-[10px] text-white/40 text-center">Max 2 active devices per account</p>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <p className="text-sm text-white/60">Not logged in</p>
@@ -581,7 +673,26 @@ export default function SettingsPage() {
                 Last manual backup: {new Date(lastBackup).toLocaleString()}
               </p>
             )}
-            {backupMessage && (
+            {backupMessage === 'scope_error' ? (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-3">
+                <p className="text-xs text-red-400 font-medium mb-2">Google Drive permission missing</p>
+                <p className="text-[10px] text-white/60 mb-2">
+                  Your Google account needs to be re-linked to enable backup. This usually happens after app permissions are updated.
+                </p>
+                <button
+                  onClick={async () => {
+                    await signOut({ redirect: false });
+                    setBackupMessage('');
+                    setTimeout(() => {
+                      signIn('google', { callbackUrl: '/settings' });
+                    }, 500);
+                  }}
+                  className="w-full py-2 bg-gradient-to-r from-gold-dim to-gold text-white rounded-lg text-xs font-medium"
+                >
+                  Re-link Google Account
+                </button>
+              </div>
+            ) : backupMessage && (
               <p className={`text-xs mb-3 ${backupMessage.includes('failed') ? 'text-red-400' : 'text-green-400'}`}>
                 {backupMessage}
               </p>

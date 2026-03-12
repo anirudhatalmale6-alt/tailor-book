@@ -3,6 +3,13 @@ import { put, list } from '@vercel/blob';
 
 const PREFIX = 'users/';
 
+interface DeviceInfo {
+  deviceId: string;
+  deviceName: string;
+  lastActive: string;
+  registeredAt: string;
+}
+
 interface ServerUser {
   name: string;
   phone: string;
@@ -11,6 +18,8 @@ interface ServerUser {
   referralCode: string;
   createdAt: string;
   updatedAt: string;
+  devices?: DeviceInfo[];
+  maxDevices?: number;
 }
 
 function userPath(email: string): string {
@@ -109,6 +118,124 @@ export async function POST(request: NextRequest) {
         name: user.name,
         phone: user.phone,
         email: user.email,
+      });
+    }
+
+    if (action === 'heartbeat') {
+      // Register/update device activity
+      const { email, pinHash, deviceId, deviceName } = body;
+      if (!email || !pinHash || !deviceId) {
+        return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+      }
+
+      const user = await getUser(email);
+      if (!user) {
+        return NextResponse.json({ error: 'Account not found' }, { status: 404 });
+      }
+
+      // Verify PIN
+      if (user.pinHash !== pinHash) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      }
+
+      const now = new Date().toISOString();
+      const devices = user.devices || [];
+      const maxDevices = user.maxDevices || 2; // Default: 2 active devices
+
+      // Find existing device
+      const existingIdx = devices.findIndex(d => d.deviceId === deviceId);
+      if (existingIdx >= 0) {
+        // Update last active
+        devices[existingIdx].lastActive = now;
+        devices[existingIdx].deviceName = deviceName || devices[existingIdx].deviceName;
+      } else {
+        // New device — check limit
+        // Remove devices inactive for 30+ days
+        const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+        const activeDevices = devices.filter(d => new Date(d.lastActive).getTime() > thirtyDaysAgo);
+
+        if (activeDevices.length >= maxDevices) {
+          return NextResponse.json({
+            error: 'device_limit',
+            message: `Maximum ${maxDevices} active devices allowed. Please remove a device first.`,
+            devices: activeDevices.map(d => ({ deviceId: d.deviceId, deviceName: d.deviceName, lastActive: d.lastActive })),
+          }, { status: 403 });
+        }
+
+        activeDevices.push({
+          deviceId,
+          deviceName: deviceName || 'Unknown Device',
+          lastActive: now,
+          registeredAt: now,
+        });
+
+        // Replace devices list with only active ones + new device
+        user.devices = activeDevices;
+      }
+
+      if (existingIdx >= 0) {
+        user.devices = devices;
+      }
+      user.updatedAt = now;
+      await saveUser(user);
+
+      return NextResponse.json({
+        success: true,
+        devices: (user.devices || []).map(d => ({
+          deviceId: d.deviceId,
+          deviceName: d.deviceName,
+          lastActive: d.lastActive,
+          isCurrent: d.deviceId === deviceId,
+        })),
+      });
+    }
+
+    if (action === 'remove_device') {
+      // Remove a device from the account
+      const { email, pinHash, targetDeviceId } = body;
+      if (!email || !pinHash || !targetDeviceId) {
+        return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+      }
+
+      const user = await getUser(email);
+      if (!user) {
+        return NextResponse.json({ error: 'Account not found' }, { status: 404 });
+      }
+
+      if (user.pinHash !== pinHash) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      }
+
+      user.devices = (user.devices || []).filter(d => d.deviceId !== targetDeviceId);
+      user.updatedAt = new Date().toISOString();
+      await saveUser(user);
+
+      return NextResponse.json({ success: true, devices: user.devices });
+    }
+
+    if (action === 'get_devices') {
+      // Get list of active devices
+      const { email, pinHash } = body;
+      if (!email || !pinHash) {
+        return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+      }
+
+      const user = await getUser(email);
+      if (!user) {
+        return NextResponse.json({ error: 'Account not found' }, { status: 404 });
+      }
+
+      if (user.pinHash !== pinHash) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      }
+
+      return NextResponse.json({
+        devices: (user.devices || []).map(d => ({
+          deviceId: d.deviceId,
+          deviceName: d.deviceName,
+          lastActive: d.lastActive,
+        })),
+        maxDevices: user.maxDevices || 2,
       });
     }
 

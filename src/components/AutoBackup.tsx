@@ -37,6 +37,9 @@ export default function AutoBackup() {
       backupToGoogleDrive(session.accessToken).then((result) => {
         if (result.success) {
           setSetting('lastAutoBackup', new Date().toISOString());
+        } else if (result.error?.toLowerCase().includes('scope') || result.error?.toLowerCase().includes('insufficient')) {
+          // Scope error — stop auto-backup to avoid spam, user needs to re-link
+          console.warn('Auto-backup skipped: insufficient scopes. User needs to re-link Google account.');
         }
       });
     }
