@@ -69,7 +69,13 @@ export default function ReferralPage() {
     if (!email) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/referral?email=${encodeURIComponent(email)}&withdrawals=1`);
+      // Pass stored referral code so the server can apply it if the record was auto-created with default
+      const savedRefCode = typeof window !== 'undefined' ? localStorage.getItem('sm_referral_code') : null;
+      let url = `/api/referral?email=${encodeURIComponent(email)}&withdrawals=1`;
+      if (savedRefCode) {
+        url += `&referredBy=${encodeURIComponent(savedRefCode)}`;
+      }
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         const { withdrawals: w, transactions: t, ...userData } = data;

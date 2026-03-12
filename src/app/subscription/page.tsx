@@ -79,7 +79,11 @@ function SubscriptionContent() {
 
     // Check if user already has a locked referral code from the server
     if (localUser?.email) {
-      fetch(`/api/referral?email=${encodeURIComponent(localUser.email)}`)
+      let refUrl = `/api/referral?email=${encodeURIComponent(localUser.email)}`;
+      if (savedCode) {
+        refUrl += `&referredBy=${encodeURIComponent(savedCode)}`;
+      }
+      fetch(refUrl)
         .then((res) => {
           if (res.ok) return res.json();
           return null;

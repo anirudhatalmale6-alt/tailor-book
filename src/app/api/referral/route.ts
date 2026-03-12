@@ -26,10 +26,20 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Email required' }, { status: 400 });
   }
 
+  // referredBy param allows the client to pass the stored referral code
+  const referredByParam = searchParams.get('referredBy');
+
   // Auto-create user in RMS if they don't exist yet
   let user = await getUser(email);
   if (!user) {
-    user = await createUser(email, 'STITCHMANAGER');
+    user = await createUser(email, referredByParam || 'STITCHMANAGER');
+  } else if (user.referredBy === 'STITCHMANAGER' && referredByParam && referredByParam.toUpperCase() !== 'STITCHMANAGER') {
+    // User was auto-created with default — update with the actual referral code
+    const referrer = await getUserByCode(referredByParam.toUpperCase());
+    if (referrer) {
+      user.referredBy = referredByParam.toUpperCase();
+      await saveUser(user);
+    }
   }
 
   // Include withdrawals and transactions if requested
