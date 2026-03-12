@@ -2,9 +2,12 @@ import { NextResponse } from 'next/server';
 import { createUser, getUser, addEarning, addRegistrationEvent } from '@/lib/referral-store';
 
 export async function POST(req: Request) {
-  const { email } = await req.json();
+  const { email, paystackEmail } = await req.json();
 
-  if (!email) {
+  // Use paystackEmail if provided (in case user registered with different email in app)
+  const lookupEmail = paystackEmail || email;
+
+  if (!lookupEmail) {
     return NextResponse.json({ error: 'Email required' }, { status: 400 });
   }
 
@@ -13,20 +16,33 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Payment not configured' }, { status: 500 });
   }
 
+  const headers = { Authorization: `Bearer ${secretKey}` };
+
   try {
-    // List transactions for this customer from Paystack
-    const response = await fetch(
-      `https://api.paystack.co/transaction?customer=${encodeURIComponent(email)}&status=success&perPage=10`,
-      {
-        headers: {
-          Authorization: `Bearer ${secretKey}`,
-        },
-      }
+    // Step 1: Look up customer by email
+    const custRes = await fetch(
+      `https://api.paystack.co/customer/${encodeURIComponent(lookupEmail)}`,
+      { headers }
     );
+    const custData = await custRes.json();
 
-    const result = await response.json();
+    if (!custData.status || !custData.data) {
+      return NextResponse.json({
+        restored: false,
+        message: 'No payment account found for this email.',
+      });
+    }
 
-    if (!result.status || !result.data || result.data.length === 0) {
+    const customerId = custData.data.id;
+
+    // Step 2: List successful transactions for this customer
+    const txnRes = await fetch(
+      `https://api.paystack.co/transaction?customer=${customerId}&status=success&perPage=10`,
+      { headers }
+    );
+    const txnData = await txnRes.json();
+
+    if (!txnData.status || !txnData.data || txnData.data.length === 0) {
       return NextResponse.json({
         restored: false,
         message: 'No successful payments found for this email.',
@@ -34,7 +50,7 @@ export async function POST(req: Request) {
     }
 
     // Find the most recent successful transaction
-    const latestTxn = result.data[0];
+    const latestTxn = txnData.data[0];
     const plan = latestTxn.metadata?.plan || 'monthly';
     const amountNaira = latestTxn.amount / 100;
     const referralCode = latestTxn.metadata?.referral_code || 'STITCHMANAGER';

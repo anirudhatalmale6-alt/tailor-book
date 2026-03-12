@@ -62,6 +62,8 @@ function SubscriptionContent() {
   const [isCodeLocked, setIsCodeLocked] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [restoreMessage, setRestoreMessage] = useState('');
+  const [showPaystackEmail, setShowPaystackEmail] = useState(false);
+  const [paystackEmail, setPaystackEmail] = useState('');
 
   // Load referral code: from URL param, localStorage (set during registration), or from server
   useEffect(() => {
@@ -134,7 +136,10 @@ function SubscriptionContent() {
       const res = await fetch('/api/paystack/restore', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: localUser.email }),
+        body: JSON.stringify({
+          email: localUser.email,
+          paystackEmail: paystackEmail.trim() || undefined,
+        }),
       });
       const data = await res.json();
       if (data.restored) {
@@ -144,7 +149,10 @@ function SubscriptionContent() {
         setRestoreMessage('success');
         setTimeout(() => router.push('/'), 2000);
       } else {
-        setRestoreMessage(data.message || 'No payment found for your email.');
+        setRestoreMessage(data.message || 'No payment found.');
+        if (!showPaystackEmail) {
+          setShowPaystackEmail(true);
+        }
       }
     } catch {
       setRestoreMessage('Failed to check. Please try again.');
@@ -365,6 +373,20 @@ function SubscriptionContent() {
       {/* Restore Purchase */}
       <div className="mt-6 pt-4 border-t border-royal-border">
         <p className="text-xs text-white/40 text-center mb-2">Already paid but subscription not showing?</p>
+        {showPaystackEmail && (
+          <div className="mb-3">
+            <p className="text-[10px] text-white/40 mb-1">
+              If you paid with a different email on Paystack, enter it below:
+            </p>
+            <input
+              type="email"
+              value={paystackEmail}
+              onChange={(e) => setPaystackEmail(e.target.value)}
+              className="w-full px-3 py-2 bg-royal-bg rounded-lg border border-royal-border text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Email used on Paystack"
+            />
+          </div>
+        )}
         <button
           onClick={handleRestore}
           disabled={restoring}
