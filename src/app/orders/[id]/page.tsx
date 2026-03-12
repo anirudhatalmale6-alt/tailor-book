@@ -42,6 +42,7 @@ export default function OrderDetailPage() {
   const [showReadyPhotoModal, setShowReadyPhotoModal] = useState(false);
   const [readyPhotoPreview, setReadyPhotoPreview] = useState('');
   const readyPhotoRef = useRef<HTMLInputElement>(null);
+  const [showStartModal, setShowStartModal] = useState(false);
 
   const [paymentForm, setPaymentForm] = useState({
     amount: '',
@@ -66,10 +67,22 @@ export default function OrderDetailPage() {
   const outstanding = order ? order.totalAmount - totalPaid : 0;
   const latestMeasurement = measurements && measurements.length > 0 ? measurements[0] : null;
 
+  function sendWhatsApp(phone: string, message: string) {
+    const cleaned = phone.replace(/[^0-9+]/g, '');
+    const url = `https://wa.me/${cleaned}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
   async function handleStatusChange() {
     if (!order) return;
     const nextStatus = STATUS_FLOW[order.status];
     if (!nextStatus) return;
+
+    // When starting work, show popup to notify client
+    if (nextStatus === 'in_progress') {
+      setShowStartModal(true);
+      return;
+    }
 
     // When marking as "ready", prompt for a photo of the packaged clothes
     if (nextStatus === 'ready') {
@@ -80,6 +93,23 @@ export default function OrderDetailPage() {
     await updateOrder(id, { status: nextStatus as typeof order.status });
   }
 
+  async function handleConfirmStart(notify: boolean) {
+    if (!order) return;
+    await updateOrder(id, { status: 'in_progress' });
+    setShowStartModal(false);
+
+    if (notify && customer?.phone && order.deliveryDate) {
+      const deliveryStr = new Date(order.deliveryDate).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      });
+      const msg = `Hello ${customer.name},\n\nThis is to inform you that work on your order has started. Your order is expected to be ready by *${deliveryStr}*.\n\nThank you for your patience!`;
+      sendWhatsApp(customer.phone, msg);
+    } else if (notify && customer?.phone) {
+      const msg = `Hello ${customer.name},\n\nThis is to inform you that work on your order has started. We will notify you once it's ready.\n\nThank you for your patience!`;
+      sendWhatsApp(customer.phone, msg);
+    }
+  }
+
   async function handleReadyPhotoCapture(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -87,7 +117,7 @@ export default function OrderDetailPage() {
     setReadyPhotoPreview(base64);
   }
 
-  async function handleConfirmReady() {
+  async function handleConfirmReady(notify: boolean) {
     if (!order) return;
     await updateOrder(id, {
       status: 'ready',
@@ -95,6 +125,11 @@ export default function OrderDetailPage() {
     });
     setShowReadyPhotoModal(false);
     setReadyPhotoPreview('');
+
+    if (notify && customer?.phone) {
+      const msg = `Hello ${customer.name},\n\nGreat news! Your order is now ready for delivery/pickup.\n\nPlease contact us to arrange collection. Thank you!`;
+      sendWhatsApp(customer.phone, msg);
+    }
   }
 
   async function handleCancelOrder() {
@@ -391,12 +426,52 @@ export default function OrderDetailPage() {
               <span className="text-sm font-medium">Take Photo</span>
             </button>
           )}
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
             <button
-              onClick={handleConfirmReady}
-              className="flex-1 py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm"
+              onClick={() => handleConfirmReady(true)}
+              className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2"
             >
-              {readyPhotoPreview ? 'Confirm Ready' : 'Skip & Mark Ready'}
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              </svg>
+              {readyPhotoPreview ? 'Confirm & Notify Client' : 'Skip Photo & Notify Client'}
+            </button>
+            <button
+              onClick={() => handleConfirmReady(false)}
+              className="w-full py-2.5 bg-royal-hover text-white/60 rounded-xl text-sm font-medium"
+            >
+              {readyPhotoPreview ? 'Confirm without notifying' : 'Skip & Mark Ready'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Start Work Modal */}
+      <Modal
+        isOpen={showStartModal}
+        onClose={() => setShowStartModal(false)}
+        title="Start Work"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-white/70">
+            Would you like to notify {customer?.name || 'the client'} via WhatsApp that their work has started
+            {order?.deliveryDate ? ` and is expected to be ready by ${new Date(order.deliveryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}?
+          </p>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => handleConfirmStart(true)}
+              className="w-full py-3 bg-gradient-to-r from-gold-dim to-gold text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              </svg>
+              Start & Notify Client
+            </button>
+            <button
+              onClick={() => handleConfirmStart(false)}
+              className="w-full py-2.5 bg-royal-hover text-white/60 rounded-xl text-sm font-medium"
+            >
+              Start without notifying
             </button>
           </div>
         </div>
