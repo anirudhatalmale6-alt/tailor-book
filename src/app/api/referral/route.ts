@@ -29,11 +29,12 @@ export async function GET(req: Request) {
   // referredBy param allows the client to pass the stored referral code
   const referredByParam = searchParams.get('referredBy');
 
-  // Auto-create user in RMS if they don't exist yet
-  let user = await getUser(email);
+  // Only return data if user exists in RMS (created after first subscription)
+  const user = await getUser(email);
   if (!user) {
-    user = await createUser(email, referredByParam || 'STITCHMANAGER');
-  } else if (user.referredBy === 'STITCHMANAGER' && referredByParam && referredByParam.toUpperCase() !== 'STITCHMANAGER') {
+    return NextResponse.json({ error: 'Not subscribed yet' }, { status: 404 });
+  }
+  if (user.referredBy === 'STITCHMANAGER' && referredByParam && referredByParam.toUpperCase() !== 'STITCHMANAGER') {
     // User was auto-created with default — update with the actual referral code
     const referrer = await getUserByCode(referredByParam.toUpperCase());
     if (referrer) {
@@ -79,10 +80,9 @@ export async function POST(req: Request) {
   if (action === 'update-bank') {
     const { bankName, accountNumber, accountName } = body;
     try {
-      // Auto-create user in RMS if they don't exist yet
-      let user = await getUser(email);
+      const user = await getUser(email);
       if (!user) {
-        user = await createUser(email, 'STITCHMANAGER');
+        return NextResponse.json({ error: 'User not found. Subscribe first.' }, { status: 404 });
       }
 
       user.bankName = bankName || user.bankName;

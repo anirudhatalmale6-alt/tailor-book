@@ -98,14 +98,7 @@ export function useLocalAuth() {
       body: JSON.stringify({ action: 'register', name, phone, email, pinHash, referralCode: refCode }),
     }).catch(() => {});
 
-    // Also register referral code in RMS immediately (non-blocking)
-    if (refCode) {
-      fetch('/api/referral', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'register', email, referralCode: refCode }),
-      }).catch(() => {});
-    }
+    // Referral code stays in localStorage — RMS record is created only after subscription payment
   }, []);
 
   // Recover account on new device: set local data from server response
