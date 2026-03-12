@@ -1,12 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "online.stitchmanager.app",
-      "sha256_cert_fingerprints": [
-        "D0:07:80:DE:09:B6:21:14:7B:1A:57:55:47:5E:EF:50:50:8E:F7:BA:05:A6:21:47:D1:D0:8A:5E:55:BC:C4:E1"
-      ]
-    }
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "online.stitchmanager.app",
+    "sha256_cert_fingerprints": ["8F:D2:63:E1:F8:E7:D1:4D:59:F1:57:18:B1:0D:45:DB:04:D9:49:07:64:5A:E7:1D:A2:93:BF:55:7F:10:FC:4D"]
   }
-]
+}]
