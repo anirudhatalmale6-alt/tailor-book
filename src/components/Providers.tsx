@@ -7,7 +7,10 @@ import AutoBackup from './AutoBackup';
 function ServiceWorkerRegistrar() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {
+      navigator.serviceWorker.register('/sw.js').then(() => {
+        // Pre-cache assetlinks.json for TWA verification offline
+        fetch('/.well-known/assetlinks.json').catch(() => {});
+      }).catch(() => {
         // SW registration failed — app still works, just no offline cache
       });
     }

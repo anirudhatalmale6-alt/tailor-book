@@ -61,6 +61,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     const timer = setTimeout(() => {
       if (!checked) {
         setChecked(true);
+        // If user data exists in localStorage, let them through even if loading is still true
+        if (typeof window !== 'undefined' && localStorage.getItem('sm_user')) {
+          return; // user is logged in, just proceed
+        }
         if (pathname !== '/login' && pathname !== '/privacy' && pathname !== '/delete-account') {
           router.replace('/login');
         }

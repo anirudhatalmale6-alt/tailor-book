@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1a1028">
+<title>Stitch Manager</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1028;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+.icon{width:64px;height:64px;margin-bottom:24px}
+h1{font-size:18px;font-weight:600;margin-bottom:8px}
+p{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:24px;line-height:1.5}
+button{background:linear-gradient(to right,#d4a932,#e8c547);color:#fff;border:none;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+button:active{opacity:0.8}
+.footer{position:fixed;bottom:24px;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.5px}
+.footer span{font-weight:600;color:rgba(255,255,255,0.4)}
+</style>
+</head>
+<body>
+<img src="/splash-icon.png" alt="Stitch Manager" class="icon">
+<h1>No Internet Connection</h1>
+<p>Please check your network and try again.<br>Your data is safe on this device.</p>
+<button onclick="location.reload()">Retry</button>
+<div class="footer">from <span>TECKMAKE</span></div>
+</body>
+</html>
