@@ -14,7 +14,7 @@ import PaymentCard from '@/components/PaymentCard';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
 import { fileToBase64 } from '@/lib/utils';
-import { toast } from '@/lib/toast';
+import { toast, appConfirm } from '@/lib/toast';
 
 const STATUS_FLOW: Record<string, string> = {
   pending: 'in_progress',
@@ -135,7 +135,7 @@ export default function OrderDetailPage() {
 
   async function handleCancelOrder() {
     if (!order) return;
-    if (confirm('Are you sure you want to cancel this order?')) {
+    if (await appConfirm('Are you sure you want to cancel this order?', 'Cancel Order')) {
       await updateOrder(id, { status: 'cancelled' });
     }
   }
@@ -201,7 +201,7 @@ export default function OrderDetailPage() {
         <StatusBadge status={order.status} />
         <button
           onClick={async () => {
-            if (!confirm('Delete this order? This cannot be undone.')) return;
+            if (!(await appConfirm('Delete this order? This cannot be undone.', 'Delete'))) return;
             try {
               await deleteOrder(id);
               toast('Order deleted', 'success');

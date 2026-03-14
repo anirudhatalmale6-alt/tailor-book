@@ -17,7 +17,7 @@ import { useLocalAuth } from '@/hooks/useLocalAuth';
 import { useDeviceTracking, type DeviceEntry } from '@/hooks/useDeviceTracking';
 import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
-import { toast } from '@/lib/toast';
+import { toast, appConfirm } from '@/lib/toast';
 
 export default function SettingsPage() {
   const canEdit = useReadOnlyGuard();
@@ -97,7 +97,7 @@ export default function SettingsPage() {
 
   async function handleCloudRestore() {
     if (!accessToken) return;
-    if (!confirm('This will replace ALL your current data with the cloud backup. Are you sure?')) return;
+    if (!(await appConfirm('This will replace ALL your current data with the cloud backup. Are you sure?', 'Restore'))) return;
     setRestoring(true);
     setBackupMessage('');
     const result = await restoreFromGoogleDrive(accessToken);
@@ -179,7 +179,7 @@ export default function SettingsPage() {
   }
 
   async function handleDeleteField(field: MeasurementField) {
-    if (confirm(`Delete "${field.name}" measurement field?`)) {
+    if (await appConfirm(`Delete "${field.name}" measurement field?`, 'Delete')) {
       await deleteMeasurementField(field.id);
     }
   }
@@ -259,7 +259,7 @@ export default function SettingsPage() {
         toast('Invalid backup file', 'error');
         return;
       }
-      if (!confirm('This will replace ALL your current data. Are you sure?')) return;
+      if (!(await appConfirm('This will replace ALL your current data. Are you sure?', 'Import'))) return;
 
       await db.customers.clear();
       await db.measurementFields.clear();
@@ -599,7 +599,7 @@ export default function SettingsPage() {
                         {!d.isCurrent && (
                           <button
                             onClick={async () => {
-                              if (!confirm(`Remove "${d.deviceName}" from your account?`)) return;
+                              if (!(await appConfirm(`Remove "${d.deviceName}" from your account?`, 'Remove'))) return;
                               setRemovingDevice(d.deviceId);
                               await removeDevice(d.deviceId);
                               const devs = await getDevices();

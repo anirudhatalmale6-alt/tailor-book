@@ -14,7 +14,7 @@ import OrderCard from '@/components/OrderCard';
 import StatusBadge from '@/components/StatusBadge';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
-import { toast } from '@/lib/toast';
+import { toast, appConfirm } from '@/lib/toast';
 
 type TabType = 'measurements' | 'orders' | 'balance' | 'jobs' | 'payments';
 
@@ -168,7 +168,7 @@ export default function CustomerDetailPage() {
         </button>
         <button
           onClick={async () => {
-            if (!confirm(`Delete "${customer.name}"? This cannot be undone.`)) return;
+            if (!(await appConfirm(`Delete "${customer.name}"? This cannot be undone.`, 'Delete'))) return;
             try {
               await deleteCustomer(id);
               toast('Account deleted', 'success');
