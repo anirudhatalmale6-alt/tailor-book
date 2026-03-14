@@ -75,7 +75,7 @@ export default function PrivacyPolicyPage() {
           <ul className="list-disc list-inside text-white/70 space-y-1 ml-2">
             <li><strong className="text-white/90">Registration Data:</strong> We retain your account information as long as your account is active. You may request account deletion by emailing support@stitchmanager.online.</li>
             <li><strong className="text-white/90">Local Data:</strong> Since client data is stored on your device, deleting the App will permanently erase that data unless you have performed a backup.</li>
-            <li><strong className="text-white/90">Google Play Requirements:</strong> We provide a dedicated web-based path for users to request account and data deletion in accordance with Google Play&apos;s 2026 policies.</li>
+            <li><strong className="text-white/90">Google Play Requirements:</strong> We provide a dedicated web-based path for users to request account and data deletion at <a href="/delete-account" className="text-gold underline">app.stitchmanager.online/delete-account</a> in accordance with Google Play&apos;s 2026 policies.</li>
           </ul>
         </section>
 
