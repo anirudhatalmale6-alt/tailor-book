@@ -56,6 +56,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
 
+  // Safety timeout: never stay on splash screen longer than 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!checked) {
+        setChecked(true);
+        if (pathname !== '/login' && pathname !== '/privacy' && pathname !== '/delete-account') {
+          router.replace('/login');
+        }
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [checked, pathname, router]);
+
   useEffect(() => {
     if (loading) return;
     // Don't redirect if already on login page, auth callback, or public pages
@@ -82,7 +95,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     router.replace('/login');
   }, [loading, user, pathname, router]);
 
-  // Show branded splash screen while loading
+  // Show branded splash screen while loading (max 3 seconds)
   if (!checked && loading) {
     return (
       <div className="min-h-screen bg-royal-bg flex flex-col items-center justify-center relative">
