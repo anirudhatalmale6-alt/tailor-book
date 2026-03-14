@@ -56,7 +56,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
 
-  // Safety timeout: never stay on splash screen longer than 3 seconds
+  // Safety timeout: never stay on splash screen longer than 1.5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!checked) {
@@ -65,7 +65,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           router.replace('/login');
         }
       }
-    }, 3000);
+    }, 1500);
     return () => clearTimeout(timer);
   }, [checked, pathname, router]);
 
@@ -95,20 +95,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     router.replace('/login');
   }, [loading, user, pathname, router]);
 
-  // Show branded splash screen while loading (max 3 seconds)
+  // Show minimal splash screen while loading (max 3 seconds)
+  // Small centered icon like WhatsApp/Facebook - professional & clean
   if (!checked && loading) {
     return (
-      <div className="min-h-screen bg-royal-bg flex flex-col items-center justify-center relative">
-        <div className="text-center flex-1 flex flex-col items-center justify-center">
-          <img src="/logo.png" alt="Stitch Manager" className="w-28 h-28 mx-auto mb-4 drop-shadow-lg" />
-          <h1 className="text-2xl font-bold text-white tracking-wide mb-1">Stitch Manager</h1>
-          <p className="text-xs text-white/40 mb-6">Your Tailoring Business, Simplified</p>
-          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
+      <div className="min-h-screen bg-royal-bg flex flex-col items-center justify-center">
+        <div className="flex-1 flex items-center justify-center">
+          <img src="/splash-icon.png" alt="Stitch Manager" className="w-16 h-16 drop-shadow-md" />
         </div>
-        <div className="pb-8 text-center">
-          <p className="text-[10px] text-white/30 uppercase tracking-widest">from</p>
-          <p className="text-xs font-semibold text-white/50 tracking-wide">TECKMAKE</p>
-        </div>
+        <p className="pb-6 text-[11px] text-white/30 tracking-wide">from <span className="font-semibold text-white/40">TECKMAKE</span></p>
       </div>
     );
   }
