@@ -3,6 +3,9 @@
   "target": {
     "namespace": "android_app",
     "package_name": "online.stitchmanager.app",
-    "sha256_cert_fingerprints": ["8F:D2:63:E1:F8:E7:D1:4D:59:F1:57:18:B1:0D:45:DB:04:D9:49:07:64:5A:E7:1D:A2:93:BF:55:7F:10:FC:4D"]
+    "sha256_cert_fingerprints": [
+      "73:FE:82:6C:23:00:5F:4A:FB:99:A2:A1:6C:95:B2:C4:EA:66:F6:6C:DC:EA:C5:5A:A2:5C:A0:35:FA:7D:96:A6",
+      "8F:D2:63:E1:F8:E7:D1:4D:59:F1:57:18:B1:0D:45:DB:04:D9:49:07:64:5A:E7:1D:A2:93:BF:55:7F:10:FC:4D"
+    ]
   }
 }]
