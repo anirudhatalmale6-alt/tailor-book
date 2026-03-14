@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalAuth } from '@/hooks/useLocalAuth';
 import Modal from '@/components/Modal';
+import { toast } from '@/lib/toast';
 
 const ADMIN_EMAIL = 'pgmclement@gmail.com';
 
@@ -99,7 +100,7 @@ export default function AdminReferralsPage() {
       });
       fetchData();
     } catch {
-      alert('Failed to process withdrawal');
+      toast('Failed to process withdrawal', 'error');
     } finally {
       setProcessing(null);
       setRejectingWithdrawal(null);
@@ -127,10 +128,10 @@ export default function AdminReferralsPage() {
         fetchData();
       } else {
         const data = await res.json();
-        alert(data.error || 'Failed to update');
+        toast(data.error || 'Failed to update', 'error');
       }
     } catch {
-      alert('Failed to update referral code');
+      toast('Failed to update referral code', 'error');
     } finally {
       setSavingCode(false);
     }

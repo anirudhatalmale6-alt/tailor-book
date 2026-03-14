@@ -7,6 +7,7 @@ import { addOrder } from '@/hooks/useOrders';
 import { addPayment } from '@/hooks/usePayments';
 import { fileToBase64 } from '@/lib/utils';
 import PhotoUpload from '@/components/PhotoUpload';
+import { toast } from '@/lib/toast';
 
 export default function NewOrderPage() {
   return (
@@ -81,11 +82,11 @@ function NewOrderForm() {
   async function handleSave() {
     if (savingRef.current) return;
     if (!selectedCustomer) {
-      alert('Please select a customer');
+      toast('Please select a customer', 'error');
       return;
     }
     if (!form.totalAmount || parseFloat(form.totalAmount) <= 0) {
-      alert('Please enter the total amount');
+      toast('Please enter the total amount', 'error');
       return;
     }
 
@@ -122,7 +123,7 @@ function NewOrderForm() {
       router.replace(`/orders/${orderId}`);
     } catch (err) {
       console.error('Failed to save order:', err);
-      alert('Failed to save order. Please try again.');
+      toast('Failed to save order. Please try again.', 'error');
     } finally {
       savingRef.current = false;
       setSaving(false);

@@ -14,6 +14,7 @@ import OrderCard from '@/components/OrderCard';
 import StatusBadge from '@/components/StatusBadge';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
+import { toast } from '@/lib/toast';
 
 type TabType = 'measurements' | 'orders' | 'balance' | 'jobs' | 'payments';
 
@@ -96,7 +97,7 @@ export default function CustomerDetailPage() {
       setShowMeasurementModal(false);
     } catch (err) {
       console.error('Failed to save measurement:', err);
-      alert('Failed to save measurement');
+      toast('Failed to save measurement', 'error');
     } finally {
       setSaving(false);
     }
@@ -117,7 +118,7 @@ export default function CustomerDetailPage() {
       setShowAddField(false);
     } catch (err) {
       console.error('Failed to add field:', err);
-      alert('Failed to add measurement field');
+      toast('Failed to add measurement field', 'error');
     } finally {
       setAddingField(false);
     }
@@ -657,7 +658,7 @@ export default function CustomerDetailPage() {
           <button
             onClick={async () => {
               if (!jobForm.description.trim() || !jobForm.agreedAmount) {
-                alert('Please enter job description and agreed amount');
+                toast('Please enter job description and agreed amount', 'error');
                 return;
               }
               setSavingJob(true);
@@ -672,7 +673,7 @@ export default function CustomerDetailPage() {
                 setShowAddJob(false);
               } catch (err) {
                 console.error('Failed to add job:', err);
-                alert('Failed to add job');
+                toast('Failed to add job', 'error');
               } finally {
                 setSavingJob(false);
               }
@@ -751,7 +752,7 @@ export default function CustomerDetailPage() {
           <button
             onClick={async () => {
               if (!paymentForm.amount || !selectedJobId) {
-                alert('Please enter an amount');
+                toast('Please enter an amount', 'error');
                 return;
               }
               setSavingPayment(true);
@@ -767,7 +768,7 @@ export default function CustomerDetailPage() {
                 setShowAddPayment(false);
               } catch (err) {
                 console.error('Failed to record payment:', err);
-                alert('Failed to record payment');
+                toast('Failed to record payment', 'error');
               } finally {
                 setSavingPayment(false);
               }

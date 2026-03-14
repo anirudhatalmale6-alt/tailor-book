@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalAuth } from '@/hooks/useLocalAuth';
 import Modal from '@/components/Modal';
+import { toast } from '@/lib/toast';
 
 interface ReferralUser {
   email: string;
@@ -128,12 +129,12 @@ export default function ReferralPage() {
       const data = await res.json();
       if (res.ok) {
         setUser(data);
-        alert('Bank details saved successfully!');
+        toast('Bank details saved successfully!', 'success');
       } else {
-        alert(data.error || 'Failed to save');
+        toast(data.error || 'Failed to save', 'error');
       }
     } catch {
-      alert('Network error. Please try again.');
+      toast('Network error. Please try again.', 'error');
     } finally {
       setSavingBank(false);
     }
@@ -143,7 +144,7 @@ export default function ReferralPage() {
     if (!email) return;
     const amount = parseFloat(withdrawAmount);
     if (!amount || amount <= 0) {
-      alert('Please enter a valid amount');
+      toast('Please enter a valid amount', 'error');
       return;
     }
     setWithdrawing(true);
@@ -157,13 +158,13 @@ export default function ReferralPage() {
       if (res.ok) {
         setShowWithdrawModal(false);
         setWithdrawAmount('');
-        alert('Withdrawal request submitted! It will be processed within 24-48 hours.');
+        toast('Withdrawal request submitted! It will be processed within 24-48 hours.', 'success');
         fetchData();
       } else {
-        alert(data.error || 'Failed to submit withdrawal');
+        toast(data.error || 'Failed to submit withdrawal', 'error');
       }
     } catch {
-      alert('Network error. Please try again.');
+      toast('Network error. Please try again.', 'error');
     } finally {
       setWithdrawing(false);
     }

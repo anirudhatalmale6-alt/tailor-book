@@ -11,6 +11,7 @@ import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils';
 import StatusBadge from '@/components/StatusBadge';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
+import { toast } from '@/lib/toast';
 
 export default function ProjectDetailPage() {
   const router = useRouter();
@@ -62,7 +63,7 @@ export default function ProjectDetailPage() {
 
   async function handleAddExpense() {
     if (!expenseForm.description.trim() || !expenseForm.amount) {
-      alert('Please fill in description and amount');
+      toast('Please fill in description and amount', 'error');
       return;
     }
     setSaving(true);
@@ -86,7 +87,7 @@ export default function ProjectDetailPage() {
       });
     } catch (err) {
       console.error('Failed to add expense:', err);
-      alert('Failed to add expense');
+      toast('Failed to add expense', 'error');
     } finally {
       setSaving(false);
     }
@@ -98,7 +99,7 @@ export default function ProjectDetailPage() {
       router.replace('/projects');
     } catch (err) {
       console.error('Failed to delete project:', err);
-      alert('Failed to delete project');
+      toast('Failed to delete project', 'error');
     }
   }
 
@@ -108,7 +109,7 @@ export default function ProjectDetailPage() {
       setShowDeleteItemConfirm(null);
     } catch (err) {
       console.error('Failed to delete item:', err);
-      alert('Failed to delete item');
+      toast('Failed to delete item', 'error');
     }
   }
 

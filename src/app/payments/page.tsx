@@ -11,6 +11,7 @@ import { formatCurrency, formatDate, isThisMonth } from '@/lib/utils';
 import PaymentCard from '@/components/PaymentCard';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
+import { toast } from '@/lib/toast';
 
 export default function PaymentsPage() {
   const router = useRouter();
@@ -81,7 +82,7 @@ export default function PaymentsPage() {
 
   async function handleAddExpense() {
     if (!expenseForm.description.trim() || !expenseForm.amount) {
-      alert('Please fill in description and amount');
+      toast('Please fill in description and amount', 'error');
       return;
     }
     setSaving(true);
@@ -103,7 +104,7 @@ export default function PaymentsPage() {
       });
     } catch (err) {
       console.error('Failed to add expense:', err);
-      alert('Failed to add expense');
+      toast('Failed to add expense', 'error');
     } finally {
       setSaving(false);
     }

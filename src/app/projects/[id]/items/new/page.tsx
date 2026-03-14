@@ -5,6 +5,7 @@ import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { addProjectItem, updateProjectItem, useProjectItem } from '@/hooks/useProjects';
 import { useMeasurementFields, addMeasurementField } from '@/hooks/useMeasurements';
 import { fileToBase64 } from '@/lib/utils';
+import { toast } from '@/lib/toast';
 
 export default function NewProjectItemPage() {
   return (
@@ -87,7 +88,7 @@ function NewProjectItemForm() {
 
   async function handleSave() {
     if (!form.name.trim()) {
-      alert('Please enter the sub-client name');
+      toast('Please enter the sub-client name', 'error');
       return;
     }
 
@@ -123,7 +124,7 @@ function NewProjectItemForm() {
       router.back();
     } catch (err) {
       console.error('Failed to save sub-client:', err);
-      alert('Failed to save. Please try again.');
+      toast('Failed to save. Please try again.', 'error');
     } finally {
       setSaving(false);
     }

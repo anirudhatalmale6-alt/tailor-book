@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { db, type Customer } from '@/lib/db';
 import { addProject, updateProject, useProject } from '@/hooks/useProjects';
+import { toast } from '@/lib/toast';
 
 export default function NewProjectPage() {
   return (
@@ -70,11 +71,11 @@ function NewProjectForm() {
 
   async function handleSave() {
     if (!selectedCustomer) {
-      alert('Please select a client');
+      toast('Please select a client', 'error');
       return;
     }
     if (!form.name.trim()) {
-      alert('Please enter a project name');
+      toast('Please enter a project name', 'error');
       return;
     }
 
@@ -99,7 +100,7 @@ function NewProjectForm() {
       }
     } catch (err) {
       console.error('Failed to save project:', err);
-      alert('Failed to save project. Please try again.');
+      toast('Failed to save project. Please try again.', 'error');
     } finally {
       setSaving(false);
     }

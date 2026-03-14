@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import { fileToBase64, isContactPickerSupported, pickContact, formatPhoneInternational } from '@/lib/utils';
 import { useReadOnlyGuard, useSubscription } from '@/hooks/useSubscription';
 import PhotoUpload from '@/components/PhotoUpload';
+import { toast } from '@/lib/toast';
 
 const FREE_CLIENT_LIMIT = 20;
 
@@ -112,7 +113,7 @@ function NewCustomerForm() {
     if (savingRef.current) return;
     if (!canEdit()) return;
     if (!form.name.trim()) {
-      alert('Please enter an account name');
+      toast('Please enter an account name', 'error');
       return;
     }
 
@@ -143,7 +144,7 @@ function NewCustomerForm() {
       }
     } catch (err) {
       console.error('Failed to save account:', err);
-      alert('Failed to save account. Please try again.');
+      toast('Failed to save account. Please try again.', 'error');
     } finally {
       savingRef.current = false;
       setSaving(false);

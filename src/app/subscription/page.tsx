@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocalAuth } from '@/hooks/useLocalAuth';
+import { toast } from '@/lib/toast';
 
 interface Plan {
   id: string;
@@ -192,7 +193,7 @@ function SubscriptionContent() {
 
     // Validate code before proceeding
     if (code !== 'STITCHMANAGER' && codeStatus !== 'valid') {
-      alert('Please enter a valid referral code, or leave it blank to use the default.');
+      toast('Please enter a valid referral code, or leave it blank to use the default.', 'error');
       return;
     }
 
@@ -215,11 +216,11 @@ function SubscriptionContent() {
       if (data.authorization_url) {
         window.location.href = data.authorization_url;
       } else {
-        alert('Failed to initialize payment. Please try again.');
+        toast('Failed to initialize payment. Please try again.', 'error');
       }
     } catch (error) {
       console.error('Payment error:', error);
-      alert('Something went wrong. Please try again.');
+      toast('Something went wrong. Please try again.');
     } finally {
       setProcessing(false);
     }

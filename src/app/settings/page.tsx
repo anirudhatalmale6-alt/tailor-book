@@ -17,6 +17,7 @@ import { useLocalAuth } from '@/hooks/useLocalAuth';
 import { useDeviceTracking, type DeviceEntry } from '@/hooks/useDeviceTracking';
 import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
+import { toast } from '@/lib/toast';
 
 export default function SettingsPage() {
   const canEdit = useReadOnlyGuard();
@@ -148,7 +149,7 @@ export default function SettingsPage() {
 
   async function handleSaveField() {
     if (!fieldForm.name.trim()) {
-      alert('Please enter a field name');
+      toast('Please enter a field name', 'error');
       return;
     }
     setSaving(true);
@@ -171,7 +172,7 @@ export default function SettingsPage() {
       setShowFieldModal(false);
     } catch (err) {
       console.error('Failed to save field:', err);
-      alert('Failed to save field');
+      toast('Failed to save field', 'error');
     } finally {
       setSaving(false);
     }
@@ -201,14 +202,14 @@ export default function SettingsPage() {
     await setSetting('taxRate', rate.toString());
     await setSetting('businessPhone', bizPhone);
     await setSetting('businessAddress', bizAddr);
-    alert('Business settings saved');
+    toast('Business settings saved', 'success');
   }
 
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 500000) {
-      alert('Logo image must be under 500KB');
+      toast('Logo image must be under 500KB', 'error');
       return;
     }
     const base64 = await fileToBase64(file);
@@ -244,7 +245,7 @@ export default function SettingsPage() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Export failed:', err);
-      alert('Failed to export data');
+      toast('Failed to export data', 'error');
     }
   }
 
@@ -255,7 +256,7 @@ export default function SettingsPage() {
       const text = await file.text();
       const data = JSON.parse(text);
       if (!data.version || !data.customers) {
-        alert('Invalid backup file');
+        toast('Invalid backup file', 'error');
         return;
       }
       if (!confirm('This will replace ALL your current data. Are you sure?')) return;
@@ -278,11 +279,11 @@ export default function SettingsPage() {
       if (data.invoices?.length) await db.invoices.bulkAdd(data.invoices);
       if (data.settings?.length) await db.settings.bulkAdd(data.settings);
 
-      alert('Data imported successfully! The page will reload.');
+      toast('Data imported successfully! The page will reload.', 'success');
       window.location.reload();
     } catch (err) {
       console.error('Import failed:', err);
-      alert('Failed to import data. Make sure the file is a valid Stitch Manager backup.');
+      toast('Failed to import data. Make sure the file is a valid Stitch Manager backup.', 'error');
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   }

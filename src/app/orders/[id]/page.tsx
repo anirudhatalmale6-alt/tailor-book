@@ -14,6 +14,7 @@ import PaymentCard from '@/components/PaymentCard';
 import Modal from '@/components/Modal';
 import EmptyState from '@/components/EmptyState';
 import { fileToBase64 } from '@/lib/utils';
+import { toast } from '@/lib/toast';
 
 const STATUS_FLOW: Record<string, string> = {
   pending: 'in_progress',
@@ -143,7 +144,7 @@ export default function OrderDetailPage() {
     if (!order) return;
     const amount = parseFloat(paymentForm.amount);
     if (!amount || amount <= 0) {
-      alert('Please enter a valid amount');
+      toast('Please enter a valid amount', 'error');
       return;
     }
     setSaving(true);
@@ -160,7 +161,7 @@ export default function OrderDetailPage() {
       setPaymentForm({ amount: '', type: 'balance', method: 'cash', notes: '' });
     } catch (err) {
       console.error('Failed to add payment:', err);
-      alert('Failed to add payment');
+      toast('Failed to add payment', 'error');
     } finally {
       setSaving(false);
     }

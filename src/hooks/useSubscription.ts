@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from '@/lib/toast';
 
 const PLAN_DURATIONS: Record<string, number> = {
   monthly: 30,
@@ -94,7 +95,7 @@ export function useReadOnlyGuard(): () => boolean {
 
   return useCallback(() => {
     if (isReadOnly) {
-      alert('Your subscription has expired. Please renew to continue editing. You can still view your data.');
+      toast('Your subscription has expired. Please renew to continue editing. You can still view your data.');
       return false;
     }
     return true;

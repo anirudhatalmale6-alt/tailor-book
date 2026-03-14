@@ -6,6 +6,7 @@ import { db, type Customer, type Order, type Payment, type InvoiceItem, type Pro
 import { addInvoice, generateInvoiceNumber } from '@/hooks/useInvoices';
 import { useCurrency, useTaxRate } from '@/hooks/useSettings';
 import { formatCurrency } from '@/lib/utils';
+import { toast } from '@/lib/toast';
 
 export default function NewInvoicePage() {
   return (
@@ -184,17 +185,17 @@ function NewInvoiceForm() {
 
   async function handleSave() {
     if (!orderId && !projectId) {
-      alert('No order or project linked to this invoice');
+      toast('No order or project linked to this invoice', 'error');
       return;
     }
     if (items.every((item) => !item.description.trim())) {
-      alert('Please add at least one item with a description');
+      toast('Please add at least one item with a description', 'error');
       return;
     }
 
     const customerId = order?.customerId || project?.customerId || '';
     if (!customerId) {
-      alert('No account linked');
+      toast('No account linked', 'error');
       return;
     }
 
@@ -218,7 +219,7 @@ function NewInvoiceForm() {
       router.replace(`/invoices/${invoiceId}`);
     } catch (err) {
       console.error('Failed to create invoice:', err);
-      alert('Failed to create invoice');
+      toast('Failed to create invoice', 'error');
     } finally {
       setSaving(false);
     }
