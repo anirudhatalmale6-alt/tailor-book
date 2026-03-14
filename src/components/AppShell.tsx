@@ -58,8 +58,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (loading) return;
-    // Don't redirect if already on login page or auth callback
-    if (pathname === '/login' || pathname.startsWith('/api/auth')) {
+    // Don't redirect if already on login page, auth callback, or public pages
+    if (pathname === '/login' || pathname.startsWith('/api/auth') || pathname === '/privacy' || pathname === '/delete-account') {
       setChecked(true);
       return;
     }
@@ -100,8 +100,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Login page gets no nav
-  if (pathname === '/login') {
+  // Login, privacy, and delete-account pages get no nav
+  if (pathname === '/login' || pathname === '/privacy' || pathname === '/delete-account') {
     return <>{children}</>;
   }
 
