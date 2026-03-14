@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useOrder, updateOrder } from '@/hooks/useOrders';
+import { useOrder, updateOrder, deleteOrder } from '@/hooks/useOrders';
 import { useOrderPayments, addPayment } from '@/hooks/usePayments';
 import { useOrderInvoice } from '@/hooks/useInvoices';
 import { useCustomerMeasurements, useMeasurementFields } from '@/hooks/useMeasurements';
@@ -199,6 +199,23 @@ export default function OrderDetailPage() {
           )}
         </div>
         <StatusBadge status={order.status} />
+        <button
+          onClick={async () => {
+            if (!confirm('Delete this order? This cannot be undone.')) return;
+            try {
+              await deleteOrder(id);
+              toast('Order deleted', 'success');
+              router.replace('/orders');
+            } catch {
+              toast('Failed to delete order', 'error');
+            }
+          }}
+          className="p-2 text-red-400/60 hover:text-red-400 hover:bg-red-400/10 rounded-lg"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
       </div>
 
       {/* Customer Info */}
